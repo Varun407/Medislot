@@ -4,276 +4,1259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>మెడిస్లాట్ | ఏపీ ప్రభుత్వ ఆసుపత్రి అపాయింట్‌మెంట్లు & ఓపీడీ క్యూ</title>
-    <link rel="stylesheet" href="public/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <title id="pageTitle">మెడిస్లాట్ | ప్రభుత్వ ఆసుపత్రి అపాయింట్‌మెంట్లు</title>
+    <style>
+        :root {
+            --navy: #07366c;
+            --blue: #0875e8;
+            --sky: #eaf5ff;
+            --ink: #102e53;
+            --muted: #5c7290;
+            --line: #dce8f5;
+            --green: #0c9658;
+            --white: #fff
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, 'Segoe UI', 'Nirmala UI', 'Gautami', Arial, sans-serif;
+            color: var(--ink);
+            background: linear-gradient(135deg, #eef7ff, #f8fbff 55%, #e6f3ff)
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit
+        }
+
+        button {
+            cursor: pointer
+        }
+
+        /* Top Bar & Connection */
+        .systag {
+            background: #052a54;
+            color: #d8ecff;
+            font-size: 11px;
+            padding: 5px 4%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .syspulse {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #4eed9d;
+            font-weight: 700
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            background: #00ff73;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 6px #00ff73
+        }
+
+        .top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 4%;
+            gap: 20px;
+            background: #fff
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px
+        }
+
+        .emblem {
+            font-size: 32px;
+            color: var(--navy)
+        }
+
+        .brand h1 {
+            font-size: 19px;
+            margin: 0 0 3px
+        }
+
+        .brand p {
+            margin: 0;
+            font-size: 12px;
+            color: #435c78
+        }
+
+        .topright {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .login,
+        .primary {
+            border: 0;
+            border-radius: 9px;
+            background: var(--blue);
+            color: white;
+            font-weight: 700;
+            padding: 12px 18px;
+            transition: 0.2s
+        }
+
+        .login:hover,
+        .primary:hover {
+            background: #065ec0
+        }
+
+        .nav {
+            background: #06396f;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0;
+            padding: 0 4%;
+            min-height: 50px;
+            flex-wrap: wrap
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 17px 15px;
+            font-size: 13px
+        }
+
+        .nav a:hover,
+        .nav a.active {
+            background: #0c5aa5
+        }
+
+        .navsearch {
+            margin-left: auto;
+            padding: 8px 0
+        }
+
+        .navsearch input {
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 13px;
+            width: 240px
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            min-height: 290px;
+            padding: 42px 5% 34px;
+            background: linear-gradient(90deg, #dceeff 0%, rgba(223, 240, 255, .96) 38%, rgba(223, 240, 255, .55) 64%, rgba(223, 240, 255, .1)), radial-gradient(ellipse at 78% 20%, #9bc8df 0%, #e1f1ff 48%, #d9edff 100%)
+        }
+
+        .hero:after {
+            content: '✚';
+            position: absolute;
+            right: 11%;
+            top: 14px;
+            font-size: 170px;
+            color: #fff;
+            opacity: .23;
+            transform: rotate(12deg);
+            pointer-events: none
+        }
+
+        .hero h2 {
+            font-size: clamp(30px, 3.5vw, 45px);
+            line-height: 1.18;
+            max-width: 560px;
+            margin: 0 0 12px;
+            color: #08366b;
+            letter-spacing: -0.5px
+        }
+
+        .hero p {
+            font-size: 17px;
+            line-height: 1.55;
+            max-width: 580px;
+            color: #365778;
+            margin: 0
+        }
+
+        .perks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-top: 24px;
+            font-size: 12px;
+            font-weight: 600
+        }
+
+        .perk {
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .bubble {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: #d1e9ff;
+            font-size: 18px
+        }
+
+        .quote {
+            position: absolute;
+            right: 5%;
+            bottom: 28px;
+            background: #ffffffdf;
+            border: 1px solid #fff;
+            border-radius: 14px;
+            padding: 16px 20px;
+            max-width: 250px;
+            box-shadow: 0 8px 24px #174a7710;
+            font-size: 14px;
+            line-height: 1.5
+        }
+
+        .quote strong {
+            display: block
+        }
+
+        .container {
+            max-width: 1500px;
+            margin: auto;
+            padding: 0 3% 42px
+        }
+
+        .booking {
+            position: relative;
+            margin-top: -8px;
+            background: #ffffffed;
+            border: 1px solid #d9e9f9;
+            border-radius: 15px;
+            padding: 12px;
+            box-shadow: 0 10px 28px #1c56831a
+        }
+
+        .tabs {
+            display: flex;
+            gap: 6px;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 10px;
+            flex-wrap: wrap
+        }
+
+        .tab {
+            padding: 12px 20px;
+            border: 0;
+            border-radius: 8px;
+            background: #f0f6fd;
+            color: var(--navy);
+            font-weight: 650;
+            transition: 0.15s
+        }
+
+        .tab.selected {
+            background: var(--blue);
+            color: white
+        }
+
+        .fields {
+            display: grid;
+            grid-template-columns: 1.45fr 1fr 1fr .9fr auto;
+            gap: 12px;
+            padding: 13px 3px 2px;
+            align-items: end
+        }
+
+        .field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            margin: 0 0 7px
+        }
+
+        .field select,
+        .field input,
+        .field textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbdced;
+            border-radius: 8px;
+            background: #fff;
+            color: #183552;
+            min-width: 0
+        }
+
+        .primary {
+            white-space: nowrap
+        }
+
+        .sectionhead {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 15px;
+            margin: 28px 0 12px
+        }
+
+        .sectionhead h3 {
+            font-size: 21px;
+            margin: 0 0 5px
+        }
+
+        .sectionhead p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px
+        }
+
+        .textbutton {
+            background: none;
+            border: 0;
+            color: var(--blue);
+            font-weight: 700;
+            cursor: pointer
+        }
+
+        .departments {
+            display: grid;
+            grid-template-columns: repeat(8, minmax(0, 1fr));
+            gap: 10px
+        }
+
+        .dept {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-align: left;
+            background: #fff;
+            border: 1px solid #edf3fa;
+            border-radius: 12px;
+            padding: 12px 10px;
+            min-width: 0;
+            box-shadow: 0 3px 12px #23517b08;
+            transition: 0.2s
+        }
+
+        .dept:hover,
+        .dept.chosen {
+            border-color: #70b3ff;
+            background: #f3f9ff;
+            transform: translateY(-2px)
+        }
+
+        .depticon {
+            width: 38px;
+            height: 38px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: #e0f1ff;
+            font-size: 20px
+        }
+
+        .dept b {
+            display: block;
+            font-size: 11px;
+            line-height: 1.3
+        }
+
+        .dept small {
+            display: block;
+            color: var(--muted);
+            font-size: 10px;
+            margin-top: 4px
+        }
+
+        .doctorslayout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 14px
+        }
+
+        .filters,
+        .doctor {
+            background: #fff;
+            border: 1px solid #e0ebf6;
+            border-radius: 12px
+        }
+
+        .filters {
+            padding: 16px;
+            height: max-content
+        }
+
+        .filters h4 {
+            margin: 0 0 14px;
+            font-size: 16px
+        }
+
+        .filters label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            margin: 14px 0 7px
+        }
+
+        .filters select,
+        .filters input[type=date] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: white
+        }
+
+        .check {
+            font-size: 13px !important;
+            font-weight: 400 !important;
+            display: flex !important;
+            gap: 8px;
+            align-items: center;
+            margin: 10px 0 !important
+        }
+
+        .doctorlist {
+            display: flex;
+            flex-direction: column;
+            gap: 10px
+        }
+
+        .doctor {
+            display: grid;
+            grid-template-columns: 68px minmax(155px, 1fr) minmax(240px, 1.2fr) auto;
+            gap: 13px;
+            align-items: center;
+            padding: 14px;
+            box-shadow: 0 2px 8px #07366c08
+        }
+
+        .avatar {
+            height: 64px;
+            width: 64px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #e3f4ff, #c9e4fb);
+            display: grid;
+            place-items: center;
+            font-size: 30px
+        }
+
+        .docname {
+            font-size: 14px;
+            font-weight: 800;
+            margin-bottom: 5px
+        }
+
+        .credentials,
+        .location,
+        .hours {
+            font-size: 11px;
+            color: var(--muted);
+            line-height: 1.55
+        }
+
+        .speciality {
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 4px;
+            color: var(--blue)
+        }
+
+        .status {
+            display: inline-block;
+            background: #d8f8e6;
+            color: #087746;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            margin-bottom: 7px;
+            font-weight: 700
+        }
+
+        .status.tomorrow {
+            background: #e0efff;
+            color: #12569d
+        }
+
+        .slots-title {
+            font-size: 11px;
+            font-weight: 800;
+            margin-bottom: 7px
+        }
+
+        .slots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px
+        }
+
+        .slot {
+            background: #f4f9ff;
+            border: 1px solid #b9d9ff;
+            color: #0754a2;
+            padding: 5px 7px;
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: 600
+        }
+
+        .slot:hover,
+        .slot.picked {
+            background: #0875e8;
+            color: #fff;
+            border-color: #0875e8
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: stretch
+        }
+
+        .actions .primary {
+            font-size: 11px;
+            padding: 10px 12px
+        }
+
+        .profile {
+            border: 0;
+            background: none;
+            color: var(--blue);
+            font-size: 11px;
+            font-weight: 700
+        }
+
+        .empty {
+            background: #fff;
+            border-radius: 12px;
+            padding: 28px;
+            text-align: center;
+            color: var(--muted);
+            display: none
+        }
+
+        /* OPD Queue Table */
+        .queueboard {
+            background: #fff;
+            border: 1px solid #d9e9f9;
+            border-radius: 14px;
+            padding: 18px;
+            margin-top: 24px;
+            box-shadow: 0 4px 14px #07366c0d
+        }
+
+        .qmetricrow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin: 14px 0
+        }
+
+        .qmetric {
+            background: #f2f7fd;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center
+        }
+
+        .qmetric.active {
+            background: #07366c;
+            color: #fff
+        }
+
+        .qmetric b {
+            font-size: 26px;
+            display: block
+        }
+
+        .qmetric.active b {
+            color: #ffd600
+        }
+
+        .qtable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 10px
+        }
+
+        .qtable th {
+            background: #edf5fd;
+            padding: 10px;
+            text-align: left;
+            color: var(--navy)
+        }
+
+        .qtable td {
+            padding: 10px;
+            border-bottom: 1px solid #eef4fb
+        }
+
+        .tokenpill {
+            background: var(--navy);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 11px
+        }
+
+        /* Services Cards */
+        .servicegrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0
+        }
+
+        .servicecard {
+            background: #fff;
+            border: 1px solid #e2ecf7;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 2px 10px #07366c08
+        }
+
+        .servicecard .sicon {
+            font-size: 28px;
+            margin-bottom: 8px
+        }
+
+        .servicecard h4 {
+            margin: 0 0 6px;
+            font-size: 15px;
+            color: var(--navy)
+        }
+
+        .servicecard p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.5
+        }
+
+        /* Hospital Cards in Directory */
+        .hospcard {
+            background: #fff;
+            border: 1px solid #dce8f5;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px
+        }
+
+        .hospcard b {
+            color: var(--navy);
+            font-size: 15px
+        }
+
+        .bedbadges {
+            display: flex;
+            gap: 8px;
+            margin: 8px 0;
+            font-size: 11px
+        }
+
+        .bedbadges span {
+            background: #eef7ff;
+            color: #07478d;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 700
+        }
+
+        .footer {
+            background: #07366c;
+            color: #eaf4ff;
+            padding: 28px 5%;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 40px
+        }
+
+        .note {
+            font-size: 12px;
+            color: #5f7691;
+            margin: 15px 0 0;
+            background: #eef5fc;
+            padding: 10px 14px;
+            border-radius: 8px
+        }
+
+        .modalback {
+            position: fixed;
+            inset: 0;
+            background: #06244799;
+            backdrop-filter: blur(2px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 100
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            width: min(540px, 100%);
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 70px #001b383d
+        }
+
+        .modal.wide {
+            width: min(680px, 100%)
+        }
+
+        .modal h3 {
+            margin: 0 0 8px
+        }
+
+        .modal p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 0 0 10px
+        }
+
+        .modal .field {
+            margin-top: 13px
+        }
+
+        .modalactions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px
+        }
+
+        .secondary {
+            background: #edf4fb;
+            border: 0;
+            color: var(--navy);
+            padding: 11px 15px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer
+        }
+
+        .lang-select {
+            background: #edf4fb;
+            border: 1px solid #c8dcf0;
+            color: var(--navy);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            outline: none
+        }
+
+        /* Printable OPD Registration Slip */
+        .slip-box {
+            border: 2px dashed #07366c;
+            border-radius: 10px;
+            padding: 18px;
+            background: #fff;
+            color: #07264a
+        }
+
+        .slip-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #07366c;
+            padding-bottom: 10px;
+            margin-bottom: 12px
+        }
+
+        .slip-bigtoken {
+            background: #eaf4ff;
+            border: 2px solid #0875e8;
+            border-radius: 8px;
+            text-align: center;
+            padding: 10px;
+            min-width: 110px
+        }
+
+        .slip-bigtoken .num {
+            font-size: 36px;
+            font-weight: 900;
+            color: #0875e8;
+            line-height: 1
+        }
+
+        .slip-table {
+            width: 100%;
+            font-size: 12px;
+            border-collapse: collapse
+        }
+
+        .slip-table td {
+            padding: 4px 6px;
+            vertical-align: top
+        }
+
+        .slip-table td.lbl {
+            font-weight: 700;
+            color: #4b627d;
+            width: 38%
+        }
+
+        .slip-table td.val {
+            font-weight: 800;
+            color: #07366c
+        }
+
+        @media print {
+            body * {
+                visibility: hidden !important;
+            }
+
+            .slip-box,
+            .slip-box * {
+                visibility: visible !important;
+            }
+
+            .slip-box {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 20px;
+                border: 2px solid #000;
+                box-shadow: none
+            }
+
+            .no-print {
+                display: none !important
+            }
+        }
+
+        @media(max-width:1100px) {
+            .departments {
+                grid-template-columns: repeat(4, 1fr)
+            }
+
+            .fields {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .fields .primary {
+                width: 100%
+            }
+
+            .doctor {
+                grid-template-columns: 60px 1fr 1fr
+            }
+
+            .doctor .actions {
+                grid-column: 2/-1;
+                flex-direction: row;
+                justify-content: flex-start
+            }
+
+            .quote {
+                display: none
+            }
+        }
+
+        @media(max-width:720px) {
+            .top {
+                align-items: flex-start;
+                padding: 13px 4%
+            }
+
+            .topright .locationtop {
+                display: none
+            }
+
+            .brand h1 {
+                font-size: 15px
+            }
+
+            .brand p {
+                font-size: 10px
+            }
+
+            .emblem {
+                font-size: 25px
+            }
+
+            .login {
+                padding: 9px 10px;
+                font-size: 12px
+            }
+
+            .lang-select {
+                padding: 8px 10px;
+                font-size: 12px
+            }
+
+            .nav {
+                padding: 0 3%
+            }
+
+            .nav a {
+                padding: 13px 9px;
+                font-size: 11px
+            }
+
+            .navsearch {
+                width: 100%;
+                margin: 0 0 8px
+            }
+
+            .navsearch input {
+                width: 100%
+            }
+
+            .hero {
+                padding: 32px 5%;
+                min-height: 270px
+            }
+
+            .hero h2 {
+                font-size: 27px
+            }
+
+            .hero p {
+                font-size: 14px
+            }
+
+            .perks {
+                gap: 12px
+            }
+
+            .perk {
+                font-size: 11px
+            }
+
+            .container {
+                padding: 0 3% 28px
+            }
+
+            .fields {
+                grid-template-columns: 1fr
+            }
+
+            .tabs {
+                display: grid;
+                grid-template-columns: 1fr 1fr
+            }
+
+            .tab {
+                padding: 10px 5px;
+                font-size: 12px
+            }
+
+            .departments {
+                grid-template-columns: repeat(2, minmax(0, 1fr))
+            }
+
+            .doctorslayout {
+                grid-template-columns: 1fr
+            }
+
+            .filters {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0 12px
+            }
+
+            .filters h4 {
+                grid-column: 1/-1
+            }
+
+            .filters .check {
+                grid-column: span 1
+            }
+
+            .doctor {
+                grid-template-columns: 52px 1fr;
+                gap: 10px;
+                padding: 12px
+            }
+
+            .avatar {
+                width: 50px;
+                height: 50px;
+                font-size: 24px
+            }
+
+            .doctor .slotarea,
+            .doctor .actions {
+                grid-column: 1/-1
+            }
+
+            .doctor .actions {
+                flex-direction: row
+            }
+
+            .doctor .actions .primary {
+                flex: 1
+            }
+
+            .sectionhead h3 {
+                font-size: 19px
+            }
+
+            .sectionhead p {
+                font-size: 12px
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <!-- Live System Connection Banner -->
-    <div class="sys-banner no-print">
-        <div style="display:flex;align-items:center;gap:10px">
-            <span class="sys-status-badge">
-                <span class="pulse-dot"></span>
-                <span id="sysStatusText" data-i18n="bannerLive">లైవ్ పోర్టల్ కనెక్ట్ చేయబడింది</span>
-            </span>
-            <span data-i18n="bannerGov">ఆంధ్రప్రదేశ్ ప్రభుత్వం · వైద్య, ఆరోగ్య మరియు కుటుంబ సంక్షేమ శాఖ</span>
-        </div>
-        <div style="display:flex;gap:15px;align-items:center">
-            <span data-i18n="emergency108">అత్యవసరం: 108 | ఆరోగ్య సలహా: 104</span>
-        </div>
+    <!-- Live Portal Status Ticker -->
+    <div class="systag no-print">
+        <span class="syspulse"><span class="dot"></span> <span id="sysStatusText">లైవ్ పోర్టల్ కనెక్ట్ చేయబడింది (Live Connected)</span></span>
+        <span>అత్యవసరం: 108 | ఆరోగ్య సలహా: 104 | డా. వైఎస్సార్ ఆరోగ్యశ్రీ</span>
     </div>
 
-    <!-- Main Top Header -->
-    <header class="top-header no-print">
-        <div class="brand-wrapper">
-            <div class="govt-emblem" aria-hidden="true">⚕</div>
-            <div class="brand-text">
-                <h1 data-i18n="brandGov">ఆంధ్రప్రదేశ్ ప్రభుత్వం</h1>
-                <p data-i18n="brandDept">వైద్య, ఆరోగ్య మరియు కుటుంబ సంక్షేమ శాఖ</p>
-                <p style="color:var(--emerald-700);font-weight:700;margin-top:1px" data-i18n="brandTagline">ప్రజల ఆరోగ్యం - ప్రభుత్వ ప్రాధాన్యత</p>
+    <!-- Header with Original Emblem and Logo -->
+    <header class="top no-print">
+        <div class="brand">
+            <div class="emblem" aria-hidden="true">⚕</div>
+            <div>
+                <h1 id="brandGov">ఆంధ్రప్రదేశ్ ప్రభుత్వం</h1>
+                <p id="brandDept">వైద్య, ఆరోగ్య మరియు కుటుంబ సంక్షేమ శాఖ</p>
+                <p id="brandTagline" style="margin-top:3px">ప్రజల ఆరోగ్యం, మా ప్రాధాన్యత</p>
             </div>
         </div>
-
-        <div class="header-actions">
-            <div class="emergency-pill">
-                <span>🚨</span>
-                <span>108 / 104</span>
-            </div>
-            <select id="langSelect" class="lang-dropdown" onchange="changeLanguage(this.value)" aria-label="Select Language">
+        <div class="topright">
+            <span class="locationtop" id="topLocation">📍 భీమవరం, ఆంధ్రప్రదేశ్</span>
+            <select id="langSelect" class="lang-select" onchange="changeLanguage(this.value)"
+                aria-label="భాషను ఎంచుకోండి / Select Language">
                 <option value="te" selected>🌐 తెలుగు</option>
                 <option value="en">🌐 English</option>
             </select>
-            <button class="btn-header-portal" onclick="document.getElementById('patientSection').scrollIntoView({behavior:'smooth'})">
-                <span data-i18n="btnPatientPortal">👤 నా అపాయింట్‌మెంట్లు (రోగి)</span>
-            </button>
-            <button class="btn-header-portal" style="background:var(--navy-900)" onclick="document.getElementById('queueSection').scrollIntoView({behavior:'smooth'})">
-                <span data-i18n="btnDoctorPortal">🩺 డాక్టర్ ఓపీడీ క్యూ</span>
-            </button>
+            <button class="login" id="loginBtn" onclick="openLogin()">♙ రోగి పోర్టల్ (లాగిన్)</button>
         </div>
     </header>
 
-    <!-- Main Navigation Bar -->
-    <nav class="main-nav no-print">
-        <a class="nav-item active" href="#home" data-i18n="navHome">హోమ్</a>
-        <a class="nav-item" href="#bookingSection" data-i18n="navBook">ఓపీడీ బుకింగ్</a>
-        <a class="nav-item" href="#queueSection" data-i18n="navQueue">ఓపీడీ లైవ్ క్యూ</a>
-        <a class="nav-item" href="#patientSection" data-i18n="navPatient">రోగి పోర్టల్</a>
-        <a class="nav-item" href="#hospitalsSection" data-i18n="navHospitals">ఆసుపత్రులు & పడకలు</a>
-        <a class="nav-item" href="#servicesSection" data-i18n="navServices">ఆసుపత్రి సేవలు</a>
-        <a class="nav-item" href="#grievanceSection" data-i18n="navGrievance">ఫిర్యాదుల విభాగం</a>
+    <!-- Navigation -->
+    <nav class="nav no-print">
+        <a class="active" href="#home" id="navHome">హోమ్</a>
+        <a href="#doctors" id="navDoctors">వైద్యులను వెతకండి</a>
+        <a href="#departments" id="navDepts">విభాగాలు</a>
+        <a href="#booking" id="navBooking">అపాయింట్‌మెంట్ బుక్ చేయండి</a>
+        <a href="#queueSection" id="navQueue">ఓపీడీ లైవ్ క్యూ</a>
+        <a href="#services" id="navServices">ఆసుపత్రి సేవలు</a>
+        <a href="#info" id="navInfo">ఆరోగ్య సమాచారం</a>
+        <a href="#contact" id="navContact">సంప్రదించండి</a>
+        <div class="navsearch">
+            <input id="globalSearch" placeholder="వైద్యులు, విభాగాలను వెతకండి..."
+                aria-label="వైద్యులు మరియు విభాగాలను వెతకండి" oninput="globalFilter(this.value)">
+        </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero-section no-print" id="home">
-        <div class="hero-content">
-            <div class="hero-tag">
-                <span>🏛️</span>
-                <span data-i18n="heroTag">ప్రభుత్వ ఆసుపత్రి డిజిటల్ ఓపీడీ సేవలు</span>
-            </div>
-            <h2 class="hero-heading" data-i18n="heroHeading">
-                నాణ్యమైన ఉచిత ప్రభుత్వ వైద్యం,<br>వేచి ఉండే శ్రమ లేకుండా!
-            </h2>
-            <p class="hero-desc" data-i18n="heroDesc">
-                వైద్యుల లభ్యతను తనిఖీ చేయండి, ఓపీడీ స్లాట్లు బుక్ చేసుకోండి, నిజ-సమయ టోకెన్ నంబర్ పొందండి. డా. వైఎస్సార్ ఆరోగ్యశ్రీ & ఆయుష్మాన్ భారత్ అనుసంధాన సేవలు.
-            </p>
-            <div class="hero-badges">
-                <div class="hero-badge-item"><span>👨‍⚕️</span> <span data-i18n="badge1">నమ్మకమైన సూపర్ స్పెషాలిటీ వైద్యులు</span></div>
-                <div class="hero-badge-item"><span>🎫</span> <span data-i18n="badge2">లైవ్ డిజిటల్ టోకెన్ & స్లిప్</span></div>
-                <div class="hero-badge-item"><span>💊</span> <span data-i18n="badge3">ఉచిత పరీక్షలు & ఉచిత మందులు</span></div>
-                <div class="hero-badge-item"><span>🚑</span> <span data-i18n="badge4">24x7 ఎమర్జెన్సీ & ట్రౌమా కేర్</span></div>
-            </div>
+    <!-- Hero with Original Perks and Icons -->
+    <section class="hero no-print" id="home">
+        <h2 id="heroHeading">ఆరోగ్యకరమైన రేపటి కోసం<br>నాణ్యమైన వైద్య సేవలు</h2>
+        <p id="heroDesc">ప్రభుత్వ ఆసుపత్రి వైద్యులతో అపాయింట్‌మెంట్లు బుక్ చేసుకోండి, లభ్యతను తనిఖీ చేయండి మరియు అవసరమైన
+            ఆరోగ్య సేవలను ఆన్‌లైన్‌లో పొందండి.</p>
+        <div class="perks">
+            <div class="perk"><span class="bubble">👥</span><span id="perk1">నమ్మకమైన ప్రభుత్వ ఆసుపత్రులు</span></div>
+            <div class="perk"><span class="bubble">▦</span><span id="perk2">సులభమైన ఆన్‌లైన్ బుకింగ్</span></div>
+            <div class="perk"><span class="bubble">◷</span><span id="perk3">వైద్యుల లభ్యత వివరాలు</span></div>
+            <div class="perk"><span class="bubble">♥</span><span id="perk4">ఉచిత &amp; అందుబాటు వైద్యం</span></div>
+        </div>
+        <div class="quote">
+            <strong id="quoteText">“ప్రతి పౌరుడికి అందుబాటులో, తక్కువ ఖర్చుతో కూడిన బాధ్యతాయుతమైన వైద్యం.”</strong>
+            <small id="quoteAuthor">— ప్రభుత్వ వైద్య సేవలు</small>
         </div>
     </section>
 
-    <!-- Live Stats Bar -->
-    <div class="stats-bar-wrapper no-print">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">🏥</div>
-                <div class="stat-info">
-                    <h4 id="statHospitalsCount">4</h4>
-                    <p data-i18n="statHospitals">ప్రభుత్వ ఆసుపత్రులు</p>
-                </div>
+    <main class="container">
+        <!-- Booking Box with Original Tabs -->
+        <section class="booking no-print" id="booking">
+            <div class="tabs">
+                <button class="tab selected" id="tabBook" onclick="setTab(this,'appointment')">▣ &nbsp;అపాయింట్‌మెంట్ బుక్ చేయండి</button>
+                <button class="tab" id="tabFindDoc" onclick="document.getElementById('doctors').scrollIntoView({behavior:'smooth'})">♙ &nbsp;వైద్యులను వెతకండి</button>
+                <button class="tab" id="tabFindHosp" onclick="openHospitalsDirectory()">▦ &nbsp;ఆసుపత్రులను కనుగొనండి</button>
+                <button class="tab" id="tabCheck" onclick="openCheck()">☑ &nbsp;అపాయింట్‌మెంట్ తనిఖీ / స్లిప్</button>
+                <button class="tab" id="tabLiveQueue" onclick="document.getElementById('queueSection').scrollIntoView({behavior:'smooth'})">◷ &nbsp;ఓపీడీ లైవ్ క్యూ</button>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon">👨‍⚕️</div>
-                <div class="stat-info">
-                    <h4 id="statDoctorsCount">9</h4>
-                    <p data-i18n="statDoctors">అందుబాటులో ఉన్న వైద్యులు</p>
+            <div class="fields">
+                <div class="field">
+                    <label for="hospital" id="lblHospital">ఆసుపత్రిని ఎంచుకోండి</label>
+                    <select id="hospital" onchange="applyFilters()">
+                        <option value="GH_BHIMAVARAM">ప్రభుత్వ జిల్లా ఆసుపత్రి, భీమవరం</option>
+                        <option value="AH_PALAKOLLU">ఏరియా ఆసుపత్రి, పాలకొల్లు</option>
+                        <option value="GGH_ELURU">ప్రభుత్వ సర్వజన ఆసుపత్రి, ఏలూరు</option>
+                        <option value="GGH_KAKINADA">ప్రభుత్వ సర్వజన ఆసుపత్రి, కాకినాడ</option>
+                    </select>
                 </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">🛏️</div>
-                <div class="stat-info">
-                    <h4 id="statBedsCount">397</h4>
-                    <p data-i18n="statBeds">మొత్తం పడకలు అందుబాటులో</p>
+                <div class="field">
+                    <label for="department" id="lblDept">విభాగాన్ని ఎంచుకోండి</label>
+                    <select id="department" onchange="applyFilters()">
+                        <option value="all">అన్ని విభాగాలు</option>
+                        <option value="General Medicine">జనరల్ మెడిసిన్</option>
+                        <option value="Pediatrics">పీడియాట్రిక్స్</option>
+                        <option value="Gynecology">గైనకాలజీ</option>
+                        <option value="Orthopedics">ఆర్థోపెడిక్స్</option>
+                        <option value="Cardiology">కార్డియాలజీ</option>
+                        <option value="Dermatology">డెర్మటాలజీ</option>
+                        <option value="ENT">ఈఎన్‌టీ</option>
+                        <option value="Ophthalmology">ఆప్తాల్మాలజీ</option>
+                        <option value="Pulmonology">పల్మనాలజీ</option>
+                    </select>
                 </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">📋</div>
-                <div class="stat-info">
-                    <h4 id="statConsultationsCount">12</h4>
-                    <p data-i18n="statConsultations">నేటి ఓపీడీ రిజిస్ట్రేషన్లు</p>
+                <div class="field">
+                    <label for="doctorChoice" id="lblDoc">వైద్యుడిని ఎంచుకోండి (ఐచ్ఛికం)</label>
+                    <select id="doctorChoice" onchange="applyFilters()">
+                        <option value="all">ఏ వైద్యుడైనా</option>
+                        <option value="Dr. K. Ramesh">డా. కె. రమేష్</option>
+                        <option value="Dr. S. Anitha">డా. ఎస్. అనిత</option>
+                        <option value="Dr. M. Srinivas">డా. ఎం. శ్రీనివాస్</option>
+                        <option value="Dr. P. Lakshmi">డా. పి. లక్ష్మి</option>
+                    </select>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Container -->
-    <main class="page-container">
-
-        <!-- Booking Section -->
-        <section id="bookingSection" class="booking-control-box no-print">
-            <div class="booking-tabs">
-                <button class="tab-btn active" data-i18n="tabBook">▣ ఓపీడీ బుక్ చేయండి</button>
-                <button class="tab-btn" onclick="document.getElementById('queueSection').scrollIntoView({behavior:'smooth'})" data-i18n="tabQueue">◷ లైవ్ క్యూ బోర్డ్</button>
-                <button class="tab-btn" onclick="document.getElementById('patientSection').scrollIntoView({behavior:'smooth'})" data-i18n="tabCheck">☑ స్లిప్ తనిఖీ / డౌన్‌లోడ్</button>
-            </div>
-
-            <div class="search-fields-grid">
-                <div class="form-group">
-                    <label for="hospitalSelect" data-i18n="lblHospital">ఆసుపత్రిని ఎంచుకోండి</label>
-                    <select id="hospitalSelect" class="form-control" onchange="applyFilters()"></select>
+                <div class="field">
+                    <label for="bookingDate" id="lblDate">తేదీని ఎంచుకోండి</label>
+                    <input id="bookingDate" type="date" onchange="syncDate();applyFilters()">
                 </div>
-                <div class="form-group">
-                    <label for="departmentSelect" data-i18n="lblDept">వైద్య విభాగాన్ని ఎంచుకోండి</label>
-                    <select id="departmentSelect" class="form-control" onchange="applyFilters()"></select>
-                </div>
-                <div class="form-group">
-                    <label for="doctorSelect" data-i18n="lblDoctor">వైద్యుడిని ఎంచుకోండి</label>
-                    <select id="doctorSelect" class="form-control" onchange="applyFilters()"></select>
-                </div>
-                <div class="form-group">
-                    <label for="bookingDate" data-i18n="lblDate">తేదీని ఎంచుకోండి</label>
-                    <input type="date" id="bookingDate" class="form-control" onchange="applyFilters()">
-                </div>
-                <button class="btn-primary" onclick="applyFilters()" data-i18n="btnSearch">
-                    ⌕ లభ్యతను శోధించండి
-                </button>
+                <button class="primary" id="btnSearchAvailability" onclick="searchAvailability()">⌕ &nbsp;లభ్యతను శోధించండి</button>
             </div>
         </section>
 
         <!-- Departments Grid -->
-        <section class="no-print" style="margin-bottom:30px">
-            <div class="section-header">
+        <section id="departments" class="no-print">
+            <div class="sectionhead">
                 <div>
-                    <h3 data-i18n="deptsHeading">ప్రముఖ వైద్య విభాగాలు</h3>
+                    <h3 id="deptsHeading">ప్రముఖ విభాగాలు</h3>
                 </div>
-                <button class="btn-text" onclick="onSelectDepartment('all')">అన్నీ చూడండి →</button>
+                <button class="textbutton" id="btnViewAllDepts"
+                    onclick="document.getElementById('department').value='all';document.getElementById('specialtyFilter').value='all';applyFilters()">అన్నీ చూడండి →</button>
             </div>
-            <div class="departments-grid" id="departmentsGrid"></div>
+            <div class="departments" id="deptGrid"></div>
         </section>
 
-        <!-- Doctors List & Sidebar Filters -->
-        <section id="doctorsSection" class="no-print" style="margin-bottom:45px">
-            <div class="section-header">
+        <!-- Doctors List -->
+        <section id="doctors" class="no-print">
+            <div class="sectionhead">
                 <div>
-                    <h3 data-i18n="docsHeading">అందుబాటులో ఉన్న ప్రభుత్వ వైద్యులు</h3>
-                    <p data-i18n="docsSub">మీకు కావలసిన వైద్యుడిని ఎంచుకుని నేరుగా ఉచిత ఓపీడీ టోకెన్ పొందండి</p>
+                    <h3 id="docsHeading">అందుబాటులో ఉన్న వైద్యులు</h3>
+                    <p id="docsSubheading">ప్రభుత్వ ఆసుపత్రి వైద్యులను కనుగొని అపాయింట్‌మెంట్లు బుక్ చేసుకోండి</p>
                 </div>
+                <button class="secondary" id="btnMobileFilter"
+                    onclick="document.getElementById('filters').scrollIntoView({behavior:'smooth',block:'center'})">⚑ ఫిల్టర్లు</button>
             </div>
-
-            <div class="doctors-layout">
-                <!-- Filters Sidebar -->
-                <aside class="filter-sidebar">
-                    <div class="filter-header">
-                        <h4 data-i18n="filterHeading">ఫిల్టర్లు</h4>
-                        <button class="btn-text" onclick="clearFilters()" data-i18n="btnClearFilter">క్లియర్ చేయండి</button>
+            <div class="doctorslayout">
+                <aside class="filters" id="filters">
+                    <h4><span id="filtersHeading">ఫిల్టర్లు</span> <button class="textbutton" id="btnClearFilters"
+                            style="float:right;font-size:11px" onclick="clearFilters()">అన్నీ క్లియర్ చేయండి</button>
+                    </h4>
+                    <div>
+                        <label for="specialtyFilter" id="lblSpecFilter">విభాగం / ప్రత్యేకత</label>
+                        <select id="specialtyFilter" onchange="applyFilters()">
+                            <option value="all">అన్ని విభాగాలు</option>
+                            <option value="General Medicine">జనరల్ మెడిసిన్</option>
+                            <option value="Pediatrics">పీడియాట్రిక్స్</option>
+                            <option value="Gynecology">గైనకాలజీ</option>
+                            <option value="Orthopedics">ఆర్థోపెడిక్స్</option>
+                            <option value="Cardiology">కార్డియాలజీ</option>
+                            <option value="Dermatology">డెర్మటాలజీ</option>
+                            <option value="ENT">ఈఎన్‌టీ</option>
+                            <option value="Ophthalmology">ఆప్తాల్మాలజీ</option>
+                            <option value="Pulmonology">పల్మనాలజీ</option>
+                        </select>
                     </div>
-
-                    <div class="filter-group">
-                        <label for="globalSearch">శోధించండి (Search)</label>
-                        <input type="text" id="globalSearch" class="form-control" placeholder="డాక్టర్ పేరు, విభాగం..." oninput="applyFilters()">
+                    <div>
+                        <label for="dateFilter" id="lblDateFilter">అందుబాటులో ఉన్న తేదీ</label>
+                        <input type="date" id="dateFilter" onchange="syncDate();applyFilters()">
                     </div>
-
-                    <div class="filter-group">
-                        <label for="filterDepartmentSelect" data-i18n="lblDept">విభాగం</label>
-                        <select id="filterDepartmentSelect" class="form-control" onchange="applyFilters()"></select>
+                    <div style="grid-column:1/-1">
+                        <label id="lblTimePref">సమయం ప్రాధాన్యత</label>
+                        <label class="check"><input type="checkbox" id="morning" onchange="applyFilters()"> <span
+                                id="lblMorning">ఉదయం (8 AM – 12 PM)</span></label>
+                        <label class="check"><input type="checkbox" id="afternoon" onchange="applyFilters()"> <span
+                                id="lblAfternoon">మధ్యాహ్నం (12 PM – 4 PM)</span></label>
                     </div>
-
-                    <div class="filter-group">
-                        <label for="filterDate" data-i18n="lblDate">తేదీ</label>
-                        <input type="date" id="filterDate" class="form-control" onchange="document.getElementById('bookingDate').value=this.value;applyFilters()">
-                    </div>
-
-                    <div class="filter-group">
-                        <label data-i18n="lblTimePref">సమయ ప్రాధాన్యత</label>
-                        <label class="check-item">
-                            <input type="checkbox" id="chkMorning" onchange="applyFilters()">
-                            <span data-i18n="timeMorning">ఉదయం (8 AM – 12 PM)</span>
-                        </label>
-                        <label class="check-item">
-                            <input type="checkbox" id="chkAfternoon" onchange="applyFilters()">
-                            <span data-i18n="timeAfternoon">మధ్యాహ్నం (12 PM – 4 PM)</span>
-                        </label>
-                    </div>
+                    <p class="note" id="filterNote" style="grid-column:1/-1">నిజ-సమయ వైద్యుల రోస్టర్ మరియు ఓపీడీ కౌంటర్ లభ్యత వివరాలు.</p>
                 </aside>
-
-                <!-- Doctors Cards List -->
                 <div>
-                    <div class="doctors-list" id="doctorsList"></div>
+                    <div class="doctorlist" id="doctorList"></div>
+                    <div class="empty" id="empty">ఈ ఫిల్టర్లకు సరిపోలే వైద్యులు లేరు. దయచేసి వేరే విభాగం లేదా తేదీని ఎంచుకోండి.</div>
                 </div>
             </div>
         </section>
 
-        <!-- Doctor OPD Queue Portal Section -->
-        <section id="queueSection" class="queue-board no-print">
-            <div class="queue-header-bar">
+        <!-- Doctor & Staff Live OPD Queue Board -->
+        <section id="queueSection" class="queueboard no-print">
+            <div class="sectionhead" style="margin-top:0">
                 <div>
-                    <h3 data-i18n="queueHeading">డాక్టర్ & హాస్పిటల్ స్టాఫ్ ఓపీడీ క్యూ బోర్డ్</h3>
-                    <p data-i18n="queueSub" style="font-size:12.5px;color:var(--ink-500);margin-top:2px">
-                        రోజువారీ రోగుల క్యూ నిర్వహణ, తదుపరి టోకెన్ పిలుపు మరియు స్టేటస్ అప్‌డేట్
-                    </p>
+                    <h3 id="queueTitle">🩺 డాక్టర్ & హాస్పిటల్ స్టాఫ్ ఓపీడీ లైవ్ క్యూ</h3>
+                    <p id="queueSub">లైవ్ టోకెన్ నిర్వహణ మరియు తదుపరి రోగి పిలుపు వేదిక</p>
                 </div>
-                <div class="queue-doc-selector">
-                    <label for="queueDoctorSelect" style="font-size:12.5px;font-weight:700">డాక్టర్:</label>
-                    <select id="queueDoctorSelect" class="form-control" style="width:240px"></select>
-                </div>
-            </div>
-
-            <!-- Metrics -->
-            <div class="queue-metrics">
-                <div class="metric-box active-token">
-                    <div class="metric-num" id="metricServingToken">#02</div>
-                    <div class="metric-label" data-i18n="metricCurrentToken">ప్రస్తుతం పిలుస్తున్న టోకెన్</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-num" id="metricWaitingCount">3</div>
-                    <div class="metric-label" data-i18n="metricWaiting">వేచి ఉన్న రోగులు</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-num" id="metricInConsultCount">1</div>
-                    <div class="metric-label" data-i18n="metricInConsult">కన్సల్టేషన్‌లో ఉన్నవారు</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-num" id="metricDoneCount">1</div>
-                    <div class="metric-label" data-i18n="metricDone">పూర్తయిన ఓపీడీలు</div>
+                <div style="display:flex;align-items:center;gap:8px">
+                    <label for="qDocSelect" style="font-size:12px;font-weight:700">డాక్టర్:</label>
+                    <select id="qDocSelect" onchange="renderQueueBoard()" style="padding:8px 12px;border:1px solid var(--line);border-radius:8px">
+                        <option value="Dr. K. Ramesh">డా. కె. రమేష్ (General Medicine)</option>
+                        <option value="Dr. S. Anitha">డా. ఎస్. అనిత (Gynecology)</option>
+                        <option value="Dr. M. Srinivas">డా. ఎం. శ్రీనివాస్ (Orthopedics)</option>
+                        <option value="Dr. P. Lakshmi">డా. పి. లక్ష్మి (Pediatrics)</option>
+                    </select>
                 </div>
             </div>
 
-            <div style="display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap">
-                <button class="btn-success" onclick="callNextToken()" data-i18n="btnCallNext">
-                    📢 తదుపరి రోగి టోకెన్ పిలవండి
-                </button>
-                <button class="btn-secondary" onclick="openWalkinModal()" data-i18n="btnWalkin">
-                    ➕ కౌంటర్ వాక్-ఇన్ టోకెన్ జారీ
-                </button>
+            <div class="qmetricrow">
+                <div class="qmetric active">
+                    <small id="lblNowServing">ప్రస్తుతం పిలుస్తున్న టోకెన్</small>
+                    <b id="qCurrentToken">#02</b>
+                </div>
+                <div class="qmetric">
+                    <small id="lblWaiting">వేచి ఉన్న రోగులు</small>
+                    <b id="qWaitingCount">3</b>
+                </div>
+                <div class="qmetric">
+                    <small id="lblInConsult">కన్సల్టేషన్‌లో ఉన్నవారు</small>
+                    <b id="qInConsultCount">1</b>
+                </div>
+                <div class="qmetric">
+                    <small id="lblDone">పూర్తయిన ఓపీడీలు</small>
+                    <b id="qDoneCount">1</b>
+                </div>
             </div>
 
-            <!-- Queue Patient Table -->
+            <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+                <button class="primary" onclick="callNextTokenAction()" id="btnCallNext">📢 &nbsp;తదుపరి రోగి టోకెన్ పిలవండి</button>
+                <button class="secondary" onclick="openWalkinModal()" id="btnIssueWalkin">➕ &nbsp;కౌంటర్ వాక్-ఇన్ టోకెన్ జారీ</button>
+            </div>
+
             <div style="overflow-x:auto">
-                <table class="queue-table">
+                <table class="qtable">
                     <thead>
                         <tr>
-                            <th data-i18n="colToken">టోకెన్ #</th>
-                            <th data-i18n="colPatient">రోగి పేరు / వివరాలు</th>
-                            <th data-i18n="colSlot">సమయం</th>
-                            <th data-i18n="colSymptoms">సమస్య / లక్షణాలు</th>
-                            <th data-i18n="colStatus">స్టేటస్</th>
-                            <th data-i18n="colAction">చర్యలు</th>
+                            <th>టోకెన్ #</th>
+                            <th>రోగి వివరాలు</th>
+                            <th>సమయం</th>
+                            <th>సమస్య / లక్షణాలు</th>
+                            <th>స్టేటస్</th>
+                            <th>చర్యలు</th>
                         </tr>
                     </thead>
                     <tbody id="queueTableBody"></tbody>
@@ -281,285 +1264,1302 @@
             </div>
         </section>
 
-        <!-- Patient Portal Section (No OTP Required!) -->
-        <section id="patientSection" class="patient-portal-card no-print">
-            <div class="section-header">
+        <!-- Hospital Services Section -->
+        <section id="services" class="no-print">
+            <div class="sectionhead">
                 <div>
-                    <h3 data-i18n="patientHeading">రోగి పోర్టల్ (నా అపాయింట్‌మెంట్లు)</h3>
-                    <p data-i18n="patientSub">ఎటువంటి ఓటీపీ అవసరం లేకుండా మీ మొబైల్ నంబర్‌తో మీ స్లిప్‌లు మరియు స్టేటస్‌ను చూడండి</p>
+                    <h3 id="servicesHeading">ఆసుపత్రి సేవలు & సంక్షేమ పథకాలు</h3>
+                    <p id="servicesSub">ప్రభుత్వ ఆసుపత్రులలో ఉచితంగా అందించబడుతున్న సమగ్ర వైద్య సేవలు</p>
                 </div>
             </div>
-
-            <div class="patient-login-bar">
-                <input type="tel" id="patientPortalMobile" class="form-control" placeholder="10 అంకెల మొబైల్ నంబర్ (e.g. 9848012345)" maxlength="10">
-                <button class="btn-primary" onclick="lookupPatientAppointments()" data-i18n="btnViewAppointments">
-                    నా అపాయింట్‌మెంట్లు చూడండి →
-                </button>
-            </div>
-
-            <div id="patientAppointmentsList">
-                <div class="empty-state">
-                    <span style="font-size:32px">📱</span>
-                    <p style="margin-top:8px">మీ మొబైల్ నంబర్‌ను నమోదు చేసి మీ బుక్ చేసిన అపాయింట్‌మెంట్లు మరియు స్లిప్‌లను పొందండి.</p>
+            <div class="servicegrid">
+                <div class="servicecard">
+                    <div class="sicon">🚑</div>
+                    <h4 id="s1Title">24x7 ఎమర్జెన్సీ & ట్రౌమా కేర్</h4>
+                    <p id="s1Desc">108 ఉచిత అత్యవసర అంబులెన్స్ సేవలు, నిరంతర క్యాజువాలిటీ వైద్యులు మరియు ఐసీయూ సదుపాయం.</p>
+                </div>
+                <div class="servicecard">
+                    <div class="sicon">🛡️</div>
+                    <h4 id="s2Title">డా. వైఎస్సార్ ఆరోగ్యశ్రీ</h4>
+                    <p id="s2Desc">లక్షలాది రూపాయల విలువైన శస్త్రచికిత్సలు మరియు చికిత్సలు ప్రభుత్వ ఆసుపత్రులలో సంపూర్ణ ఉచితం.</p>
+                </div>
+                <div class="servicecard">
+                    <div class="sicon">🔬</div>
+                    <h4 id="s3Title">ఉచిత డయాగ్నస్టిక్స్ & ల్యాబ్స్</h4>
+                    <p id="s3Desc">డిజిటల్ ఎక్స్-రే, అల్ట్రాసౌండ్, రక్త పరీక్షలు, ఈసీజీ మరియు సీటీ స్కాన్ పరీక్షలు ఉచితంగా చేయబడును.</p>
+                </div>
+                <div class="servicecard">
+                    <div class="sicon">💊</div>
+                    <h4 id="s4Title">ఆరోగ్య ఔషధి (ఉచిత మందులు)</h4>
+                    <p id="s4Desc">ఆసుపత్రి ఫార్మసీ కౌంటర్ల వద్ద అన్ని ప్రాథమిక మరియు ప్రాణరక్షక మందులు ఉచితంగా పంపిణీ.</p>
                 </div>
             </div>
         </section>
 
-        <!-- Hospitals Directory & Live Beds -->
-        <section id="hospitalsSection" class="no-print" style="margin-bottom:45px">
-            <div class="section-header">
+        <!-- Citizen Grievance & Contact Section -->
+        <section id="contact" class="no-print">
+            <div class="sectionhead">
                 <div>
-                    <h3 data-i18n="hospitalsHeading">ప్రభుత్వ ఆసుపత్రుల జాబితా & పడకల లభ్యత</h3>
-                    <p data-i18n="hospitalsSub">పశ్చిమ గోదావరి మరియు పరిసర జిల్లాల్లోని ప్రభుత్వ వైద్యశాలల వివరాలు</p>
+                    <h3 id="contactHeading">పౌర సమస్యలు & సంప్రదించండి</h3>
+                    <p id="contactSub">ఆసుపత్రి సేవలపై మీ అభిప్రాయాలు లేదా సమస్యలను నమోదు చేయండి</p>
                 </div>
             </div>
-            <div class="hospitals-grid" id="hospitalsGrid"></div>
-        </section>
-
-        <!-- Hospital Services & Schemes -->
-        <section id="servicesSection" class="no-print" style="margin-bottom:45px">
-            <div class="section-header">
-                <div>
-                    <h3 data-i18n="servicesHeading">ఆసుపత్రి సేవలు & సంక్షేమ పథకాలు</h3>
-                </div>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:16px">
-                <div style="background:white;padding:20px;border-radius:12px;border:1px solid var(--border-color);box-shadow:var(--shadow-sm)">
-                    <div style="font-size:30px;margin-bottom:10px">🚑</div>
-                    <h4 style="font-size:16px;font-weight:800;color:var(--navy-900);margin-bottom:6px" data-i18n="service1Title">24x7 ఎమర్జెన్సీ & ట్రౌమా కేర్</h4>
-                    <p style="font-size:12.5px;color:var(--ink-500)" data-i18n="service1Desc">108 అత్యవసర అంబులెన్స్, నిరంతర క్యాజువాలిటీ వైద్య సేవలు మరియు ఐసీయూ సదుపాయం.</p>
-                </div>
-                <div style="background:white;padding:20px;border-radius:12px;border:1px solid var(--border-color);box-shadow:var(--shadow-sm)">
-                    <div style="font-size:30px;margin-bottom:10px">🛡️</div>
-                    <h4 style="font-size:16px;font-weight:800;color:var(--navy-900);margin-bottom:6px" data-i18n="service2Title">డా. వైఎస్సార్ ఆరోగ్యశ్రీ ఉచిత చికిత్స</h4>
-                    <p style="font-size:12.5px;color:var(--ink-500)" data-i18n="service2Desc">లక్షలాది రూపాయల విలువైన శస్త్రచికిత్సలు మరియు చికిత్సలు ప్రభుత్వ ఆసుపత్రులలో పూర్తి ఉచితం.</p>
-                </div>
-                <div style="background:white;padding:20px;border-radius:12px;border:1px solid var(--border-color);box-shadow:var(--shadow-sm)">
-                    <div style="font-size:30px;margin-bottom:10px">🔬</div>
-                    <h4 style="font-size:16px;font-weight:800;color:var(--navy-900);margin-bottom:6px" data-i18n="service3Title">ఉచిత డయాగ్నస్టిక్స్ & ల్యాబ్స్</h4>
-                    <p style="font-size:12.5px;color:var(--ink-500)" data-i18n="service3Desc">డిజిటల్ ఎక్స్-రే, అల్ట్రాసౌండ్, రక్త పరీక్షలు, ఈసీజీ మరియు సీటీ స్కాన్ పరీక్షలు ఉచితం.</p>
-                </div>
-                <div style="background:white;padding:20px;border-radius:12px;border:1px solid var(--border-color);box-shadow:var(--shadow-sm)">
-                    <div style="font-size:30px;margin-bottom:10px">💊</div>
-                    <h4 style="font-size:16px;font-weight:800;color:var(--navy-900);margin-bottom:6px" data-i18n="service4Title">ఆరోగ్య ఔషధి (ఉచిత మందులు)</h4>
-                    <p style="font-size:12.5px;color:var(--ink-500)" data-i18n="service4Desc">ప్రభుత్వ ఆసుపత్రి ఫార్మసీ కౌంటర్ల వద్ద అన్ని ప్రాథమిక మరియు ప్రాణరక్షక మందులు ఉచితంగా పంపిణీ.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Citizen Grievance Portal -->
-        <section id="grievanceSection" class="no-print" style="margin-bottom:30px">
-            <div class="booking-control-box">
-                <div class="section-header">
-                    <div>
-                        <h3 data-i18n="grievanceHeading">పౌర సమస్యలు & స్పందన ఫిర్యాదుల విభాగం</h3>
-                        <p data-i18n="grievanceSub">ఆసుపత్రి సేవలపై మీ అభిప్రాయాలు లేదా ఫిర్యాదులను నమోదు చేసి ట్రాకింగ్ ఐడీని పొందండి</p>
-                    </div>
-                </div>
-
-                <form id="grievanceForm" onsubmit="submitGrievanceForm(event)">
-                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:12px">
-                        <div class="form-group">
+            <div style="background:#fff;border:1px solid #d9e9f9;border-radius:14px;padding:20px;box-shadow:0 3px 12px #07366c0a">
+                <form onsubmit="submitGrievance(event)">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:12px;margin-bottom:12px">
+                        <div class="field">
                             <label for="grvName">మీ పేరు *</label>
-                            <input type="text" id="grvName" class="form-control" required placeholder="పూర్తి పేరు">
+                            <input id="grvName" required placeholder="పూర్తి పేరును నమోదు చేయండి">
                         </div>
-                        <div class="form-group">
+                        <div class="field">
                             <label for="grvPhone">మొబైల్ నంబర్ *</label>
-                            <input type="tel" id="grvPhone" class="form-control" required placeholder="10 అంకెల మొబైల్ నంబర్" maxlength="10">
+                            <input id="grvPhone" required placeholder="10 అంకెల మొబైల్ నంబర్" maxlength="10">
                         </div>
-                        <div class="form-group">
-                            <label for="grvHospital">ఆసుపత్రి</label>
-                            <select id="grvHospital" class="form-control">
-                                <option value="Government Hospital, Bhimavaram">ప్రభుత్వ జిల్లా ఆసుపత్రి, భీమవరం</option>
-                                <option value="Area Hospital, Palakollu">ఏరియా ఆసుపత్రి, పాలకొల్లు</option>
-                                <option value="GGH Eluru">ప్రభుత్వ సర్వజన ఆసుపత్రి, ఏలూరు</option>
-                                <option value="GGH Kakinada">ప్రభుత్వ సర్వజన ఆసుపత్రి, కాకినాడ</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="grvCategory">వర్గం</label>
-                            <select id="grvCategory" class="form-control">
-                                <option value="OPD Queues">ఓపీడీ క్యూ / వేచి ఉండే సమయం</option>
-                                <option value="Medicine Availability">మందుల లభ్యత</option>
-                                <option value="Sanitation & Cleanliness">పారిశుధ్యం & పరిశుభ్రత</option>
-                                <option value="Staff Assistance">సిబ్బంది సహాయం</option>
-                                <option value="Doctor Availability">వైద్యుల లభ్యత</option>
+                        <div class="field">
+                            <label for="grvHosp">ఆసుపత్రి</label>
+                            <select id="grvHosp">
+                                <option>ప్రభుత్వ జిల్లా ఆసుపత్రి, భీమవరం</option>
+                                <option>ఏరియా ఆసుపత్రి, పాలకొల్లు</option>
+                                <option>ప్రభుత్వ సర్వజన ఆసుపత్రి, ఏలూరు</option>
+                                <option>ప్రభుత్వ సర్వజన ఆసుపత్రి, కాకినాడ</option>
                             </select>
                         </div>
                     </div>
-                    <div class="form-group" style="margin-bottom:16px">
-                        <label for="grvMessage">ఫిర్యాదు / అభిప్రాయం వివరాలు *</label>
-                        <textarea id="grvMessage" class="form-control" rows="3" required placeholder="మీ సమస్యను క్లుప్తంగా వివరించండి..."></textarea>
+                    <div class="field" style="margin-bottom:14px">
+                        <label for="grvMsg">సందేశం / సమస్య వివరాలు *</label>
+                        <textarea id="grvMsg" rows="3" required placeholder="మీ సమస్య లేదా అభిప్రాయాన్ని రాయండి..." style="width:100%;padding:10px;border:1px solid #cbdced;border-radius:8px"></textarea>
                     </div>
-                    <button type="submit" class="btn-primary" data-i18n="btnSubmitGrievance">ఫిర్యాదు సమర్పించండి</button>
+                    <button type="submit" class="primary" id="btnSubmitGrv">ఫిర్యాదు సమర్పించండి →</button>
                 </form>
             </div>
         </section>
-
     </main>
 
-    <!-- Main Footer -->
-    <footer class="main-footer no-print">
-        <div class="footer-top">
-            <div>
-                <h4 style="font-size:16px;font-weight:800;margin-bottom:6px">ఆంధ్రప్రదేశ్ ప్రభుత్వ డిజిటల్ ఓపీడీ పోర్టల్</h4>
-                <p style="color:#adcce8;line-height:1.6">వైద్య, ఆరోగ్య మరియు కుటుంబ సంక్షేమ శాఖ ద్వారా ప్రజల సౌలభ్యం కోసం అందించబడుతున్న అధికారిక ఆన్‌లైన్ ఓపీడీ స్లాట్ & టోకెన్ రిజిస్ట్రేషన్ వేదిక.</p>
-            </div>
-            <div>
-                <h5 style="font-size:14px;font-weight:700;margin-bottom:8px">అత్యవసర హెల్ప్‌లైన్లు</h5>
-                <p style="color:#adcce8">🚨 ఉచిత అంబులెన్స్ సేవలు: <b>108</b></p>
-                <p style="color:#adcce8">🩺 ఆరోగ్య సలహాలు & సమాచారం: <b>104</b></p>
-                <p style="color:#adcce8">👶 జననీ శిశు సురక్ష యోజన: <b>102</b></p>
-                <p style="color:#adcce8">🛡️ డా. వైఎస్సార్ ఆరోగ్యశ్రీ టోల్‌ఫ్రీ: <b>104</b></p>
-            </div>
-            <div>
-                <h5 style="font-size:14px;font-weight:700;margin-bottom:8px">ఆసుపత్రి పనివేళలు</h5>
-                <p style="color:#adcce8">సాధారణ ఓపీడీ: సోమ - శని (8:00 AM – 4:00 PM)</p>
-                <p style="color:#adcce8">క్యాజువాలిటీ & ఎమర్జెన్సీ: 24 గంటలు / 365 రోజులు</p>
-                <p style="color:#adcce8">ల్యాబ్ & రక్తనిధి: 24/7 అందుబాటులో</p>
-            </div>
+    <!-- Footer -->
+    <footer class="footer no-print">
+        <div id="footerBrand">
+            <strong>ఆంధ్రప్రదేశ్ ప్రభుత్వ డిజిటల్ ఓపీడీ పోర్టల్</strong><br>
+            వైద్య, ఆరోగ్య మరియు కుటుంబ సంక్షేమ శాఖ ద్వారా ప్రజల ఆరోగ్యం కోసం
         </div>
-        <div class="footer-bottom">
-            <span>© 2026 ఆంధ్రప్రదేశ్ ప్రభుత్వం · వైద్య & కుటుంబ సంక్షేమ శాఖ. సర్వ హక్కులు ప్రత్యేకించబడ్డాయి.</span>
-            <span>AP MediSlot Digital OPD System v2.0</span>
+        <div id="info">
+            అత్యవసర పరిస్థితా? భారతదేశంలో అత్యవసర సేవల కోసం <strong>108 / 112</strong> కు కాల్ చేయండి.<br>
+            ఆరోగ్య సలహాల కోసం <strong>104</strong> హెల్ప్‌లైన్ సంప్రదించండి.
         </div>
+        <div id="footerCopy">© 2026 · AP Health Services · MediSlot Portal</div>
     </footer>
 
     <!-- ========================================================
-         MODALS
+         MODALS (All functional and matching the same design!)
          ======================================================== -->
 
     <!-- Booking Modal -->
-    <div class="modal-overlay" id="bookingModal" role="dialog" aria-modal="true">
-        <div class="modal-card">
-            <div class="modal-header">
-                <div>
-                    <h3 data-i18n="modalBookTitle">ఓపీడీ అపాయింట్‌మెంట్ వివరాలు నమోదు చేయండి</h3>
-                    <p style="font-size:12px;color:var(--blue-600);margin-top:2px">
-                        <span id="modalDocName"></span> · <span id="modalHospName"></span> · <b id="modalSlotText"></b>
-                    </p>
-                </div>
-                <button class="modal-close-btn" onclick="closeBookingModal()">✕</button>
+    <div class="modalback" id="modalback" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal">
+            <h3 id="modalTitle">అపాయింట్‌మెంట్ బుక్ చేయండి</h3>
+            <p id="modalDescription">అధికారిక ఓపీడీ స్లాట్‌ను రిజర్వ్ చేయడానికి మీ వివరాలను నమోదు చేయండి.</p>
+            <div class="field">
+                <label for="patientName" id="lblPatientName">రోగి పేరు *</label>
+                <input id="patientName" placeholder="రోగి పేరును నమోదు చేయండి" autocomplete="name" required>
             </div>
-
-            <div>
-                <div class="form-group" style="margin-bottom:12px">
-                    <label for="patientName" data-i18n="lblFullName">రోగి పూర్తి పేరు *</label>
-                    <input type="text" id="patientName" class="form-control" placeholder="రోగి పేరు నమోదు చేయండి" required>
-                </div>
-
-                <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:12px;margin-bottom:12px">
-                    <div class="form-group">
-                        <label for="patientPhone" data-i18n="lblPhone">మొబైల్ నంబర్ (10 అంకెలు) *</label>
-                        <input type="tel" id="patientPhone" class="form-control" placeholder="9848012345" maxlength="10" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="patientAge" data-i18n="lblAge">వయస్సు (సంవత్సరాలు) *</label>
-                        <input type="number" id="patientAge" class="form-control" placeholder="వయస్సు" min="0" max="120" required>
-                    </div>
-                </div>
-
-                <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:12px;margin-bottom:12px">
-                    <div class="form-group">
-                        <label for="patientGender" data-i18n="lblGender">లింగం</label>
-                        <select id="patientGender" class="form-control">
-                            <option value="Male">పురుషుడు (Male)</option>
-                            <option value="Female">స్త్రీ (Female)</option>
-                            <option value="Other">ఇతర (Other)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="patientAbha" data-i18n="lblAbha">ఆధార్ / ఆభా (ABHA) నంబర్</label>
-                        <input type="text" id="patientAbha" class="form-control" placeholder="ఐచ్ఛికం (Optional)">
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom:18px">
-                    <label for="patientSymptoms" data-i18n="lblSymptoms">ప్రధాన సమస్య / లక్షణాలు</label>
-                    <input type="text" id="patientSymptoms" class="form-control" placeholder="ఉదా: జ్వరం, దగ్గు, కీళ్ల నొప్పులు...">
-                </div>
-
-                <div class="modal-actions">
-                    <button class="btn-secondary" onclick="closeBookingModal()" data-i18n="btnCancel">రద్దు</button>
-                    <button class="btn-primary" onclick="confirmBooking()" data-i18n="btnConfirmBooking">బుకింగ్ నిర్ధారించండి & టోకెన్ పొందండి</button>
-                </div>
+            <div class="field">
+                <label for="patientPhone" id="lblPatientPhone">మొబైల్ నంబర్ *</label>
+                <input id="patientPhone" placeholder="10 అంకెల మొబైల్ నంబర్" inputmode="numeric" maxlength="10" required>
             </div>
-        </div>
-    </div>
-
-    <!-- Official Printable OPD Token Slip Modal -->
-    <div class="modal-overlay" id="slipModal" role="dialog" aria-modal="true">
-        <div class="modal-card large">
-            <div class="modal-header no-print">
-                <h3 style="display:flex;align-items:center;gap:8px">
-                    <span>🎫</span> <span>అధికారిక ప్రభుత్వ ఓపీడీ స్లిప్</span>
-                </h3>
-                <button class="modal-close-btn" onclick="closeSlipModal()">✕</button>
-            </div>
-
-            <div id="slipContent"></div>
-
-            <div class="modal-actions no-print" style="margin-top:16px">
-                <button class="btn-secondary" onclick="closeSlipModal()" data-i18n="btnClose">మూసివేయండి</button>
-                <button class="btn-primary" onclick="printOpdSlip()" data-i18n="btnPrintSlip">🖨️ స్లిప్ ముద్రించండి (Print)</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Walk-in Counter Modal -->
-    <div class="modal-overlay" id="walkinModal" role="dialog" aria-modal="true">
-        <div class="modal-card">
-            <div class="modal-header">
-                <div>
-                    <h3 data-i18n="btnWalkin">➕ కౌంటర్ వాక్-ఇన్ టోకెన్ జారీ</h3>
-                    <p style="font-size:12px;color:var(--ink-500)">ఆసుపత్రి రిసెప్షన్ కౌంటర్ వద్ద తక్షణ ఓపీడీ టోకెన్ జారీ చేయండి</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="field">
+                    <label for="patientAge" id="lblPatientAge">వయస్సు *</label>
+                    <input id="patientAge" type="number" min="0" max="120" placeholder="వయస్సు" required>
                 </div>
-                <button class="modal-close-btn" onclick="closeWalkinModal()">✕</button>
-            </div>
-
-            <div>
-                <div class="form-group" style="margin-bottom:12px">
-                    <label for="walkinName" data-i18n="lblFullName">రోగి పూర్తి పేరు *</label>
-                    <input type="text" id="walkinName" class="form-control" required placeholder="పేరు నమోదు చేయండి">
-                </div>
-
-                <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:12px;margin-bottom:12px">
-                    <div class="form-group">
-                        <label for="walkinPhone" data-i18n="lblPhone">మొబైల్ నంబర్ *</label>
-                        <input type="tel" id="walkinPhone" class="form-control" placeholder="10 అంకెల మొబైల్ నంబర్" maxlength="10" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="walkinAge" data-i18n="lblAge">వయస్సు *</label>
-                        <input type="number" id="walkinAge" class="form-control" placeholder="వయస్సు" min="0" max="120" required>
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom:12px">
-                    <label for="walkinGender" data-i18n="lblGender">లింగం</label>
-                    <select id="walkinGender" class="form-control">
+                <div class="field">
+                    <label for="patientGender" id="lblPatientGender">లింగం</label>
+                    <select id="patientGender">
                         <option value="Male">పురుషుడు (Male)</option>
                         <option value="Female">స్త్రీ (Female)</option>
                         <option value="Other">ఇతర (Other)</option>
                     </select>
                 </div>
-
-                <div class="form-group" style="margin-bottom:18px">
-                    <label for="walkinSymptoms" data-i18n="lblSymptoms">సమస్య / లక్షణాలు</label>
-                    <input type="text" id="walkinSymptoms" class="form-control" placeholder="కౌంటర్ వాక్-ఇన్ ఓపీడీ">
-                </div>
-
-                <div class="modal-actions">
-                    <button class="btn-secondary" onclick="closeWalkinModal()" data-i18n="btnCancel">రద్దు</button>
-                    <button class="btn-primary" onclick="submitWalkinToken()">తక్షణ టోకెన్ జారీ చేయండి</button>
-                </div>
+            </div>
+            <div class="field">
+                <label for="patientSymptoms" id="lblPatientSymptoms">ప్రధాన సమస్య / లక్షణాలు</label>
+                <input id="patientSymptoms" placeholder="ఉదా: జ్వరం, దగ్గు, కీళ్ల నొప్పి...">
+            </div>
+            <div class="modalactions">
+                <button class="secondary" id="btnModalCancel" onclick="closeModal()">రద్దు చేయండి</button>
+                <button class="primary" id="confirmBtn" onclick="confirmBooking()">బుకింగ్ నిర్ధారించండి &amp; స్లిప్ పొందండి</button>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notification Element -->
-    <div id="toast" class="toast-msg"></div>
+    <!-- Official Printable OPD Registration Slip Modal -->
+    <div class="modalback" id="slipModalBack" role="dialog" aria-modal="true">
+        <div class="modal wide">
+            <div id="slipPrintArea" class="slip-box"></div>
+            <div class="modalactions no-print">
+                <button class="secondary" onclick="closeSlipModal()">మూసివేయండి</button>
+                <button class="primary" onclick="window.print()">🖨️ స్లిప్ ముద్రించండి (Print)</button>
+            </div>
+        </div>
+    </div>
 
-    <script src="public/app.js"></script>
+    <!-- Patient Portal Modal (No OTP / Email Required!) -->
+    <div class="modalback" id="portalModalBack" role="dialog" aria-modal="true">
+        <div class="modal wide">
+            <h3 id="portalTitle">👤 రోగి పోర్టల్ (నా అపాయింట్‌మెంట్లు)</h3>
+            <p id="portalSub">ఓటీపీ అవసరం లేదు — మీ 10 అంకెల మొబైల్ నంబర్‌తో మీ స్లిప్‌లను పొందండి.</p>
+            <div style="display:flex;gap:10px;margin-bottom:14px">
+                <input id="portalPhoneInput" placeholder="10 అంకెల మొబైల్ నంబర్ (e.g. 9848012345)" maxlength="10" style="flex:1;padding:10px;border:1px solid #cbdced;border-radius:8px">
+                <button class="primary" onclick="lookupPortalAppointments()">శోధించండి →</button>
+            </div>
+            <div id="portalResultsArea"></div>
+            <div class="modalactions">
+                <button class="secondary" onclick="closePortalModal()">మూసివేయండి</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Check Appointment Modal -->
+    <div class="modalback" id="checkModalBack" role="dialog" aria-modal="true">
+        <div class="modal">
+            <h3 id="checkTitle">☑ అపాయింట్‌మెంట్ శోధన &amp; స్లిప్</h3>
+            <p id="checkSub">మీ అపాయింట్‌మెంట్ రిఫరెన్స్ ఐడీ (e.g. AP-OPD-2026-XXXX) లేదా మొబైల్ నంబర్ నమోదు చేయండి:</p>
+            <div class="field">
+                <input id="checkQueryInput" placeholder="రిఫరెన్స్ ఐడీ లేదా మొబైల్ నంబర్" style="width:100%;padding:10px;border:1px solid #cbdced;border-radius:8px">
+            </div>
+            <div id="checkResultArea" style="margin-top:12px"></div>
+            <div class="modalactions">
+                <button class="secondary" onclick="closeCheckModal()">మూసివేయండి</button>
+                <button class="primary" onclick="executeCheckSearch()">శోధించండి</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hospitals Directory Modal -->
+    <div class="modalback" id="hospModalBack" role="dialog" aria-modal="true">
+        <div class="modal wide">
+            <h3 id="hospModalTitle">▦ ప్రభుత్వ ఆసుపత్రుల జాబితా &amp; పడకల వివరాలు</h3>
+            <p id="hospModalSub">పశ్చిమ గోదావరి మరియు పరిసర జిల్లాల్లోని ప్రభుత్వ ఆసుపత్రుల లైవ్ వివరాలు</p>
+            <div id="hospListArea"></div>
+            <div class="modalactions">
+                <button class="secondary" onclick="closeHospModal()">మూసివేయండి</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Walk-in Counter Registration Modal -->
+    <div class="modalback" id="walkinModalBack" role="dialog" aria-modal="true">
+        <div class="modal">
+            <h3>➕ కౌంటర్ వాక్-ఇన్ టోకెన్ జారీ</h3>
+            <p>ఆసుపత్రి రిసెప్షన్ కౌంటర్ వద్ద తక్షణ ఓపీడీ టోకెన్ జారీ చేయండి</p>
+            <div class="field">
+                <label>రోగి పేరు *</label>
+                <input id="wName" placeholder="పేరు నమోదు చేయండి" required>
+            </div>
+            <div class="field">
+                <label>మొబైల్ నంబర్ *</label>
+                <input id="wPhone" placeholder="10 అంకెల మొబైల్ నంబర్" maxlength="10" required>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="field">
+                    <label>వయస్సు *</label>
+                    <input id="wAge" type="number" min="0" max="120" placeholder="వయస్సు" required>
+                </div>
+                <div class="field">
+                    <label>లింగం</label>
+                    <select id="wGender">
+                        <option value="Male">పురుషుడు (Male)</option>
+                        <option value="Female">స్త్రీ (Female)</option>
+                        <option value="Other">ఇతర (Other)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field">
+                <label>సమస్య / లక్షణాలు</label>
+                <input id="wSymptoms" placeholder="కౌంటర్ వాక్-ఇన్ చెకప్">
+            </div>
+            <div class="modalactions">
+                <button class="secondary" onclick="closeWalkinModal()">రద్దు చేయండి</button>
+                <button class="primary" onclick="submitWalkinAction()">టోకెన్ జారీ చేయండి</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================
+         CLIENT APPLICATION LOGIC (DUAL MODE API + LOCALSTORAGE)
+         ======================================================== -->
+    <script>
+        let currentLang = 'te';
+        let isBackendLive = false;
+        let selectedDocForBooking = null;
+        let selectedSlotForBooking = null;
+
+        // i18n Dictionary
+        const i18n = {
+            te: {
+                pageTitle: "మెడిస్లాట్ | ప్రభుత్వ ఆసుపత్రి అపాయింట్‌మెంట్లు",
+                brandGov: "ఆంధ్రప్రదేశ్ ప్రభుత్వం",
+                brandDept: "వైద్య, ఆరోగ్య మరియు కుటుంబ సంక్షేమ శాఖ",
+                brandTagline: "ప్రజల ఆరోగ్యం, మా ప్రాధాన్యత",
+                topLocation: "📍 భీమవరం, ఆంధ్రప్రదేశ్",
+                loginBtn: "♙ రోగి పోర్టల్ (లాగిన్)",
+                navHome: "హోమ్",
+                navDoctors: "వైద్యులను వెతకండి",
+                navDepts: "విభాగాలు",
+                navBooking: "అపాయింట్‌మెంట్ బుక్ చేయండి",
+                navQueue: "ఓపీడీ లైవ్ క్యూ",
+                navServices: "ఆసుపత్రి సేవలు",
+                navInfo: "ఆరోగ్య సమాచారం",
+                navContact: "సంప్రదించండి",
+                globalSearchPlaceholder: "వైద్యులు, విభాగాలను వెతకండి...",
+                heroHeading: "ఆరోగ్యకరమైన రేపటి కోసం<br>నాణ్యమైన వైద్య సేవలు",
+                heroDesc: "ప్రభుత్వ ఆసుపత్రి వైద్యులతో అపాయింట్‌మెంట్లు బుక్ చేసుకోండి, లభ్యతను తనిఖీ చేయండి మరియు అవసరమైన ఆరోగ్య సేవలను ఆన్‌లైన్‌లో పొందండి.",
+                perk1: "నమ్మకమైన ప్రభుత్వ ఆసుపత్రులు",
+                perk2: "సులభమైన ఆన్‌లైన్ బుకింగ్",
+                perk3: "వైద్యుల లభ్యత వివరాలు",
+                perk4: "ఉచిత & అందుబాటు వైద్యం",
+                quoteText: "“ప్రతి పౌరుడికి అందుబాటులో, తక్కువ ఖర్చుతో కూడిన బాధ్యతాయుతమైన వైద్యం.”",
+                quoteAuthor: "— ప్రభుత్వ వైద్య సేవలు",
+                tabBook: "▣ &nbsp;అపాయింట్‌మెంట్ బుక్ చేయండి",
+                tabFindDoc: "♙ &nbsp;వైద్యులను వెతకండి",
+                tabFindHosp: "▦ &nbsp;ఆసుపత్రులను కనుగొనండి",
+                tabCheck: "☑ &nbsp;అపాయింట్‌మెంట్ తనిఖీ / స్లిప్",
+                tabLiveQueue: "◷ &nbsp;ఓపీడీ లైవ్ క్యూ",
+                lblHospital: "ఆసుపత్రిని ఎంచుకోండి",
+                lblDept: "విభాగాన్ని ఎంచుకోండి",
+                allDepts: "అన్ని విభాగాలు",
+                lblDoc: "వైద్యుడిని ఎంచుకోండి (ఐచ్ఛికం)",
+                anyDoctor: "ఏ వైద్యుడైనా",
+                lblDate: "తేదీని ఎంచుకోండి",
+                btnSearchAvailability: "⌕ &nbsp;లభ్యతను శోధించండి",
+                deptsHeading: "ప్రముఖ విభాగాలు",
+                btnViewAllDepts: "అన్నీ చూడండి →",
+                docsHeading: "అందుబాటులో ఉన్న వైద్యులు",
+                docsSubheading: "ప్రభుత్వ ఆసుపత్రి వైద్యులను కనుగొని అపాయింట్‌మెంట్లు బుక్ చేసుకోండి",
+                btnMobileFilter: "⚑ ఫిల్టర్లు",
+                filtersHeading: "ఫిల్టర్లు",
+                btnClearFilters: "అన్నీ క్లియర్ చేయండి",
+                lblSpecFilter: "విభాగం / ప్రత్యేకత",
+                allSpecs: "అన్ని విభాగాలు",
+                lblDateFilter: "అందుబాటులో ఉన్న తేదీ",
+                lblTimePref: "సమయం ప్రాధాన్యత",
+                lblMorning: "ఉదయం (8 AM – 12 PM)",
+                lblAfternoon: "మధ్యాహ్నం (12 PM – 4 PM)",
+                filterNote: "నిజ-సమయ వైద్యుల రోస్టర్ మరియు ఓపీడీ కౌంటర్ లభ్యత వివరాలు.",
+                emptyDocs: "ఈ ఫిల్టర్లకు సరిపోలే వైద్యులు లేరు. దయచేసి వేరే విభాగం లేదా తేదీని ఎంచుకోండి.",
+                modalTitle: "అపాయింట్‌మెంట్ బుక్ చేయండి",
+                lblPatientName: "రోగి పేరు *",
+                lblPatientPhone: "మొబైల్ నంబర్ *",
+                lblPatientAge: "వయస్సు *",
+                lblPatientGender: "లింగం",
+                lblPatientSymptoms: "ప్రధాన సమస్య / లక్షణాలు",
+                btnModalCancel: "రద్దు చేయండి",
+                confirmBtn: "బుకింగ్ నిర్ధారించండి & స్లిప్ పొందండి",
+                liveAvailability: "నిజ-సమయ లభ్యత",
+                nextAvailableTomorrow: "తదుపరి లభ్యత: రేపు",
+                opdHours: "ఓపీడీ: ",
+                slotsPrefix: "అందుబాటు స్లాట్లు · ",
+                noSlots: "ఎంచుకున్న ఫిల్టర్లకు స్లాట్‌లు లేవు",
+                cardBookBtn: "▦ &nbsp;అపాయింట్‌మెంట్ బుక్ చేయండి",
+                cardProfileBtn: "ప్రొఫైల్ చూడండి →",
+                queueTitle: "🩺 డాక్టర్ & హాస్పిటల్ స్టాఫ్ ఓపీడీ లైవ్ క్యూ",
+                queueSub: "లైవ్ టోకెన్ నిర్వహణ మరియు తదుపరి రోగి పిలుపు వేదిక",
+                lblNowServing: "ప్రస్తుతం పిలుస్తున్న టోకెన్",
+                lblWaiting: "వేచి ఉన్న రోగులు",
+                lblInConsult: "కన్సల్టేషన్‌లో ఉన్నవారు",
+                lblDone: "పూర్తయిన ఓపీడీలు",
+                btnCallNext: "📢 &nbsp;తదుపరి రోగి టోకెన్ పిలవండి",
+                btnIssueWalkin: "➕ &nbsp;కౌంటర్ వాక్-ఇన్ టోకెన్ జారీ",
+                servicesHeading: "ఆసుపత్రి సేవలు & సంక్షేమ పథకాలు",
+                servicesSub: "ప్రభుత్వ ఆసుపత్రులలో ఉచితంగా అందించబడుతున్న సమగ్ర వైద్య సేవలు",
+                contactHeading: "పౌర సమస్యలు & సంప్రదించండి",
+                contactSub: "ఆసుపత్రి సేవలపై మీ అభిప్రాయాలు లేదా సమస్యలను నమోదు చేయండి",
+                btnSubmitGrv: "ఫిర్యాదు సమర్పించండి →"
+            },
+            en: {
+                pageTitle: "MediSlot | Government Hospital Appointments",
+                brandGov: "Government of Andhra Pradesh",
+                brandDept: "Department of Health, Medical & Family Welfare",
+                brandTagline: "People's Health, Our Priority",
+                topLocation: "📍 Bhimavaram, Andhra Pradesh",
+                loginBtn: "♙ Patient Portal (Login)",
+                navHome: "Home",
+                navDoctors: "Find Doctors",
+                navDepts: "Departments",
+                navBooking: "Book Appointment",
+                navQueue: "OPD Live Queue",
+                navServices: "Hospital Services",
+                navInfo: "Health Information",
+                navContact: "Contact",
+                globalSearchPlaceholder: "Search doctors, departments...",
+                heroHeading: "Quality Healthcare<br>for a Healthier Tomorrow",
+                heroDesc: "Book appointments with government hospital doctors, check availability, and access essential health services online.",
+                perk1: "Trusted Government Hospitals",
+                perk2: "Easy Online Booking",
+                perk3: "Doctor Availability",
+                perk4: "Free & Affordable Care",
+                quoteText: "“Accessible, Affordable, Accountable Healthcare for Every Citizen.”",
+                quoteAuthor: "— Government Healthcare",
+                tabBook: "▣ &nbsp;Book Appointment",
+                tabFindDoc: "♙ &nbsp;Find Doctors",
+                tabFindHosp: "▦ &nbsp;Find Hospitals",
+                tabCheck: "☑ &nbsp;Check Appointment / Slip",
+                tabLiveQueue: "◷ &nbsp;OPD Live Queue",
+                lblHospital: "Select Hospital",
+                lblDept: "Select Department",
+                allDepts: "All Departments",
+                lblDoc: "Select Doctor (Optional)",
+                anyDoctor: "Any Doctor",
+                lblDate: "Select Date",
+                btnSearchAvailability: "⌕ &nbsp;Search Availability",
+                deptsHeading: "Popular Departments",
+                btnViewAllDepts: "View All →",
+                docsHeading: "Available Doctors",
+                docsSubheading: "Find and book appointments with government hospital doctors",
+                btnMobileFilter: "⚑ Filter",
+                filtersHeading: "Filters",
+                btnClearFilters: "Clear All",
+                lblSpecFilter: "Specialization",
+                allSpecs: "All Specializations",
+                lblDateFilter: "Available Date",
+                lblTimePref: "Time Preference",
+                lblMorning: "Morning (8 AM – 12 PM)",
+                lblAfternoon: "Afternoon (12 PM – 4 PM)",
+                filterNote: "Real-time doctor roster and live OPD counter availability.",
+                emptyDocs: "No doctors match these filters. Try another department or date.",
+                modalTitle: "Book an Appointment",
+                lblPatientName: "Patient Name *",
+                lblPatientPhone: "Mobile Number *",
+                lblPatientAge: "Age *",
+                lblPatientGender: "Gender",
+                lblPatientSymptoms: "Chief Complaints / Symptoms",
+                btnModalCancel: "Cancel",
+                confirmBtn: "Confirm Booking & Generate Slip",
+                liveAvailability: "Live Availability",
+                nextAvailableTomorrow: "Next available: Tomorrow",
+                opdHours: "OPD: ",
+                slotsPrefix: "Available slots · ",
+                noSlots: "No slots available for selected filters",
+                cardBookBtn: "▦ &nbsp;Book Appointment",
+                cardProfileBtn: "View Profile →",
+                queueTitle: "🩺 Doctor & Staff Live OPD Queue",
+                queueSub: "Live sequential token management and patient queue display",
+                lblNowServing: "Now Serving Token",
+                lblWaiting: "Patients Waiting",
+                lblInConsult: "In Consultation",
+                lblDone: "Consultations Completed",
+                btnCallNext: "📢 &nbsp;Call Next Patient Token",
+                btnIssueWalkin: "➕ &nbsp;Issue Walk-in Counter Token",
+                servicesHeading: "Hospital Services & Public Schemes",
+                servicesSub: "Comprehensive free healthcare services offered at government hospitals",
+                contactHeading: "Citizen Grievances & Contact",
+                contactSub: "Submit complaints or suggestions to hospital administration",
+                btnSubmitGrv: "Submit Grievance →"
+            }
+        };
+
+        const deptsData = [
+            { key: 'General Medicine', te: 'జనరల్ మెడిసిన్', countTe: '24 మంది వైద్యులు', countEn: '24 Doctors', icon: '🩺' },
+            { key: 'Pediatrics', te: 'పీడియాట్రిక్స్', countTe: '12 మంది వైద్యులు', countEn: '12 Doctors', icon: '🧸' },
+            { key: 'Gynecology', te: 'గైనకాలజీ', countTe: '10 మంది వైద్యులు', countEn: '10 Doctors', icon: '🌸' },
+            { key: 'Orthopedics', te: 'ఆర్థోపెడిక్స్', countTe: '8 మంది వైద్యులు', countEn: '8 Doctors', icon: '🦴' },
+            { key: 'Cardiology', te: 'కార్డియాలజీ', countTe: '7 గురు వైద్యులు', countEn: '7 Doctors', icon: '❤️' },
+            { key: 'Dermatology', te: 'డెర్మటాలజీ', countTe: '6 గురు వైద్యులు', countEn: '6 Doctors', icon: '✋' },
+            { key: 'ENT', te: 'ఈఎన్‌టీ', countTe: '6 గురు వైద్యులు', countEn: '6 Doctors', icon: '👂' },
+            { key: 'Ophthalmology', te: 'ఆప్తాల్మాలజీ', countTe: '5 గురు వైద్యులు', countEn: '5 Doctors', icon: '👁️' },
+            { key: 'Pulmonology', te: 'పల్మనాలజీ', countTe: '4 గురు వైద్యులు', countEn: '4 Doctors', icon: '🫁' }
+        ];
+
+        const hospitalsData = [
+            { id: 'GH_BHIMAVARAM', nameTe: 'ప్రభుత్వ జిల్లా ఆసుపత్రి, భీమవరం', nameEn: 'Government District Hospital, Bhimavaram', beds: 150, avail: 42, icu: 8, oxy: 24, phone: '08816-223456', em: '08816-223400 / 108' },
+            { id: 'AH_PALAKOLLU', nameTe: 'ఏరియా ఆసుపత్రి, పాలకొల్లు', nameEn: 'Area Hospital, Palakollu', beds: 100, avail: 28, icu: 4, oxy: 16, phone: '08814-222301', em: '08814-222300 / 108' },
+            { id: 'GGH_ELURU', nameTe: 'ప్రభుత్వ సర్వజన ఆసుపత్రి, ఏలూరు', nameEn: 'Government General Hospital (GGH), Eluru', beds: 500, avail: 112, icu: 22, oxy: 68, phone: '08812-230125', em: '08812-230111 / 108' },
+            { id: 'GGH_KAKINADA', nameTe: 'ప్రభుత్వ సర్వజన ఆసుపత్రి, కాకినాడ', nameEn: 'Rangaraya Government General Hospital, Kakinada', beds: 1000, avail: 215, icu: 45, oxy: 130, phone: '0884-2376156', em: '0884-2376108 / 108' }
+        ];
+
+        const docs = [
+            {
+                nameEn: 'Dr. K. Ramesh',
+                nameTe: 'డా. కె. రమేష్',
+                qual: 'MBBS, MD (General Medicine)',
+                spec: 'General Medicine',
+                roleEn: 'Chief Civil Surgeon & Physician',
+                roleTe: 'ప్రధాన సాధారణ వైద్య నిపుణులు',
+                emoji: '👨🏻‍⚕️',
+                hours: '8:00 AM - 4:00 PM',
+                hospitalId: 'GH_BHIMAVARAM',
+                roomNo: 'Room 102 (OPD Ground Floor)',
+                slots: ['08:30 AM', '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM'],
+                today: true
+            },
+            {
+                nameEn: 'Dr. S. Anitha',
+                nameTe: 'డా. ఎస్. అనిత',
+                qual: 'MBBS, MS, DGO (Obstetrics & Gynecology)',
+                spec: 'Gynecology',
+                roleEn: 'Senior Gynecologist',
+                roleTe: 'సీనియర్ గైనకాలజిస్ట్ (స్త్రీల వైద్యం)',
+                emoji: '👩🏻‍⚕️',
+                hours: '9:00 AM - 4:00 PM',
+                hospitalId: 'GH_BHIMAVARAM',
+                roomNo: 'Room 105 (Maternity Block 1st Floor)',
+                slots: ['09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '01:30 PM', '02:00 PM', '03:00 PM', '03:30 PM'],
+                today: true
+            },
+            {
+                nameEn: 'Dr. M. Srinivas',
+                nameTe: 'డా. ఎం. శ్రీనివాస్',
+                qual: 'MBBS, MS (Orthopedics)',
+                spec: 'Orthopedics',
+                roleEn: 'Orthopedic Surgeon',
+                roleTe: 'ఆర్థోపెడిక్ సర్జన్ (ఎముకల శస్త్రచికిత్స)',
+                emoji: '👨🏽‍⚕️',
+                hours: '9:00 AM - 3:00 PM',
+                hospitalId: 'GH_BHIMAVARAM',
+                roomNo: 'Room 108 (Trauma & Ortho OPD)',
+                slots: ['09:00 AM', '09:30 AM', '10:30 AM', '11:00 AM', '01:00 PM', '01:30 PM', '02:00 PM', '03:30 PM'],
+                today: true
+            },
+            {
+                nameEn: 'Dr. P. Lakshmi',
+                nameTe: 'డా. పి. లక్ష్మి',
+                qual: 'MBBS, MD (Pediatrics)',
+                spec: 'Pediatrics',
+                roleEn: 'Pediatrician',
+                roleTe: 'పీడియాట్రిషియన్ (శిశు వైద్యం)',
+                emoji: '👩🏽‍⚕️',
+                hours: '8:30 AM - 2:30 PM',
+                hospitalId: 'GH_BHIMAVARAM',
+                roomNo: 'Room 101 (Child Health OPD)',
+                slots: ['08:30 AM', '09:00 AM', '10:00 AM', '10:30 AM', '11:30 AM', '01:00 PM', '02:00 PM'],
+                today: true
+            },
+            {
+                nameEn: 'Dr. A. Naveen',
+                nameTe: 'డా. ఎ. నవీన్',
+                qual: 'MBBS, MD (Cardiology)',
+                spec: 'Cardiology',
+                roleEn: 'Cardiologist',
+                roleTe: 'కార్డియాలజిస్ట్ (గుండె వైద్యం)',
+                emoji: '👨🏻‍⚕️',
+                hours: '10:00 AM - 3:00 PM',
+                hospitalId: 'GH_BHIMAVARAM',
+                roomNo: 'Room 204 (Cardiac OPD 2nd Floor)',
+                slots: ['10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '01:00 PM', '02:30 PM'],
+                today: true
+            },
+            {
+                nameEn: 'Dr. V. Deepa',
+                nameTe: 'డా. వి. దీప',
+                qual: 'MBBS, DVD',
+                spec: 'Dermatology',
+                roleEn: 'Dermatologist',
+                roleTe: 'డెర్మటాలజిస్ట్ (చర్మ వైద్యం)',
+                emoji: '👩🏻‍⚕️',
+                hours: '9:00 AM - 1:00 PM',
+                hospitalId: 'AH_PALAKOLLU',
+                roomNo: 'Room 103 (Skin OPD)',
+                slots: ['09:00 AM', '09:30 AM', '10:00 AM', '11:00 AM', '12:00 PM'],
+                today: true
+            },
+            {
+                nameEn: 'Dr. R. Kumar',
+                nameTe: 'డా. ఆర్. కుమార్',
+                qual: 'MBBS, MS (ENT)',
+                spec: 'ENT',
+                roleEn: 'ENT Specialist',
+                roleTe: 'ఈఎన్‌టీ స్పెషలిస్ట్',
+                emoji: '👨🏽‍⚕️',
+                hours: '9:00 AM - 2:00 PM',
+                hospitalId: 'AH_PALAKOLLU',
+                roomNo: 'Room 107 (ENT OPD)',
+                slots: ['09:00 AM', '10:00 AM', '10:30 AM', '11:00 AM', '01:00 PM'],
+                today: true
+            },
+            {
+                nameEn: 'Dr. N. Swathi',
+                nameTe: 'డా. ఎన్. స్వాతి',
+                qual: 'MBBS, MS (Ophthalmology)',
+                spec: 'Ophthalmology',
+                roleEn: 'Eye Specialist',
+                roleTe: 'నేత్ర వైద్య నిపుణులు',
+                emoji: '👩🏽‍⚕️',
+                hours: '8:00 AM - 12:00 PM',
+                hospitalId: 'GH_BHIMAVARAM',
+                roomNo: 'Room 110 (Eye OPD Unit)',
+                slots: ['08:00 AM', '08:30 AM', '09:00 AM', '10:00 AM', '11:00 AM'],
+                today: true
+            }
+        ];
+
+        function localDate(d = new Date()) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        // SVG QR & Barcode Generator
+        function getQrSvg(txt) {
+            let hash = 0;
+            for (let i = 0; i < txt.length; i++) hash = ((hash << 5) - hash) + txt.charCodeAt(i) | 0;
+            let size = 21, cellSize = 4.5, rects = [];
+            for (let r = 0; r < size; r++) {
+                for (let c = 0; c < size; c++) {
+                    let isCorner = (r < 7 && c < 7) || (r < 7 && c >= 14) || (r >= 14 && c < 7);
+                    if (isCorner) {
+                        let lr = r >= 14 ? r - 14 : r, lc = c >= 14 ? c - 14 : c;
+                        if (lr === 0 || lr === 6 || lc === 0 || lc === 6 || (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4)) {
+                            rects.push(`<rect x="${c*cellSize}" y="${r*cellSize}" width="${cellSize}" height="${cellSize}" fill="#07366c"/>`);
+                        }
+                    } else if (r === 6 || c === 6 || ((hash ^ (r * 19 + c * 31)) & 1)) {
+                        rects.push(`<rect x="${c*cellSize}" y="${r*cellSize}" width="${cellSize}" height="${cellSize}" fill="#07366c"/>`);
+                    }
+                }
+            }
+            return `<svg width="${size*cellSize}" height="${size*cellSize}" viewBox="0 0 ${size*cellSize} ${size*cellSize}" style="background:#fff;padding:2px;border:1px solid #cde">${rects.join('')}</svg>`;
+        }
+
+        function getBarcodeSvg(txt) {
+            let bars = [], x = 8;
+            for (let i = 0; i < txt.length; i++) {
+                let code = txt.charCodeAt(i) * 37 % 256;
+                for (let b = 0; b < 6; b++) {
+                    if ((code >> b) & 1) bars.push(`<rect x="${x}" y="0" width="2" height="28" fill="#07366c"/>`);
+                    x += 2.5;
+                }
+                x += 2;
+            }
+            return `<svg width="${x+8}" height="30">${bars.join('')}</svg>`;
+        }
+
+        // Check backend status
+        async function checkServer() {
+            try {
+                let res = await fetch('/api/health');
+                if (res.ok) isBackendLive = true;
+            } catch (e) {
+                isBackendLive = false;
+            }
+            document.getElementById('sysStatusText').textContent = isBackendLive ? '🟢 లైవ్ సర్వర్ కనెక్ట్ చేయబడింది (REST API Active)' : '🔵 స్థానిక బ్రౌజర్ డేటా ఇంజిన్ (Local Engine Active)';
+        }
+
+        // Local Storage Helpers
+        function getLocalApps() {
+            try { return JSON.parse(localStorage.getItem('medislot_apps') || '[]'); } catch (e) { return []; }
+        }
+        function saveLocalApps(list) {
+            localStorage.setItem('medislot_apps', JSON.stringify(list));
+        }
+
+        // Seed initial appointments if empty
+        function seedLocal() {
+            let today = localDate();
+            if (!localStorage.getItem('medislot_apps')) {
+                let initList = [
+                    { id: 'AP-OPD-2026-1001', tokenNumber: 1, patientName: 'K. Subba Rao', patientPhone: '9848012345', patientAge: 54, patientGender: 'Male', symptoms: 'BP checkup & persistent dry cough', doctorNameEn: 'Dr. K. Ramesh', doctorNameTe: 'డా. కె. రమేష్', department: 'General Medicine', hospitalName: 'ప్రభుత్వ జిల్లా ఆసుపత్రి, భీమవరం', appointmentDate: today, slotTime: '08:30 AM', status: 'COMPLETED', roomNo: 'Room 102' },
+                    { id: 'AP-OPD-2026-1002', tokenNumber: 2, patientName: 'M. Mary Kumari', patientPhone: '9848012345', patientAge: 48, patientGender: 'Female', symptoms: 'Viral fever and body pains', doctorNameEn: 'Dr. K. Ramesh', doctorNameTe: 'డా. కె. రమేష్', department: 'General Medicine', hospitalName: 'ప్రభుత్వ జిల్లా ఆసుపత్రి, భీమవరం', appointmentDate: today, slotTime: '09:00 AM', status: 'IN_CONSULTATION', roomNo: 'Room 102' },
+                    { id: 'AP-OPD-2026-1003', tokenNumber: 3, patientName: 'V. Satyanarayana', patientPhone: '9988776655', patientAge: 62, patientGender: 'Male', symptoms: 'Diabetes review & glucose test', doctorNameEn: 'Dr. K. Ramesh', doctorNameTe: 'డా. కె. రమేష్', department: 'General Medicine', hospitalName: 'ప్రభుత్వ జిల్లా ఆసుపత్రి, భీమవరం', appointmentDate: today, slotTime: '09:30 AM', status: 'CONFIRMED', roomNo: 'Room 102' }
+                ];
+                saveLocalApps(initList);
+            }
+        }
+
+        // Draw Departments
+        function drawDepts() {
+            const grid = document.getElementById('deptGrid');
+            grid.innerHTML = deptsData.map(d => {
+                const name = currentLang === 'te' ? d.te : d.key;
+                const count = currentLang === 'te' ? d.countTe : d.countEn;
+                return `<button class="dept" data-key="${d.key}" onclick="chooseDept('${d.key}',this)"><span class="depticon">${d.icon}</span><span><b>${name}</b><small>${count}</small></span></button>`;
+            }).join('');
+        }
+
+        function chooseDept(key, el) {
+            document.getElementById('department').value = key;
+            document.getElementById('specialtyFilter').value = key;
+            document.querySelectorAll('.dept').forEach(x => x.classList.remove('chosen'));
+            if (el) el.classList.add('chosen');
+            applyFilters();
+            document.getElementById('doctors').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        async function applyFilters() {
+            const t = i18n[currentLang];
+            let spec = document.getElementById('specialtyFilter').value;
+            let dep = document.getElementById('department').value;
+            let doc = document.getElementById('doctorChoice').value;
+            let hosp = document.getElementById('hospital').value;
+            let q = document.getElementById('globalSearch').value.toLowerCase().trim();
+            let m = document.getElementById('morning').checked;
+            let a = document.getElementById('afternoon').checked;
+            let currentDateVal = document.getElementById('bookingDate').value || localDate();
+
+            // Fetch booked slots from backend or local
+            let bookedSet = new Set();
+            if (isBackendLive) {
+                try {
+                    let res = await fetch(`/api/appointments?date=${currentDateVal}`);
+                    let apps = await res.json();
+                    apps.filter(x => x.status !== 'CANCELLED').forEach(x => bookedSet.add(`${x.doctorNameEn}|${x.slotTime}`));
+                } catch (e) {}
+            } else {
+                getLocalApps().filter(x => x.appointmentDate === currentDateVal && x.status !== 'CANCELLED').forEach(x => bookedSet.add(`${x.doctorNameEn}|${x.slotTime}`));
+            }
+
+            let list = docs.filter(d => {
+                let matchSpec = (spec === 'all' || d.spec === spec);
+                let matchDep = (dep === 'all' || d.spec === dep);
+                let matchDoc = (doc === 'all' || d.nameEn === doc);
+                let matchHosp = (hosp === 'all' || d.hospitalId === hosp || !d.hospitalId);
+                let searchCorpus = `${d.nameEn} ${d.nameTe} ${d.spec} ${d.roleEn} ${d.roleTe}`.toLowerCase();
+                let matchSearch = searchCorpus.includes(q);
+                let matchTime = (!m && !a) || d.slots.some(s => (!m || (parseInt(s) >= 8 && parseInt(s) < 12)) && (!a || (parseInt(s) >= 12 && parseInt(s) < 16)));
+                return matchSpec && matchDep && matchDoc && matchSearch && matchTime;
+            });
+
+            document.getElementById('doctorList').innerHTML = list.map(d => {
+                let slots = d.slots.filter(s => !bookedSet.has(`${d.nameEn}|${s}`));
+                if (m || a) {
+                    slots = slots.filter(s => (!m || (parseInt(s) >= 8 && parseInt(s) < 12)) && (!a || (parseInt(s) >= 12 && parseInt(s) < 16)));
+                }
+                const docName = currentLang === 'te' ? d.nameTe : d.nameEn;
+                const docRole = currentLang === 'te' ? d.roleTe : d.roleEn;
+                const statusText = d.today ? t.liveAvailability : t.nextAvailableTomorrow;
+                const slotsTitle = `${t.slotsPrefix}${currentDateVal}`;
+                const slotsHtml = slots.length
+                    ? slots.map(s => `<button class="slot" onclick="book('${d.nameEn}','${s}')">${s}</button>`).join('')
+                    : `<span class="credentials">${t.noSlots}</span>`;
+
+                return `<article class="doctor">
+                    <div class="avatar">${d.emoji}</div>
+                    <div>
+                        <div class="docname">${docName}</div>
+                        <div class="credentials">${d.qual}</div>
+                        <div class="speciality">${docRole}</div>
+                        <div style="font-size:11px;color:var(--green);font-weight:700;margin-top:3px">📍 ${d.roomNo}</div>
+                    </div>
+                    <div class="slotarea">
+                        <span class="status ${d.today ? '' : 'tomorrow'}">${statusText}</span>
+                        <div class="hours">${t.opdHours}${d.hours}</div>
+                        <div class="slots-title">${slotsTitle}</div>
+                        <div class="slots">${slotsHtml}</div>
+                    </div>
+                    <div class="actions">
+                        <button class="primary" onclick="book('${d.nameEn}','')">${t.cardBookBtn}</button>
+                        <button class="profile" onclick="profile('${d.nameEn}')">${t.cardProfileBtn}</button>
+                    </div>
+                </article>`;
+            }).join('');
+
+            document.getElementById('empty').style.display = list.length ? 'none' : 'block';
+        }
+
+        function syncDate() {
+            let v = document.getElementById('bookingDate').value || document.getElementById('dateFilter').value || localDate();
+            document.getElementById('bookingDate').value = v;
+            document.getElementById('dateFilter').value = v;
+        }
+
+        function searchAvailability() {
+            document.getElementById('specialtyFilter').value = document.getElementById('department').value;
+            document.getElementById('dateFilter').value = document.getElementById('bookingDate').value;
+            applyFilters();
+            document.getElementById('doctors').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearFilters() {
+            document.getElementById('specialtyFilter').value = 'all';
+            document.getElementById('department').value = 'all';
+            document.getElementById('doctorChoice').value = 'all';
+            document.getElementById('morning').checked = false;
+            document.getElementById('afternoon').checked = false;
+            document.getElementById('globalSearch').value = '';
+            document.getElementById('bookingDate').value = localDate();
+            document.getElementById('dateFilter').value = localDate();
+            document.querySelectorAll('.dept').forEach(x => x.classList.remove('chosen'));
+            applyFilters();
+        }
+
+        function globalFilter() {
+            applyFilters();
+        }
+
+        // ========================================================
+        // BOOKING WORKFLOW & PRINTABLE SLIP
+        // ========================================================
+        function book(nameEn, slot) {
+            const t = i18n[currentLang];
+            const d = docs.find(x => x.nameEn === nameEn) || docs[0];
+            const docDisplayName = currentLang === 'te' ? d.nameTe : nameEn;
+            const hospSelect = document.getElementById('hospital');
+            const hospDisplayName = hospSelect.options[hospSelect.selectedIndex]?.text || 'Government Hospital, Bhimavaram';
+
+            selectedDocForBooking = nameEn;
+            selectedSlotForBooking = slot || (d.slots && d.slots[0]) || '09:00 AM';
+
+            document.getElementById('modalTitle').textContent = t.modalTitle;
+            document.getElementById('modalDescription').textContent = `${docDisplayName} · ${hospDisplayName} · ${document.getElementById('bookingDate').value} (${selectedSlotForBooking})`;
+            document.getElementById('modalback').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modalback').style.display = 'none';
+        }
+
+        async function confirmBooking() {
+            let n = document.getElementById('patientName').value.trim();
+            let p = document.getElementById('patientPhone').value.trim();
+            let age = document.getElementById('patientAge').value;
+            let gender = document.getElementById('patientGender').value;
+            let symp = document.getElementById('patientSymptoms').value.trim();
+
+            if (!n || !/^[6-9]\d{9}$/.test(p) || age === '' || +age < 0 || +age > 120) {
+                alert(currentLang === 'te' ? "దయచేసి రోగి పేరు, సరైన 10 అంకెల మొబైల్ నంబర్ మరియు వయస్సు నమోదు చేయండి." : "Please enter a valid patient name, 10-digit mobile number, and age.");
+                return;
+            }
+
+            let d = docs.find(x => x.nameEn === selectedDocForBooking) || docs[0];
+            let hospSelect = document.getElementById('hospital');
+            let dateVal = document.getElementById('bookingDate').value || localDate();
+            let refId = 'AP-OPD-2026-' + Math.floor(1000 + Math.random() * 9000);
+
+            let newApp = null;
+
+            if (isBackendLive) {
+                try {
+                    let res = await fetch('/api/appointments', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            patientName: n,
+                            patientPhone: p,
+                            patientAge: age,
+                            patientGender: gender,
+                            symptoms: symp || 'General Checkup',
+                            doctorNameEn: d.nameEn,
+                            hospitalId: hospSelect.value,
+                            appointmentDate: dateVal,
+                            slotTime: selectedSlotForBooking
+                        })
+                    });
+                    let data = await res.json();
+                    if (!res.ok) throw new Error(data.error);
+                    newApp = data.appointment;
+                } catch (e) {
+                    console.warn(e);
+                }
+            }
+
+            if (!newApp) {
+                let localList = getLocalApps();
+                let sameDoc = localList.filter(x => x.doctorNameEn === d.nameEn && x.appointmentDate === dateVal);
+                let nextToken = sameDoc.reduce((max, x) => Math.max(max, x.tokenNumber || 0), 0) + 1;
+
+                newApp = {
+                    id: refId,
+                    tokenNumber: nextToken,
+                    patientName: n,
+                    patientPhone: p,
+                    patientAge: age,
+                    patientGender: gender,
+                    symptoms: symp || 'General OPD Consultation',
+                    doctorNameEn: d.nameEn,
+                    doctorNameTe: d.nameTe,
+                    department: d.spec,
+                    hospitalName: hospSelect.options[hospSelect.selectedIndex]?.text || 'Government Hospital, Bhimavaram',
+                    appointmentDate: dateVal,
+                    slotTime: selectedSlotForBooking,
+                    status: 'CONFIRMED',
+                    roomNo: d.roomNo
+                };
+                localList.unshift(newApp);
+                saveLocalApps(localList);
+            }
+
+            closeModal();
+            showSlip(newApp);
+            applyFilters();
+            renderQueueBoard();
+        }
+
+        // Show Official OPD Registration Slip
+        function showSlip(app) {
+            let container = document.getElementById('slipPrintArea');
+            let qr = getQrSvg(`AP-OPD:${app.id}|PATIENT:${app.patientName}|TOKEN:${app.tokenNumber}|DOC:${app.doctorNameEn}|DATE:${app.appointmentDate}`);
+            let barcode = getBarcodeSvg(app.id);
+
+            container.innerHTML = `
+                <div class="slip-head">
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <span style="font-size:32px;color:var(--navy)">⚕</span>
+                        <div>
+                            <strong style="font-size:14px;color:var(--navy)">ఆంధ్రప్రదేశ్ ప్రభుత్వం · GOVERNMENT OF ANDHRA PRADESH</strong>
+                            <div style="font-size:11px;color:#555">వైద్య, ఆరోగ్య మరియు కుటుంబ సంక్షేమ శాఖ · Official OPD Registration Slip</div>
+                        </div>
+                    </div>
+                    <div class="slip-bigtoken">
+                        <small style="font-size:10px;font-weight:700">ఓపీడీ టోకెన్</small>
+                        <div class="num">#${String(app.tokenNumber).padStart(2, '0')}</div>
+                        <small style="font-size:9.5px;color:var(--green);font-weight:700">${app.status}</small>
+                    </div>
+                </div>
+
+                <table class="slip-table">
+                    <tr><td class="lbl">రిఫరెన్స్ ఐడీ (Reference ID):</td><td class="val">${app.id}</td></tr>
+                    <tr><td class="lbl">రోగి పేరు (Patient Name):</td><td class="val">${app.patientName} (${app.patientAge}y, ${app.patientGender || 'Male'})</td></tr>
+                    <tr><td class="lbl">మొబైల్ నంబర్ (Mobile):</td><td class="val">+91 ${app.patientPhone}</td></tr>
+                    <tr><td class="lbl">వైద్యులు (Doctor):</td><td class="val">${currentLang === 'te' ? (app.doctorNameTe || app.doctorNameEn) : app.doctorNameEn} (${app.department})</td></tr>
+                    <tr><td class="lbl">ఆసుపత్రి (Hospital):</td><td class="val">${app.hospitalName || app.hospitalNameTe || 'Government District Hospital, Bhimavaram'}</td></tr>
+                    <tr><td class="lbl">ఓపీడీ గది (OPD Room):</td><td class="val" style="color:var(--green)">${app.roomNo || 'Room 102 (OPD Ground Floor)'}</td></tr>
+                    <tr><td class="lbl">తేదీ &amp; సమయం (Date &amp; Slot):</td><td class="val">${app.appointmentDate} · ${app.slotTime}</td></tr>
+                    <tr><td class="lbl">లక్షణాలు (Symptoms):</td><td class="val">${app.symptoms || 'General OPD Consultation'}</td></tr>
+                </table>
+
+                <div style="background:#f4f9ff;padding:8px 10px;border-radius:6px;font-size:10.5px;color:#456;margin:10px 0">
+                    ℹ️ <b>రోగి మార్గదర్శకాలు:</b> స్లాట్ సమయానికి 15 నిమిషాల ముందే ఓపీడీ రూమ్ వద్ద రిపోర్ట్ చేయండి. పరీక్షలు మరియు సాధారణ మందులు ఉచితం.
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #dce8f5;padding-top:10px">
+                    <div>${barcode}</div>
+                    <div>${qr}</div>
+                </div>
+            `;
+            document.getElementById('slipModalBack').style.display = 'flex';
+        }
+
+        function closeSlipModal() {
+            document.getElementById('slipModalBack').style.display = 'none';
+        }
+
+        // ========================================================
+        // DOCTOR OPD QUEUE MANAGEMENT
+        // ========================================================
+        async function renderQueueBoard() {
+            let docName = document.getElementById('qDocSelect').value;
+            let dateVal = localDate();
+            let qData = null;
+
+            if (isBackendLive) {
+                try {
+                    let res = await fetch(`/api/queue?doctorName=${encodeURIComponent(docName)}&date=${dateVal}`);
+                    qData = await res.json();
+                } catch (e) {}
+            }
+
+            if (!qData) {
+                let localList = getLocalApps().filter(x => x.doctorNameEn === docName && x.appointmentDate === dateVal);
+                let cur = parseInt(localStorage.getItem('medislot_curtoken_' + docName) || '1');
+                qData = {
+                    currentServingToken: cur,
+                    waitingCount: localList.filter(x => x.status === 'CONFIRMED' || x.status === 'CALLED').length,
+                    inConsultationCount: localList.filter(x => x.status === 'IN_CONSULTATION').length,
+                    completedCount: localList.filter(x => x.status === 'COMPLETED').length,
+                    patients: localList
+                };
+            }
+
+            document.getElementById('qCurrentToken').textContent = '#' + String(qData.currentServingToken || 0).padStart(2, '0');
+            document.getElementById('qWaitingCount').textContent = qData.waitingCount || 0;
+            document.getElementById('qInConsultCount').textContent = qData.inConsultationCount || 0;
+            document.getElementById('qDoneCount').textContent = qData.completedCount || 0;
+
+            let tbody = document.getElementById('queueTableBody');
+            if (!qData.patients.length) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:#888">నేటికి రోగుల క్యూ లేదు.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = qData.patients.map(p => {
+                let isCurrent = (p.tokenNumber === qData.currentServingToken);
+                return `<tr style="${isCurrent ? 'background:#eef7ff;font-weight:700' : ''}">
+                    <td><span class="tokenpill">#${String(p.tokenNumber).padStart(2, '0')}</span></td>
+                    <td><b>${p.patientName}</b> (${p.patientAge}y) <small style="display:block;color:#666">📱 ${p.patientPhone}</small></td>
+                    <td>${p.slotTime}</td>
+                    <td>${p.symptoms || 'General'}</td>
+                    <td><span class="status ${p.status === 'COMPLETED' ? '' : 'tomorrow'}">${p.status}</span></td>
+                    <td>
+                        <button class="textbutton" onclick="showSlipById('${p.id}')">🖨️ స్లిప్</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function callNextTokenAction() {
+            let docName = document.getElementById('qDocSelect').value;
+            let dateVal = localDate();
+
+            if (isBackendLive) {
+                try {
+                    let res = await fetch('/api/queue/call-next', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ doctorName: docName, date: dateVal })
+                    });
+                    let data = await res.json();
+                    alert(data.message);
+                } catch (e) {}
+            } else {
+                let cur = parseInt(localStorage.getItem('medislot_curtoken_' + docName) || '1');
+                let localList = getLocalApps();
+                let nextP = localList.find(x => x.doctorNameEn === docName && x.appointmentDate === dateVal && x.tokenNumber > cur && x.status !== 'CANCELLED' && x.status !== 'COMPLETED');
+                if (nextP) {
+                    localStorage.setItem('medislot_curtoken_' + docName, nextP.tokenNumber);
+                    nextP.status = 'CALLED';
+                    saveLocalApps(localList);
+                    alert(`టోకెన్ #${nextP.tokenNumber} (${nextP.patientName}) పిలవబడింది!`);
+                } else {
+                    alert('తదుపరి రోగులు క్యూలో లేరు.');
+                }
+            }
+            renderQueueBoard();
+        }
+
+        function openWalkinModal() {
+            document.getElementById('walkinModalBack').style.display = 'flex';
+        }
+        function closeWalkinModal() {
+            document.getElementById('walkinModalBack').style.display = 'none';
+        }
+
+        async function submitWalkinAction() {
+            let n = document.getElementById('wName').value.trim();
+            let p = document.getElementById('wPhone').value.trim();
+            let age = document.getElementById('wAge').value.trim();
+            let gender = document.getElementById('wGender').value;
+            let symp = document.getElementById('wSymptoms').value.trim();
+
+            if (!n || !/^[6-9]\d{9}$/.test(p) || !age) {
+                alert("దయచేసి పూర్తి వివరాలను నమోదు చేయండి.");
+                return;
+            }
+
+            let docName = document.getElementById('qDocSelect').value;
+            let d = docs.find(x => x.nameEn === docName) || docs[0];
+            let dateVal = localDate();
+            let refId = 'AP-OPD-2026-' + Math.floor(1000 + Math.random() * 9000);
+
+            let localList = getLocalApps();
+            let sameDoc = localList.filter(x => x.doctorNameEn === docName && x.appointmentDate === dateVal);
+            let nextToken = sameDoc.reduce((max, x) => Math.max(max, x.tokenNumber || 0), 0) + 1;
+
+            let walkinApp = {
+                id: refId,
+                tokenNumber: nextToken,
+                patientName: n,
+                patientPhone: p,
+                patientAge: age,
+                patientGender: gender,
+                symptoms: symp || 'Counter Walk-in OPD Request',
+                doctorNameEn: d.nameEn,
+                doctorNameTe: d.nameTe,
+                department: d.spec,
+                hospitalName: 'ప్రభుత్వ జిల్లా ఆసుపత్రి, భీమవరం',
+                appointmentDate: dateVal,
+                slotTime: 'Walk-in Immediate',
+                status: 'CONFIRMED',
+                roomNo: d.roomNo
+            };
+
+            localList.unshift(walkinApp);
+            saveLocalApps(localList);
+
+            closeWalkinModal();
+            showSlip(walkinApp);
+            renderQueueBoard();
+        }
+
+        // ========================================================
+        // PATIENT PORTAL (NO OTP REQUIRED!)
+        // ========================================================
+        function openLogin() {
+            document.getElementById('portalModalBack').style.display = 'flex';
+        }
+        function closePortalModal() {
+            document.getElementById('portalModalBack').style.display = 'none';
+        }
+
+        async function lookupPortalAppointments() {
+            let phone = document.getElementById('portalPhoneInput').value.trim().replace(/\D/g, '').slice(-10);
+            if (!/^[6-9]\d{9}$/.test(phone)) {
+                alert("దయచేసి సరైన 10 అంకెల మొబైల్ నంబర్ నమోదు చేయండి.");
+                return;
+            }
+
+            let results = [];
+            if (isBackendLive) {
+                try {
+                    let res = await fetch(`/api/appointments?phone=${phone}`);
+                    results = await res.json();
+                } catch (e) {}
+            }
+            if (!results.length) {
+                results = getLocalApps().filter(x => x.patientPhone.endsWith(phone));
+            }
+
+            let area = document.getElementById('portalResultsArea');
+            if (!results.length) {
+                area.innerHTML = `<div style="text-align:center;padding:20px;color:#777">ఈ నంబర్‌పై అపాయింట్‌మెంట్లు లేవు. కొత్తగా బుక్ చేసుకోండి.</div>`;
+                return;
+            }
+
+            area.innerHTML = results.map(app => `
+                <div style="background:#f7fbff;border:1px solid #dce8f5;border-radius:10px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+                    <div>
+                        <span class="tokenpill">TOKEN #${String(app.tokenNumber).padStart(2, '0')}</span>
+                        <strong style="margin-left:8px;font-size:13px">${app.patientName}</strong>
+                        <div style="font-size:11px;color:#555;margin-top:4px">👨‍⚕️ ${currentLang === 'te' ? (app.doctorNameTe || app.doctorNameEn) : app.doctorNameEn} (${app.department})</div>
+                        <div style="font-size:11px;color:#555">📅 ${app.appointmentDate} at ${app.slotTime} · 📍 ${app.roomNo}</div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:6px">
+                        <button class="primary" style="font-size:11px;padding:7px 12px" onclick="showSlipById('${app.id}')">🖨️ స్లిప్</button>
+                        ${app.status !== 'CANCELLED' ? `<button class="textbutton" style="color:#d32f2f;font-size:11px" onclick="cancelAppById('${app.id}')">✕ రద్దు</button>` : '<span style="font-size:10px;color:#999">రద్దు చేయబడింది</span>'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function cancelAppById(id) {
+            if (!confirm("ఈ అపాయింట్‌మెంట్‌ను రద్దు చేయాలనుకుంటున్నారా?")) return;
+            if (isBackendLive) {
+                try { await fetch(`/api/appointments/${id}/cancel`, { method: 'POST' }); } catch (e) {}
+            }
+            let list = getLocalApps();
+            let app = list.find(x => x.id === id);
+            if (app) app.status = 'CANCELLED';
+            saveLocalApps(list);
+
+            alert("అపాయింట్‌మెంట్ రద్దు చేయబడింది.");
+            lookupPortalAppointments();
+            applyFilters();
+            renderQueueBoard();
+        }
+
+        function showSlipById(id) {
+            let list = getLocalApps();
+            let app = list.find(x => x.id === id);
+            if (app) showSlip(app);
+        }
+
+        // ========================================================
+        // HOSPITALS DIRECTORY & CHECK APPOINTMENT MODALS
+        // ========================================================
+        function openHospitalsDirectory() {
+            let area = document.getElementById('hospListArea');
+            area.innerHTML = hospitalsData.map(h => `
+                <div class="hospcard">
+                    <b>🏥 ${currentLang === 'te' ? h.nameTe : h.nameEn}</b>
+                    <div class="bedbadges">
+                        <span>పడకలు: ${h.beds}</span>
+                        <span style="color:var(--green)">అందుబాటు: ${h.avail}</span>
+                        <span style="color:var(--blue)">ICU: ${h.icu}</span>
+                        <span style="color:#d97706">ఆక్సిజన్: ${h.oxy}</span>
+                    </div>
+                    <div style="font-size:11px;color:#555">📞 ఫోన్: <b>${h.phone}</b> | 🚨 అత్యవసరం: <b>${h.em}</b></div>
+                    <button class="primary" style="font-size:11px;padding:6px 12px;margin-top:8px" onclick="chooseHospAndBook('${h.id}')">ఈ ఆసుపత్రిలో బుక్ చేయండి →</button>
+                </div>
+            `).join('');
+            document.getElementById('hospModalBack').style.display = 'flex';
+        }
+
+        function closeHospModal() {
+            document.getElementById('hospModalBack').style.display = 'none';
+        }
+
+        function chooseHospAndBook(hospId) {
+            document.getElementById('hospital').value = hospId;
+            closeHospModal();
+            applyFilters();
+            document.getElementById('booking').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function openCheck() {
+            document.getElementById('checkQueryInput').value = '';
+            document.getElementById('checkResultArea').innerHTML = '';
+            document.getElementById('checkModalBack').style.display = 'flex';
+        }
+
+        function closeCheckModal() {
+            document.getElementById('checkModalBack').style.display = 'none';
+        }
+
+        async function executeCheckSearch() {
+            let q = document.getElementById('checkQueryInput').value.trim();
+            if (!q) {
+                alert("దయచేసి రిఫరెన్స్ ఐడీ లేదా మొబైల్ నంబర్ నమోదు చేయండి.");
+                return;
+            }
+
+            let found = null;
+            if (isBackendLive) {
+                try {
+                    let res = await fetch(`/api/appointments?refId=${encodeURIComponent(q)}&phone=${encodeURIComponent(q)}`);
+                    let list = await res.json();
+                    if (list.length) found = list[0];
+                } catch (e) {}
+            }
+
+            if (!found) {
+                let localList = getLocalApps();
+                found = localList.find(x => x.id.toUpperCase() === q.toUpperCase() || x.patientPhone.endsWith(q));
+            }
+
+            let resArea = document.getElementById('checkResultArea');
+            if (found) {
+                resArea.innerHTML = `
+                    <div style="background:#eef7ff;border:1px solid #b9d9ff;padding:12px;border-radius:8px">
+                        <strong>${found.patientName} (టోకెన్ #${found.tokenNumber})</strong>
+                        <div style="font-size:11px;color:#456;margin:4px 0">డాక్టర్: ${found.doctorNameEn} · రూమ్: ${found.roomNo || 'Room 102'}</div>
+                        <div style="font-size:11px;color:#456">తేదీ: ${found.appointmentDate} (${found.slotTime})</div>
+                        <div style="font-size:11px;font-weight:700;color:var(--green)">స్టేటస్: ${found.status}</div>
+                        <button class="primary" style="font-size:11px;padding:6px 12px;margin-top:8px" onclick="showSlipById('${found.id}')">🖨️ అధికారిక స్లిప్ ముద్రించండి</button>
+                    </div>
+                `;
+            } else {
+                resArea.innerHTML = `<div style="color:#d32f2f;font-size:12px">ఎటువంటి అపాయింట్‌మెంట్ వివరాలు కనుగొనబడలేదు.</div>`;
+            }
+        }
+
+        function profile(nameEn) {
+            let d = docs.find(x => x.nameEn === nameEn);
+            if (!d) return;
+            let name = currentLang === 'te' ? d.nameTe : d.nameEn;
+            let role = currentLang === 'te' ? d.roleTe : d.roleEn;
+            alert(`${name}\n${d.qual}\n${role}\nఓపీడీ: ${d.hours}\nరూమ్: ${d.roomNo}\n\nఆంధ్రప్రదేశ్ ప్రభుత్వ వైద్య సేవలు · భీమవరం`);
+        }
+
+        // Grievance submit
+        async function submitGrievance(e) {
+            e.preventDefault();
+            let n = document.getElementById('grvName').value.trim();
+            let p = document.getElementById('grvPhone').value.trim();
+            let msg = document.getElementById('grvMsg').value.trim();
+            let hosp = document.getElementById('grvHosp').value;
+
+            let grvId = 'AP-GRV-' + Math.floor(1000 + Math.random() * 9000);
+
+            if (isBackendLive) {
+                try {
+                    await fetch('/api/grievances', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ citizenName: n, citizenPhone: p, hospitalName: hosp, category: 'General', message: msg })
+                    });
+                } catch (e) {}
+            }
+
+            alert(`మీ ఫిర్యాదు విజయవంతంగా సమర్పించబడింది!\nట్రాకింగ్ ఐడీ: ${grvId}\nఆసుపత్రి సూపరింటెండెంట్ కార్యాలయం దీనిని పరిశీలిస్తుంది.`);
+            document.getElementById('grvName').value = '';
+            document.getElementById('grvPhone').value = '';
+            document.getElementById('grvMsg').value = '';
+        }
+
+        function setTab(el) {
+            document.querySelectorAll('.tab').forEach(x => x.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        // Language Switcher
+        function changeLanguage(lang) {
+            currentLang = (lang === 'en') ? 'en' : 'te';
+            try { localStorage.setItem('medislot_lang', currentLang); } catch (e) { }
+            document.documentElement.lang = currentLang;
+
+            const t = i18n[currentLang];
+            document.title = t.pageTitle;
+
+            document.getElementById('brandGov').textContent = t.brandGov;
+            document.getElementById('brandDept').textContent = t.brandDept;
+            document.getElementById('brandTagline').textContent = t.brandTagline;
+            document.getElementById('topLocation').textContent = t.topLocation;
+            document.getElementById('loginBtn').textContent = t.loginBtn;
+            document.getElementById('langSelect').value = currentLang;
+
+            document.getElementById('navHome').textContent = t.navHome;
+            document.getElementById('navDoctors').textContent = t.navDoctors;
+            document.getElementById('navDepts').textContent = t.navDepts;
+            document.getElementById('navBooking').textContent = t.navBooking;
+            document.getElementById('navQueue').textContent = t.navQueue;
+            document.getElementById('navServices').textContent = t.navServices;
+            document.getElementById('navInfo').textContent = t.navInfo;
+            document.getElementById('navContact').textContent = t.navContact;
+            document.getElementById('globalSearch').placeholder = t.globalSearchPlaceholder;
+
+            document.getElementById('heroHeading').innerHTML = t.heroHeading;
+            document.getElementById('heroDesc').textContent = t.heroDesc;
+            document.getElementById('perk1').textContent = t.perk1;
+            document.getElementById('perk2').textContent = t.perk2;
+            document.getElementById('perk3').textContent = t.perk3;
+            document.getElementById('perk4').textContent = t.perk4;
+            document.getElementById('quoteText').textContent = t.quoteText;
+            document.getElementById('quoteAuthor').textContent = t.quoteAuthor;
+
+            document.getElementById('tabBook').innerHTML = t.tabBook;
+            document.getElementById('tabFindDoc').innerHTML = t.tabFindDoc;
+            document.getElementById('tabFindHosp').innerHTML = t.tabFindHosp;
+            document.getElementById('tabCheck').innerHTML = t.tabCheck;
+            document.getElementById('tabLiveQueue').innerHTML = t.tabLiveQueue;
+
+            document.getElementById('lblHospital').textContent = t.lblHospital;
+            document.getElementById('lblDept').textContent = t.lblDept;
+            document.getElementById('lblDoc').textContent = t.lblDoc;
+            document.getElementById('lblDate').textContent = t.lblDate;
+            document.getElementById('btnSearchAvailability').innerHTML = t.btnSearchAvailability;
+
+            document.getElementById('deptsHeading').textContent = t.deptsHeading;
+            document.getElementById('btnViewAllDepts').textContent = t.btnViewAllDepts;
+            drawDepts();
+
+            document.getElementById('docsHeading').textContent = t.docsHeading;
+            document.getElementById('docsSubheading').textContent = t.docsSubheading;
+            document.getElementById('btnMobileFilter').textContent = t.btnMobileFilter;
+            document.getElementById('filtersHeading').textContent = t.filtersHeading;
+            document.getElementById('btnClearFilters').textContent = t.btnClearFilters;
+            document.getElementById('lblSpecFilter').textContent = t.lblSpecFilter;
+            document.getElementById('lblDateFilter').textContent = t.lblDateFilter;
+            document.getElementById('lblTimePref').textContent = t.lblTimePref;
+            document.getElementById('lblMorning').textContent = t.lblMorning;
+            document.getElementById('lblAfternoon').textContent = t.lblAfternoon;
+            document.getElementById('filterNote').textContent = t.filterNote;
+            document.getElementById('empty').textContent = t.emptyDocs;
+
+            document.getElementById('queueTitle').textContent = t.queueTitle;
+            document.getElementById('queueSub').textContent = t.queueSub;
+            document.getElementById('lblNowServing').textContent = t.lblNowServing;
+            document.getElementById('lblWaiting').textContent = t.lblWaiting;
+            document.getElementById('lblInConsult').textContent = t.lblInConsult;
+            document.getElementById('lblDone').textContent = t.lblDone;
+            document.getElementById('btnCallNext').innerHTML = t.btnCallNext;
+            document.getElementById('btnIssueWalkin').innerHTML = t.btnIssueWalkin;
+
+            document.getElementById('servicesHeading').textContent = t.servicesHeading;
+            document.getElementById('servicesSub').textContent = t.servicesSub;
+            document.getElementById('contactHeading').textContent = t.contactHeading;
+            document.getElementById('contactSub').textContent = t.contactSub;
+            document.getElementById('btnSubmitGrv').textContent = t.btnSubmitGrv;
+
+            applyFilters();
+            renderQueueBoard();
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('bookingDate').value = localDate();
+            document.getElementById('dateFilter').value = localDate();
+            seedLocal();
+            await checkServer();
+
+            let saved = 'te';
+            try {
+                let s = localStorage.getItem('medislot_lang');
+                if (s === 'en' || s === 'te') saved = s;
+            } catch (e) {}
+
+            changeLanguage(saved);
+        });
+
+        // Close modals on clicking backdrop
+        window.addEventListener('click', e => {
+            if (e.target.classList.contains('modalback')) {
+                e.target.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 
 </html>
