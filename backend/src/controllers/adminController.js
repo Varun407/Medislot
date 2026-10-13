@@ -269,11 +269,278 @@ async function getAuditLogs(req, res, next) {
     }
 }
 
+// 7. Get OPD Doctors Overview (All verified doctors with today's OPD schedule and queue count)
+async function getOpdDoctors(req, res, next) {
+    try {
+        const today = getTodayString();
+        const doctors = await all(`
+            SELECT 
+                dp.*,
+                u.email,
+                u.status as userStatus
+            FROM doctor_profiles dp
+            JOIN users u ON dp.userId = u.id
+            WHERE dp.verificationStatus = 'VERIFIED'
+            ORDER BY dp.fullName ASC
+        `);
+
+        const result = [];
+        for (const doc of doctors) {
+            const todayBookings = await get(`
+                SELECT 
+                    COUNT(*) as total,
+                    SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) as completed,
+                    SUM(CASE WHEN status = 'CANCELLED' THEN 1 ELSE 0 END) as cancelled,
+                    SUM(CASE WHEN status IN ('CONFIRMED', 'CALLED', 'IN_CONSULTATION') THEN 1 ELSE 0 END) as waiting
+                FROM appointments
+                WHERE doctorNameEn = ? AND appointmentDate = ?
+            `, [doc.fullName, today]);
+
+            const queueState = await get(
+                'SELECT currentServingToken FROM opd_queue_state WHERE doctorNameEn = ? AND appointmentDate = ?',
+                [doc.fullName, today]
+            );
+
+            let slots = [];
+            try {
+                slots = doc.slotsJson ? JSON.parse(doc.slotsJson) : [];
+            } catch (_) {
+                slots = [];
+            }
+
+            result.push({
+                ...doc,
+                slots,
+                todayStats: {
+                    total: todayBookings.total || 0,
+                    completed: todayBookings.completed || 0,
+                    cancelled: todayBookings.cancelled || 0,
+                    waiting: todayBookings.waiting || 0,
+                    currentServingToken: queueState ? queueState.currentServingToken : 0
+                }
+            });
+        }
+
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+}
+
+// 8. Update Doctor OPD Configuration (Admin managing duty availability, room, hours, slots for any doctor)
+async function updateDoctorOpdConfig(req, res, next) {
+    try {
+        const { id } = req.params; // doctor userId
+        const { todayAvailable, roomNo, consultationHours, slots } = req.body;
+
+        const doctorProf = await get('SELECT * FROM doctor_profiles WHERE userId = ?', [id]);
+        if (!doctorProf) {
+            return res.status(404).json({ error: 'Doctor profile not found.' });
+        }
+
+        const now = new Date().toISOString();
+        const slotsJson = Array.isArray(slots) ? JSON.stringify(slots) : doctorProf.slotsJson;
+        const avail = todayAvailable !== undefined ? (todayAvailable ? 1 : 0) : doctorProf.todayAvailable;
+        const room = roomNo !== undefined ? roomNo.trim() : doctorProf.roomNo;
+        const hours = consultationHours !== undefined ? consultationHours.trim() : doctorProf.consultationHours;
+
+        await run(`
+            UPDATE doctor_profiles
+            SET todayAvailable = ?,
+                roomNo = ?,
+                consultationHours = ?,
+                slotsJson = ?,
+                updatedAt = ?
+            WHERE userId = ?
+        `, [avail, room, hours, slotsJson, now, id]);
+
+        // Sync with public doctors catalog
+        await run(`
+            UPDATE doctors
+            SET todayAvailable = ?,
+                roomNo = ?,
+                hours = ?,
+                slotsJson = ?
+            WHERE nameEn = ?
+        `, [avail, room, hours, slotsJson, doctorProf.fullName]);
+
+        // Audit Log
+        await createAuditLog({
+            actorUserId: req.user.id,
+            actorRole: 'ADMIN',
+            action: 'ADMIN_UPDATED_DOCTOR_OPD',
+            resource: 'doctor_profiles',
+            resourceId: id,
+            details: {
+                doctorName: doctorProf.fullName,
+                todayAvailable: avail,
+                roomNo: room,
+                consultationHours: hours,
+                slotCount: Array.isArray(slots) ? slots.length : undefined
+            },
+            ipAddress: req.ip
+        });
+
+        const updated = await get('SELECT * FROM doctor_profiles WHERE userId = ?', [id]);
+        res.json({
+            message: `OPD configuration updated for ${doctorProf.fullName}.`,
+            doctor: {
+                ...updated,
+                slots: Array.isArray(slots) ? slots : JSON.parse(updated.slotsJson || '[]')
+            }
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+// 9. Get Doctor Live OPD Queue for Admin
+async function getDoctorOpdQueue(req, res, next) {
+    try {
+        const { doctorName } = req.query;
+        if (!doctorName) {
+            return res.status(400).json({ error: 'doctorName query parameter is required.' });
+        }
+        const queryDate = req.query.date || getTodayString();
+
+        const queueState = await get(
+            'SELECT currentServingToken FROM opd_queue_state WHERE doctorNameEn = ? AND appointmentDate = ?',
+            [doctorName, queryDate]
+        );
+        const currentToken = queueState ? queueState.currentServingToken : 0;
+
+        const appointments = await all(`
+            SELECT * FROM appointments 
+            WHERE doctorNameEn = ? AND appointmentDate = ?
+            ORDER BY tokenNumber ASC
+        `, [doctorName, queryDate]);
+
+        const waiting = appointments.filter(a => a.status === 'CONFIRMED' || a.status === 'CALLED');
+        const inConsultation = appointments.filter(a => a.status === 'IN_CONSULTATION');
+        const completed = appointments.filter(a => a.status === 'COMPLETED');
+
+        res.json({
+            doctorNameEn: doctorName,
+            appointmentDate: queryDate,
+            currentServingToken: currentToken,
+            totalPatients: appointments.length,
+            waitingCount: waiting.length,
+            inConsultationCount: inConsultation.length,
+            completedCount: completed.length,
+            patients: appointments
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+// 10. Call Next OPD Token (Admin advances doctor queue on behalf of clinic)
+async function callNextOpdToken(req, res, next) {
+    try {
+        const { doctorName } = req.body;
+        if (!doctorName) {
+            return res.status(400).json({ error: 'doctorName is required.' });
+        }
+        const queryDate = req.body.date || getTodayString();
+
+        const queueState = await get(
+            'SELECT currentServingToken FROM opd_queue_state WHERE doctorNameEn = ? AND appointmentDate = ?',
+            [doctorName, queryDate]
+        );
+        const currentToken = queueState ? queueState.currentServingToken : 0;
+
+        const nextPatient = await get(`
+            SELECT * FROM appointments 
+            WHERE doctorNameEn = ? AND appointmentDate = ? AND tokenNumber > ? 
+              AND status != 'CANCELLED' AND status != 'COMPLETED' 
+            ORDER BY tokenNumber ASC LIMIT 1
+        `, [doctorName, queryDate, currentToken]);
+
+        if (!nextPatient) {
+            return res.json({
+                message: 'No more waiting patients in queue for today.',
+                currentServingToken: currentToken,
+                patient: null
+            });
+        }
+
+        await run(`
+            INSERT INTO opd_queue_state (doctorNameEn, appointmentDate, currentServingToken)
+            VALUES (?, ?, ?)
+            ON CONFLICT(doctorNameEn, appointmentDate) DO UPDATE SET currentServingToken = excluded.currentServingToken
+        `, [doctorName, queryDate, nextPatient.tokenNumber]);
+
+        await run(
+            "UPDATE appointments SET status = 'CALLED', updatedAt = ? WHERE id = ?",
+            [new Date().toISOString(), nextPatient.id]
+        );
+
+        await createAuditLog({
+            actorUserId: req.user.id,
+            actorRole: 'ADMIN',
+            action: 'ADMIN_CALLED_OPD_TOKEN',
+            resource: 'appointments',
+            resourceId: nextPatient.id,
+            details: { doctorName, tokenNumber: nextPatient.tokenNumber, patientName: nextPatient.patientName },
+            ipAddress: req.ip
+        });
+
+        res.json({
+            message: `Token #${String(nextPatient.tokenNumber).padStart(2, '0')} (${nextPatient.patientName}) called for consultation.`,
+            currentServingToken: nextPatient.tokenNumber,
+            patient: nextPatient
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+// 11. Update Specific Appointment Status (Admin marking completed / in-consultation / cancelled)
+async function updateAppointmentStatus(req, res, next) {
+    try {
+        const { appointmentId, status } = req.body;
+        if (!['IN_CONSULTATION', 'COMPLETED', 'CANCELLED', 'CONFIRMED'].includes(status)) {
+            return res.status(400).json({ error: 'Invalid appointment status.' });
+        }
+
+        const appt = await get('SELECT * FROM appointments WHERE id = ?', [appointmentId]);
+        if (!appt) {
+            return res.status(404).json({ error: 'Appointment not found.' });
+        }
+
+        const now = new Date().toISOString();
+        await run('UPDATE appointments SET status = ?, updatedAt = ? WHERE id = ?', [status, now, appointmentId]);
+
+        await createAuditLog({
+            actorUserId: req.user.id,
+            actorRole: 'ADMIN',
+            action: `ADMIN_SET_APPOINTMENT_${status}`,
+            resource: 'appointments',
+            resourceId: appointmentId,
+            details: { doctorName: appt.doctorNameEn, patientName: appt.patientName, status },
+            ipAddress: req.ip
+        });
+
+        const updated = await get('SELECT * FROM appointments WHERE id = ?', [appointmentId]);
+        res.json({
+            message: `Appointment ${appointmentId} updated to ${status}.`,
+            appointment: updated
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     getDashboardStats,
     getDoctors,
     updateDoctorStatus,
     getPatients,
     getAppointments,
-    getAuditLogs
+    getAuditLogs,
+    getOpdDoctors,
+    updateDoctorOpdConfig,
+    getDoctorOpdQueue,
+    callNextOpdToken,
+    updateAppointmentStatus
 };

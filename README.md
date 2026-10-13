@@ -162,26 +162,40 @@ npm run seed:admin
 
 ---
 
-### Step 4: Run the Applications
+### Step 4: Run Complete Project with a Single Command
 
-Start both applications in separate terminals:
+To run both the backend server and frontend application simultaneously with a **single command**, open your terminal in the root directory and run:
 
-#### Terminal 1 (Backend Server):
 ```bash
-# Starts backend on http://localhost:5000
-npm run dev:backend
+npm start
 ```
+*(or `npm run dev`)*
 
-#### Terminal 2 (Frontend Client):
-```bash
-# Starts Vite React dev server on http://localhost:5173
-npm run dev:frontend
-```
+#### What happens when you run this command:
+1. Automatically launches the **Node.js Express backend API** on `http://localhost:5000`.
+2. Automatically launches the **Vite React TypeScript frontend** on `http://localhost:5173`.
+3. Displays a formatted dashboard in your terminal with colored logs (`[BACKEND]` in cyan, `[FRONTEND]` in green).
+4. Directs you straight to the **Unified Sign In page**:
+   - Open your browser to **`http://localhost:5173/`**.
+   - Entering **Doctor credentials** (`dr.ramesh@medislot.gov.in` / `DoctorPass@2026`) directly opens the Doctor OPD Queue Dashboard.
+   - Entering **Patient credentials** (`patient@medislot.gov.in` / `PatientPass@2026`) directly opens the Patient Dashboard.
+   - Entering **Admin credentials** (`admin@medislot.gov.in` / `AdminSecure@2026`) opens the Admin Control Center & Centralized OPD Hub.
+5. Press `Ctrl + C` in your terminal at any time to gracefully terminate both services together.
 
-Once running:
-- Open your browser to **`http://localhost:5173`** for the public portal & patient/doctor services.
-- Open **`http://localhost:5173/control-center/login`** for the hidden administrator control center.
-- Backend REST API and health checks are available at **`http://localhost:5000/api/health`** and **`http://localhost:5000/api/v1/*`**.
+---
+
+### Centralized OPD Management for All Doctors (Admin Hub)
+Accessible by platform administrators at **`/admin/opd`** or via the Admin Dashboard:
+- **Doctor Rosters & Schedules**:
+  - Live duty status toggle (`🟢 On Duty (OPD Open)` / `🔴 Off Duty (OPD Closed)`).
+  - Re-allocate OPD room numbers (e.g. `Room 102 (OPD Ground Floor)`).
+  - Configure daily consultation hours (e.g. `8:30 AM - 2:00 PM`).
+  - Add, remove, or customize active consultation time slot intervals. Changes sync immediately with the public booking directory.
+- **Live OPD Queue Reception & Token Desk**:
+  - Select any duty doctor to view their live token queue for today.
+  - View current serving token, waiting patients, and completed consultations.
+  - Click **"Call Next Token"** to advance the queue and alert the next patient on behalf of the clinic.
+  - Mark individual patient visits as `In Consultation`, `Completed`, or `Cancelled (No-Show)`.
 
 ---
 
@@ -193,7 +207,7 @@ Run the comprehensive automated test suite (powered by Node.js native test runne
 npm test
 ```
 
-### Automated Test Coverage (18 Scenarios):
+### Automated Test Coverage (22 Scenarios - 100% Passing):
 1. Health check returns healthy status
 2. Public endpoints return AP hospitals and clinical departments
 3. Patient registration succeeds with valid data
@@ -212,6 +226,10 @@ npm test
 16. Patient can book the freed slot after cancellation
 17. Verified doctor login and live queue access
 18. Admin dashboard stats returns complete platform analytics
+19. Unified login correctly detects DOCTOR role and credentials
+20. Unified login correctly detects PATIENT role and credentials
+21. Admin can retrieve OPD doctors roster and queue counts (`/api/v1/admin/opd/doctors`)
+22. Admin can update doctor OPD duty status, room number, and consultation hours (`/api/v1/admin/opd/doctors/:id`)
 
 ---
 

@@ -12,7 +12,8 @@ import {
   Clock,
   Activity,
   CheckCircle,
-  FileText
+  FileText,
+  Stethoscope
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -43,14 +44,18 @@ export const AdminDashboard: React.FC = () => {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <Link to="/admin/doctors" className="btn btn-primary btn-sm">
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <Link to="/admin/opd" className="btn btn-primary btn-sm" style={{ background: 'var(--emerald-600)', borderColor: 'var(--emerald-600)' }}>
+            <Stethoscope size={14} />
+            Manage Doctor OPDs & Queues
+          </Link>
+          <Link to="/admin/doctors" className="btn btn-outline btn-sm">
             <UserCheck size={14} />
-            Doctor Verification Queue ({stats?.doctors.pending || 0})
+            Doctor Approvals ({stats?.doctors.pending || 0})
           </Link>
           <Link to="/admin/audit-logs" className="btn btn-secondary btn-sm">
             <ShieldAlert size={14} />
-            Security Audit Logs
+            Audit Logs
           </Link>
         </div>
       </div>
@@ -197,6 +202,13 @@ export const AdminDashboard: React.FC = () => {
               Administrative Workflows
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <Link to="/admin/opd" className="btn btn-primary btn-sm" style={{ justifyContent: 'space-between', background: 'var(--blue-600)' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Stethoscope size={14} />
+                  Doctor OPD Rosters & Queue Control
+                </span>
+                <ArrowRight size={14} />
+              </Link>
               <Link to="/admin/doctors" className="btn btn-secondary btn-sm" style={{ justifyContent: 'space-between' }}>
                 <span>Doctor Licensure & Verification</span>
                 <ArrowRight size={14} />

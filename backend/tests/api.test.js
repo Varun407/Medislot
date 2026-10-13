@@ -371,4 +371,43 @@ describe('Medislot Backend Comprehensive Tests', () => {
         const data = await res.json();
         assert.equal(data.user.role, 'PATIENT');
     });
+
+    test('21. Admin can retrieve OPD doctors roster and queue counts', async () => {
+        const res = await fetch(`${baseUrl}/api/v1/admin/opd/doctors`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+
+        assert.equal(res.status, 200);
+        const docs = await res.json();
+        assert.ok(Array.isArray(docs));
+        assert.ok(docs.length > 0);
+        assert.ok(docs[0].todayStats !== undefined);
+    });
+
+    test('22. Admin can update doctor OPD duty status, room number, and consultation hours', async () => {
+        const getDocsRes = await fetch(`${baseUrl}/api/v1/admin/opd/doctors`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const docs = await getDocsRes.json();
+        const targetDoc = docs[0];
+
+        const updateRes = await fetch(`${baseUrl}/api/v1/admin/opd/doctors/${targetDoc.userId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${adminToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                todayAvailable: 1,
+                roomNo: 'Room 205 (OPD Super-Specialty)',
+                consultationHours: '9:00 AM - 3:00 PM',
+                slots: ['09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM']
+            })
+        });
+
+        assert.equal(updateRes.status, 200);
+        const data = await updateRes.json();
+        assert.equal(data.doctor.roomNo, 'Room 205 (OPD Super-Specialty)');
+        assert.equal(data.doctor.consultationHours, '9:00 AM - 3:00 PM');
+    });
 });

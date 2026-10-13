@@ -34,6 +34,7 @@ import { DoctorAvailability } from './pages/doctor/DoctorAvailability';
 import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { DoctorVerification } from './pages/admin/DoctorVerification';
+import { OpdManagement } from './pages/admin/OpdManagement';
 import { PatientManagement } from './pages/admin/PatientManagement';
 import { AppointmentManagement } from './pages/admin/AppointmentManagement';
 import { AuditLogs } from './pages/admin/AuditLogs';
@@ -126,6 +127,14 @@ export const App: React.FC = () => {
                     element={
                       <ProtectedRoute allowedRoles={['ADMIN']}>
                         <DoctorVerification />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/opd"
+                    element={
+                      <ProtectedRoute allowedRoles={['ADMIN']}>
+                        <OpdManagement />
                       </ProtectedRoute>
                     }
                   />

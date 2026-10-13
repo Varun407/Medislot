@@ -3,10 +3,12 @@
   "version": "2.0.0",
   "description": "MediSlot - Government Hospital OPD Appointment & Digital Token Queue System with Role-Based Authentication",
   "scripts": {
-    "dev": "npm run dev:backend",
+    "start": "node scripts/dev.js",
+    "dev": "node scripts/dev.js",
     "dev:backend": "npm --prefix backend run dev",
     "dev:frontend": "npm --prefix frontend run dev",
     "start:backend": "npm --prefix backend start",
+    "build": "npm --prefix frontend run build",
     "build:frontend": "npm --prefix frontend run build",
     "test": "npm --prefix backend test",
     "seed:admin": "npm --prefix backend run seed:admin",
