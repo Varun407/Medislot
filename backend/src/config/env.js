@@ -13,5 +13,6 @@ module.exports = {
     ADMIN_DEFAULT_EMAIL: process.env.ADMIN_DEFAULT_EMAIL || 'admin@medislot.gov.in',
     ADMIN_DEFAULT_PASSWORD: process.env.ADMIN_DEFAULT_PASSWORD || 'AdminSecure@2026',
     ADMIN_DEFAULT_NAME: process.env.ADMIN_DEFAULT_NAME || 'Chief Medical Administrator',
-    ADMIN_DEFAULT_PHONE: process.env.ADMIN_DEFAULT_PHONE || '9848099999'
+    ADMIN_DEFAULT_PHONE: process.env.ADMIN_DEFAULT_PHONE || '9848099999',
+    MONGODB_URI: process.env.MONGODB_URI || ''
 };
