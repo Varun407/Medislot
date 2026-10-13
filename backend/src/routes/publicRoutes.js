@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const publicController = require('../controllers/publicController');
+const { authenticateToken } = require('../middleware/auth');
+
+// No content can be accessed without login
+router.use(authenticateToken);
 
 router.get('/stats', publicController.getPublicStats);
 router.get('/hospitals', publicController.getHospitals);

@@ -225,23 +225,6 @@ export const UnifiedLogin: React.FC = () => {
             </Link>
           </div>
         </div>
-
-        {/* Public Exploration Links */}
-        <div style={{ borderTop: '1px solid var(--slate-100)', marginTop: '16px', paddingTop: '14px', display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '0.78rem' }}>
-          <Link to="/doctors" style={{ color: 'var(--slate-500)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-            <Stethoscope size={13} />
-            Doctor Directory
-          </Link>
-          <span style={{ color: 'var(--slate-300)' }}>•</span>
-          <Link to="/hospitals" style={{ color: 'var(--slate-500)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-            <Building2 size={13} />
-            Live Bed Counters
-          </Link>
-          <span style={{ color: 'var(--slate-300)' }}>•</span>
-          <Link to="/grievance" style={{ color: 'var(--slate-500)' }}>
-            Grievances
-          </Link>
-        </div>
       </div>
     </div>
   );

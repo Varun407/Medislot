@@ -53,10 +53,40 @@ export const App: React.FC = () => {
                   {/* Root directly renders Unified Login */}
                   <Route path="/" element={<UnifiedLogin />} />
                   <Route path="/login" element={<UnifiedLogin />} />
-                  <Route path="/home" element={<Home />} />
-                  <Route path="/doctors" element={<DoctorsDirectory />} />
-                  <Route path="/hospitals" element={<HospitalsDirectory />} />
-                  <Route path="/grievance" element={<Grievances />} />
+
+                  {/* Authenticated-Only Content Routes (No content can be accessed without login) */}
+                  <Route
+                    path="/home"
+                    element={
+                      <ProtectedRoute allowedRoles={['PATIENT', 'DOCTOR', 'ADMIN']}>
+                        <Home />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/doctors"
+                    element={
+                      <ProtectedRoute allowedRoles={['PATIENT', 'DOCTOR', 'ADMIN']}>
+                        <DoctorsDirectory />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/hospitals"
+                    element={
+                      <ProtectedRoute allowedRoles={['PATIENT', 'DOCTOR', 'ADMIN']}>
+                        <HospitalsDirectory />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/grievance"
+                    element={
+                      <ProtectedRoute allowedRoles={['PATIENT', 'DOCTOR', 'ADMIN']}>
+                        <Grievances />
+                      </ProtectedRoute>
+                    }
+                  />
 
                   {/* Authentication Routes (all point to UnifiedLogin for role-based auto-redirection) */}
                   <Route path="/patient/login" element={<UnifiedLogin />} />
