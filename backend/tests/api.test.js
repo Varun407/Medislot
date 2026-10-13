@@ -32,18 +32,16 @@ describe('Medislot Backend Comprehensive Tests', () => {
         assert.equal(data.status, 'healthy');
     });
 
-    test('2. Public endpoints return hospitals and departments', async () => {
+    test('2. Unauthenticated request to content endpoints is rejected with 401', async () => {
         const resHosp = await fetch(`${baseUrl}/api/v1/public/hospitals`);
-        assert.equal(resHosp.status, 200);
-        const hospitals = await resHosp.json();
-        assert.ok(Array.isArray(hospitals));
-        assert.ok(hospitals.length >= 4);
+        assert.equal(resHosp.status, 401);
+        const dataHosp = await resHosp.json();
+        assert.ok(dataHosp.error.includes('Authentication required'));
 
         const resDepts = await fetch(`${baseUrl}/api/v1/public/departments`);
-        assert.equal(resDepts.status, 200);
-        const depts = await resDepts.json();
-        assert.ok(Array.isArray(depts));
-        assert.ok(depts.length >= 9);
+        assert.equal(resDepts.status, 401);
+        const dataDepts = await resDepts.json();
+        assert.ok(dataDepts.error.includes('Authentication required'));
     });
 
     const testPatientEmail = `testpatient_${Date.now()}@example.com`;
@@ -70,6 +68,24 @@ describe('Medislot Backend Comprehensive Tests', () => {
         assert.equal(data.user.email, testPatientEmail);
         patientToken = data.token;
         patientUserId = data.user.id;
+    });
+
+    test('3b. Authenticated user can access hospitals and clinical departments', async () => {
+        const resHosp = await fetch(`${baseUrl}/api/v1/public/hospitals`, {
+            headers: { 'Authorization': `Bearer ${patientToken}` }
+        });
+        assert.equal(resHosp.status, 200);
+        const hospitals = await resHosp.json();
+        assert.ok(Array.isArray(hospitals));
+        assert.ok(hospitals.length >= 4);
+
+        const resDepts = await fetch(`${baseUrl}/api/v1/public/departments`, {
+            headers: { 'Authorization': `Bearer ${patientToken}` }
+        });
+        assert.equal(resDepts.status, 200);
+        const depts = await resDepts.json();
+        assert.ok(Array.isArray(depts));
+        assert.ok(depts.length >= 9);
     });
 
     test('4. Duplicate patient registration is prevented', async () => {

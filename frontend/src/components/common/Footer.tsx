@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import { Shield, Phone, Heart, Activity } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const { t, lang } = useLanguage();
+  const { isAuthenticated } = useAuth();
 
   return (
     <footer className="main-footer no-print">
@@ -25,15 +27,25 @@ export const Footer: React.FC = () => {
             </p>
           </div>
 
-          <div className="footer-col">
-            <h4>{lang === 'te' ? 'త్వరిత లింకులు' : 'Quick Links'}</h4>
-            <ul>
-              <li><Link to="/">{t.navHome}</Link></li>
-              <li><Link to="/doctors">{t.navDoctors}</Link></li>
-              <li><Link to="/hospitals">{t.navHospitals}</Link></li>
-              <li><Link to="/grievance">{t.navGrievance}</Link></li>
-            </ul>
-          </div>
+          {isAuthenticated ? (
+            <div className="footer-col">
+              <h4>{lang === 'te' ? 'త్వరిత లింకులు' : 'Quick Links'}</h4>
+              <ul>
+                <li><Link to="/doctors">{t.navDoctors}</Link></li>
+                <li><Link to="/hospitals">{t.navHospitals}</Link></li>
+                <li><Link to="/grievance">{t.navGrievance}</Link></li>
+              </ul>
+            </div>
+          ) : (
+            <div className="footer-col">
+              <h4>{lang === 'te' ? 'భద్రత & ప్రవేశం' : 'Security & Access'}</h4>
+              <p style={{ color: '#94b8e3', fontSize: '0.8rem', lineHeight: 1.5 }}>
+                {lang === 'te'
+                  ? 'వైద్య రికార్డులు & ఆసుపత్రి క్యూ సమాచారం సురక్షిత లాగిన్ ద్వారా మాత్రమే లభ్యమవుతుంది.'
+                  : 'Medical records and hospital queue rosters are strictly secured behind verified role authentication.'}
+              </p>
+            </div>
+          )}
 
           <div className="footer-col">
             <h4>{lang === 'te' ? 'పోర్టల్ ప్రవేశం' : 'Portal Access'}</h4>

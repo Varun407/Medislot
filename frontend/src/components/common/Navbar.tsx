@@ -70,32 +70,102 @@ export const Navbar: React.FC = () => {
             </div>
           </Link>
 
-          <ul className="nav-links">
-            <li>
-              <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>
-                <Activity size={16} />
-                {t.navHome}
-              </Link>
-            </li>
-            <li>
-              <Link to="/doctors" className={`nav-link ${location.pathname === '/doctors' ? 'active' : ''}`}>
-                <Stethoscope size={16} />
-                {t.navDoctors}
-              </Link>
-            </li>
-            <li>
-              <Link to="/hospitals" className={`nav-link ${location.pathname === '/hospitals' ? 'active' : ''}`}>
-                <Building2 size={16} />
-                {t.navHospitals}
-              </Link>
-            </li>
-            <li>
-              <Link to="/grievance" className={`nav-link ${location.pathname === '/grievance' ? 'active' : ''}`}>
-                <FileText size={16} />
-                {t.navGrievance}
-              </Link>
-            </li>
-          </ul>
+          {isAuthenticated && (
+            <ul className="nav-links">
+              {role === 'PATIENT' && (
+                <>
+                  <li>
+                    <Link to="/patient/dashboard" className={`nav-link ${location.pathname === '/patient/dashboard' ? 'active' : ''}`}>
+                      <Activity size={16} />
+                      {t.patientDashboard}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/patient/book" className={`nav-link ${location.pathname === '/patient/book' ? 'active' : ''}`}>
+                      <Calendar size={16} />
+                      {lang === 'te' ? 'స్లాట్ బుకింగ్' : 'Book OPD Slot'}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/doctors" className={`nav-link ${location.pathname === '/doctors' ? 'active' : ''}`}>
+                      <Stethoscope size={16} />
+                      {t.navDoctors}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/hospitals" className={`nav-link ${location.pathname === '/hospitals' ? 'active' : ''}`}>
+                      <Building2 size={16} />
+                      {t.navHospitals}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/grievance" className={`nav-link ${location.pathname === '/grievance' ? 'active' : ''}`}>
+                      <FileText size={16} />
+                      {t.navGrievance}
+                    </Link>
+                  </li>
+                </>
+              )}
+
+              {role === 'DOCTOR' && (
+                <>
+                  <li>
+                    <Link to="/doctor/dashboard" className={`nav-link ${location.pathname === '/doctor/dashboard' ? 'active' : ''}`}>
+                      <Activity size={16} />
+                      {lang === 'te' ? 'ఓపీడీ క్యూ బోర్డ్' : 'OPD Queue Board'}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/doctor/availability" className={`nav-link ${location.pathname === '/doctor/availability' ? 'active' : ''}`}>
+                      <Calendar size={16} />
+                      {lang === 'te' ? 'డ్యూటీ షెడ్యూల్' : 'Duty Schedule'}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/hospitals" className={`nav-link ${location.pathname === '/hospitals' ? 'active' : ''}`}>
+                      <Building2 size={16} />
+                      {t.navHospitals}
+                    </Link>
+                  </li>
+                </>
+              )}
+
+              {role === 'ADMIN' && (
+                <>
+                  <li>
+                    <Link to="/admin/dashboard" className={`nav-link ${location.pathname === '/admin/dashboard' ? 'active' : ''}`}>
+                      <Activity size={16} />
+                      Control Center
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/opd" className={`nav-link ${location.pathname === '/admin/opd' ? 'active' : ''}`}>
+                      <Stethoscope size={16} />
+                      Manage OPDs
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/doctors" className={`nav-link ${location.pathname === '/admin/doctors' ? 'active' : ''}`}>
+                      <UserIcon size={16} />
+                      Doctor Licensure
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/patients" className={`nav-link ${location.pathname === '/admin/patients' ? 'active' : ''}`}>
+                      <UserIcon size={16} />
+                      Patients
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/appointments" className={`nav-link ${location.pathname === '/admin/appointments' ? 'active' : ''}`}>
+                      <Calendar size={16} />
+                      Appointments
+                    </Link>
+                  </li>
+                </>
+              )}
+            </ul>
+          )}
 
           <div className="header-actions">
             {isAuthenticated && user ? (

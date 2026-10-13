@@ -23,15 +23,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
     );
   }
 
-  // Not authenticated
+  // Not authenticated: strictly deny access and redirect to login form
   if (!isAuthenticated || !user || !role) {
-    if (allowedRoles.includes('ADMIN')) {
+    if (allowedRoles.includes('ADMIN') && location.pathname.startsWith('/admin')) {
       return <Navigate to="/control-center/login" state={{ from: location }} replace />;
     }
-    if (allowedRoles.includes('DOCTOR')) {
-      return <Navigate to="/doctor/login" state={{ from: location }} replace />;
-    }
-    return <Navigate to="/patient/login" state={{ from: location }} replace />;
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   // Wrong role: redirect to user's assigned portal
