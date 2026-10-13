@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="te">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>మెడిస్లాట్ | ఏపీ ప్రభుత్వ ఆసుపత్రి అపాయింట్‌మెంట్లు & ఓపీడీ క్యూ</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Live System Connection Banner -->
+    <div class="sys-banner no-print">
+        <div style="display:flex;align-items:center;gap:10px">
+            <span class="sys-status-badge">
+                <span class="pulse-dot"></span>
+                <span id="sysStatusText" data-i18n="bannerLive">లైవ్ పోర్టల్ కనెక్ట్ చేయబడింది</span>
+            </span>
+            <span data-i18n="bannerGov">ఆంధ్రప్రదేశ్ ప్రభుత్వం · వైద్య, ఆరోగ్య మరియు కుటుంబ సంక్షేమ శాఖ</span>
+        </div>
+        <div style="display:flex;gap:15px;align-items:center">
+            <span data-i18n="emergency108">అత్యవసరం: 108 | ఆరోగ్య సలహా: 104</span>
+        </div>
+    </div>
+
+    <!-- Main Top Header -->
+    <header class="top-header no-print">
+        <div class="brand-wrapper">
+            <div class="govt-emblem" aria-hidden="true">⚕</div>
+            <div class="brand-text">
+                <h1 data-i18n="brandGov">ఆంధ్రప్రదేశ్ ప్రభుత్వం</h1>
+                <p data-i18n="brandDept">వైద్య, ఆరోగ్య మరియు కుటుంబ సంక్షేమ శాఖ</p>
+                <p style="color:var(--emerald-700);font-weight:700;margin-top:1px" data-i18n="brandTagline">ప్రజల ఆరోగ్యం - ప్రభుత్వ ప్రాధాన్యత</p>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="emergency-pill">
+                <span>🚨</span>
+                <span>108 / 104</span>
+            </div>
+            <select id="langSelect" class="lang-dropdown" onchange="changeLanguage(this.value)" aria-label="Select Language">
+                <option value="te" selected>🌐 తెలుగు</option>
+                <option value="en">🌐 English</option>
+            </select>
+            <button class="btn-header-portal" onclick="document.getElementById('patientSection').scrollIntoView({behavior:'smooth'})">
+                <span data-i18n="btnPatientPortal">👤 నా అపాయింట్‌మెంట్లు (రోగి)</span>
+            </button>
+            <button class="btn-header-portal" style="background:var(--navy-900)" onclick="document.getElementById('queueSection').scrollIntoView({behavior:'smooth'})">
+                <span data-i18n="btnDoctorPortal">🩺 డాక్టర్ ఓపీడీ క్యూ</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Navigation Bar -->
+    <nav class="main-nav no-print">
+        <a class="nav-item active" href="#home" data-i18n="navHome">హోమ్</a>
+        <a class="nav-item" href="#bookingSection" data-i18n="navBook">ఓపీడీ బుకింగ్</a>
+        <a class="nav-item" href="#queueSection" data-i18n="navQueue">ఓపీడీ లైవ్ క్యూ</a>
+        <a class="nav-item" href="#patientSection" data-i18n="navPatient">రోగి పోర్టల్</a>
+        <a class="nav-item" href="#hospitalsSection" data-i18n="navHospitals">ఆసుపత్రులు & పడకలు</a>
+        <a class="nav-item" href="#servicesSection" data-i18n="navServices">ఆసుపత్రి సేవలు</a>
+        <a class="nav-item" href="#grievanceSection" data-i18n="navGrievance">ఫిర్యాదుల విభాగం</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section no-print" id="home">
+        <div class="hero-content">
+            <div class="hero-tag">
+                <span>🏛️</span>
+                <span data-i18n="heroTag">ప్రభుత్వ ఆసుపత్రి డిజిటల్ ఓపీడీ సేవలు</span>
+            </div>
+            <h2 class="hero-heading" data-i18n="heroHeading">
+                నాణ్యమైన ఉచిత ప్రభుత్వ వైద్యం,<br>వేచి ఉండే శ్రమ లేకుండా!
+            </h2>
+            <p class="hero-desc" data-i18n="heroDesc">
+                వైద్యుల లభ్యతను తనిఖీ చేయండి, ఓపీడీ స్లాట్లు బుక్ చేసుకోండి, నిజ-సమయ టోకెన్ నంబర్ పొందండి. డా. వైఎస్సార్ ఆరోగ్యశ్రీ & ఆయుష్మాన్ భారత్ అనుసంధాన సేవలు.
+            </p>
+            <div class="hero-badges">
+                <div class="hero-badge-item"><span>👨‍⚕️</span> <span data-i18n="badge1">నమ్మకమైన సూపర్ స్పెషాలిటీ వైద్యులు</span></div>
+                <div class="hero-badge-item"><span>🎫</span> <span data-i18n="badge2">లైవ్ డిజిటల్ టోకెన్ & స్లిప్</span></div>
+                <div class="hero-badge-item"><span>💊</span> <span data-i18n="badge3">ఉచిత పరీక్షలు & ఉచిత మందులు</span></div>
+                <div class="hero-badge-item"><span>🚑</span> <span data-i18n="badge4">24x7 ఎమర్జెన్సీ & ట్రౌమా కేర్</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Stats Bar -->
+    <div class="stats-bar-wrapper no-print">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🏥</div>
+                <div class="stat-info">
+                    <h4 id="statHospitalsCount">4</h4>
+                    <p data-i18n="statHospitals">ప్రభుత్వ ఆసుపత్రులు</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👨‍⚕️</div>
+                <div class="stat-info">
+                    <h4 id="statDoctorsCount">9</h4>
+                    <p data-i18n="statDoctors">అందుబాటులో ఉన్న వైద్యులు</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🛏️</div>
+                <div class="stat-info">
+                    <h4 id="statBedsCount">397</h4>
+                    <p data-i18n="statBeds">మొత్తం పడకలు అందుబాటులో</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-info">
+                    <h4 id="statConsultationsCount">12</h4>
+                    <p data-i18n="statConsultations">నేటి ఓపీడీ రిజిస్ట్రేషన్లు</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="page-container">
+
+        <!-- Booking Section -->
+        <section id="bookingSection" class="booking-control-box no-print">
+            <div class="booking-tabs">
+                <button class="tab-btn active" data-i18n="tabBook">▣ ఓపీడీ బుక్ చేయండి</button>
+                <button class="tab-btn" onclick="document.getElementById('queueSection').scrollIntoView({behavior:'smooth'})" data-i18n="tabQueue">◷ లైవ్ క్యూ బోర్డ్</button>
+                <button class="tab-btn" onclick="document.getElementById('patientSection').scrollIntoView({behavior:'smooth'})" data-i18n="tabCheck">☑ స్లిప్ తనిఖీ / డౌన్‌లోడ్</button>
+            </div>
+
+            <div class="search-fields-grid">
+                <div class="form-group">
+                    <label for="hospitalSelect" data-i18n="lblHospital">ఆసుపత్రిని ఎంచుకోండి</label>
+                    <select id="hospitalSelect" class="form-control" onchange="applyFilters()"></select>
+                </div>
+                <div class="form-group">
+                    <label for="departmentSelect" data-i18n="lblDept">వైద్య విభాగాన్ని ఎంచుకోండి</label>
+                    <select id="departmentSelect" class="form-control" onchange="applyFilters()"></select>
+                </div>
+                <div class="form-group">
+                    <label for="doctorSelect" data-i18n="lblDoctor">వైద్యుడిని ఎంచుకోండి</label>
+                    <select id="doctorSelect" class="form-control" onchange="applyFilters()"></select>
+                </div>
+                <div class="form-group">
+                    <label for="bookingDate" data-i18n="lblDate">తేదీని ఎంచుకోండి</label>
+                    <input type="date" id="bookingDate" class="form-control" onchange="applyFilters()">
+                </div>
+                <button class="btn-primary" onclick="applyFilters()" data-i18n="btnSearch">
+                    ⌕ లభ్యతను శోధించండి
+                </button>
+            </div>
+        </section>
+
+        <!-- Departments Grid -->
+        <section class="no-print" style="margin-bottom:30px">
+            <div class="section-header">
+                <div>
+                    <h3 data-i18n="deptsHeading">ప్రముఖ వైద్య విభాగాలు</h3>
+                </div>
+                <button class="btn-text" onclick="onSelectDepartment('all')">అన్నీ చూడండి →</button>
+            </div>
+            <div class="departments-grid" id="departmentsGrid"></div>
+        </section>
+
+        <!-- Doctors List & Sidebar Filters -->
+        <section id="doctorsSection" class="no-print" style="margin-bottom:45px">
+            <div class="section-header">
+                <div>
+                    <h3 data-i18n="docsHeading">అందుబాటులో ఉన్న ప్రభుత్వ వైద్యులు</h3>
+                    <p data-i18n="docsSub">మీకు కావలసిన వైద్యుడిని ఎంచుకుని నేరుగా ఉచిత ఓపీడీ టోకెన్ పొందండి</p>
+                </div>
+            </div>
+
+            <div class="doctors-layout">
+                <!-- Filters Sidebar -->
+                <aside class="filter-sidebar">
+                    <div class="filter-header">
+                        <h4 data-i18n="filterHeading">ఫిల్టర్లు</h4>
+                        <button class="btn-text" onclick="clearFilters()" data-i18n="btnClearFilter">క్లియర్ చేయండి</button>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="globalSearch">శోధించండి (Search)</label>
+                        <input type="text" id="globalSearch" class="form-control" placeholder="డాక్టర్ పేరు, విభాగం..." oninput="applyFilters()">
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterDepartmentSelect" data-i18n="lblDept">విభాగం</label>
+                        <select id="filterDepartmentSelect" class="form-control" onchange="applyFilters()"></select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterDate" data-i18n="lblDate">తేదీ</label>
+                        <input type="date" id="filterDate" class="form-control" onchange="document.getElementById('bookingDate').value=this.value;applyFilters()">
+                    </div>
+
+                    <div class="filter-group">
+                        <label data-i18n="lblTimePref">సమయ ప్రాధాన్యత</label>
+                        <label class="check-item">
+                            <input type="checkbox" id="chkMorning" onchange="applyFilters()">
+                            <span data-i18n="timeMorning">ఉదయం (8 AM – 12 PM)</span>
+                        </label>
+                        <label class="check-item">
+                            <input type="checkbox" id="chkAfternoon" onchange="applyFilters()">
+                            <span data-i18n="timeAfternoon">మధ్యాహ్నం (12 PM – 4 PM)</span>
+                        </label>
+                    </div>
+                </aside>
+
+                <!-- Doctors Cards List -->
+                <div>
+                    <div class="doctors-list" id="doctorsList"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Doctor OPD Queue Portal Section -->
+        <section id="queueSection" class="queue-board no-print">
+            <div class="queue-header-bar">
+                <div>
+                    <h3 data-i18n="queueHeading">డాక్టర్ & హాస్పిటల్ స్టాఫ్ ఓపీడీ క్యూ బోర్డ్</h3>
+                    <p data-i18n="queueSub" style="font-size:12.5px;color:var(--ink-500);margin-top:2px">
+                        రోజువారీ రోగుల క్యూ నిర్వహణ, తదుపరి టోకెన్ పిలుపు మరియు స్టేటస్ అప్‌డేట్
+                    </p>
+                </div>
+                <div class="queue-doc-selector">
+                    <label for="queueDoctorSelect" style="font-size:12.5px;font-weight:700">డాక్టర్:</label>
+                    <select id="queueDoctorSelect" class="form-control" style="width:240px"></select>
+                </div>
+            </div>
+
+            <!-- Metrics -->
+            <div class="queue-metrics">
+                <div class="metric-box active-token">
+                    <div class="metric-num" id="metricServingToken">#02</div>
+                    <div class="metric-label" data-i18n="metricCurrentToken">ప్రస్తుతం పిలుస్తున్న టోకెన్</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-num" id="metricWaitingCount">3</div>
+                    <div class="metric-label" data-i18n="metricWaiting">వేచి ఉన్న రోగులు</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-num" id="metricInConsultCount">1</div>
+                    <div class="metric-label" data-i18n="metricInConsult">కన్సల్టేషన్‌లో ఉన్నవారు</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-num" id="metricDoneCount">1</div>
+                    <div class="metric-label" data-i18n="metricDone">పూర్తయిన ఓపీడీలు</div>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap">
+                <button class="btn-success" onclick="callNextToken()" data-i18n="btnCallNext">
+                    📢 తదుపరి రోగి టోకెన్ పిలవండి
+                </button>
+                <button class="btn-secondary" onclick="openWalkinModal()" data-i18n="btnWalkin">
+                    ➕ కౌంటర్ వాక్-ఇన్ టోకెన్ జారీ
+                </button>
+            </div>
+
+            <!-- Queue Patient Table -->
+            <div style="overflow-x:auto">
+                <table class="queue-table">
+                    <thead>
+                        <tr>
+                            <th data-i18n="colToken">టోకెన్ #</th>
+                            <th data-i18n="colPatient">రోగి పేరు / వివరాలు</th>
+                            <th data-i18n="colSlot">సమయం</th>
+                            <th data-i18n="colSymptoms">సమస్య / లక్షణాలు</th>
+                            <th data-i18n="colStatus">స్టేటస్</th>
+                            <th data-i18n="colAction">చర్యలు</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queueTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Patient Portal Section (No OTP Required!) -->
+        <section id="patientSection" class="patient-portal-card no-print">
+            <div class="section-header">
+                <div>
+                    <h3 data-i18n="patientHeading">రోగి పోర్టల్ (నా అపాయింట్‌మెంట్లు)</h3>
+                    <p data-i18n="patientSub">ఎటువంటి ఓటీపీ అవసరం లేకుండా మీ మొబైల్ నంబర్‌తో మీ స్లిప్‌లు మరియు స్టేటస్‌ను చూడండి</p>
+                </div>
+            </div>
+
+            <div class="patient-login-bar">
+                <input type="tel" id="patientPortalMobile" class="form-control" placeholder="10 అంకెల మొబైల్ నంబర్ (e.g. 9848012345)" maxlength="10">
+                <button class="btn-primary" onclick="lookupPatientAppointments()" data-i18n="btnViewAppointments">
+                    నా అపాయింట్‌మెంట్లు చూడండి →
+                </button>
+            </div>
+
+            <div id="patientAppointmentsList">
+                <div class="empty-state">
+                    <span style="font-size:32px">📱</span>
+                    <p style="margin-top:8px">మీ మొబైల్ నంబర్‌ను నమోదు చేసి మీ బుక్ చేసిన అపాయింట్‌మెంట్లు మరియు స్లిప్‌లను పొందండి.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hospitals Directory & Live Beds -->
+        <section id="hospitalsSection" class="no-print" style="margin-bottom:45px">
+            <div class="section-header">
+                <div>
+                    <h3 data-i18n="hospitalsHeading">ప్రభుత్వ ఆసుపత్రుల జాబితా & పడకల లభ్యత</h3>
+                    <p data-i18n="hospitalsSub">పశ్చిమ గోదావరి మరియు పరిసర జిల్లాల్లోని ప్రభుత్వ వైద్యశాలల వివరాలు</p>
+                </div>
+            </div>
+            <div class="hospitals-grid" id="hospitalsGrid"></div>
+        </section>
+
+        <!-- Hospital Services & Schemes -->
+        <section id="servicesSection" class="no-print" style="margin-bottom:45px">
+            <div class="section-header">
+                <div>
+                    <h3 data-i18n="servicesHeading">ఆసుపత్రి సేవలు & సంక్షేమ పథకాలు</h3>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:16px">
+                <div style="background:white;padding:20px;border-radius:12px;border:1px solid var(--border-color);box-shadow:var(--shadow-sm)">
+                    <div style="font-size:30px;margin-bottom:10px">🚑</div>
+                    <h4 style="font-size:16px;font-weight:800;color:var(--navy-900);margin-bottom:6px" data-i18n="service1Title">24x7 ఎమర్జెన్సీ & ట్రౌమా కేర్</h4>
+                    <p style="font-size:12.5px;color:var(--ink-500)" data-i18n="service1Desc">108 అత్యవసర అంబులెన్స్, నిరంతర క్యాజువాలిటీ వైద్య సేవలు మరియు ఐసీయూ సదుపాయం.</p>
+                </div>
+                <div style="background:white;padding:20px;border-radius:12px;border:1px solid var(--border-color);box-shadow:var(--shadow-sm)">
+                    <div style="font-size:30px;margin-bottom:10px">🛡️</div>
+                    <h4 style="font-size:16px;font-weight:800;color:var(--navy-900);margin-bottom:6px" data-i18n="service2Title">డా. వైఎస్సార్ ఆరోగ్యశ్రీ ఉచిత చికిత్స</h4>
+                    <p style="font-size:12.5px;color:var(--ink-500)" data-i18n="service2Desc">లక్షలాది రూపాయల విలువైన శస్త్రచికిత్సలు మరియు చికిత్సలు ప్రభుత్వ ఆసుపత్రులలో పూర్తి ఉచితం.</p>
+                </div>
+                <div style="background:white;padding:20px;border-radius:12px;border:1px solid var(--border-color);box-shadow:var(--shadow-sm)">
+                    <div style="font-size:30px;margin-bottom:10px">🔬</div>
+                    <h4 style="font-size:16px;font-weight:800;color:var(--navy-900);margin-bottom:6px" data-i18n="service3Title">ఉచిత డయాగ్నస్టిక్స్ & ల్యాబ్స్</h4>
+                    <p style="font-size:12.5px;color:var(--ink-500)" data-i18n="service3Desc">డిజిటల్ ఎక్స్-రే, అల్ట్రాసౌండ్, రక్త పరీక్షలు, ఈసీజీ మరియు సీటీ స్కాన్ పరీక్షలు ఉచితం.</p>
+                </div>
+                <div style="background:white;padding:20px;border-radius:12px;border:1px solid var(--border-color);box-shadow:var(--shadow-sm)">
+                    <div style="font-size:30px;margin-bottom:10px">💊</div>
+                    <h4 style="font-size:16px;font-weight:800;color:var(--navy-900);margin-bottom:6px" data-i18n="service4Title">ఆరోగ్య ఔషధి (ఉచిత మందులు)</h4>
+                    <p style="font-size:12.5px;color:var(--ink-500)" data-i18n="service4Desc">ప్రభుత్వ ఆసుపత్రి ఫార్మసీ కౌంటర్ల వద్ద అన్ని ప్రాథమిక మరియు ప్రాణరక్షక మందులు ఉచితంగా పంపిణీ.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Citizen Grievance Portal -->
+        <section id="grievanceSection" class="no-print" style="margin-bottom:30px">
+            <div class="booking-control-box">
+                <div class="section-header">
+                    <div>
+                        <h3 data-i18n="grievanceHeading">పౌర సమస్యలు & స్పందన ఫిర్యాదుల విభాగం</h3>
+                        <p data-i18n="grievanceSub">ఆసుపత్రి సేవలపై మీ అభిప్రాయాలు లేదా ఫిర్యాదులను నమోదు చేసి ట్రాకింగ్ ఐడీని పొందండి</p>
+                    </div>
+                </div>
+
+                <form id="grievanceForm" onsubmit="submitGrievanceForm(event)">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:12px">
+                        <div class="form-group">
+                            <label for="grvName">మీ పేరు *</label>
+                            <input type="text" id="grvName" class="form-control" required placeholder="పూర్తి పేరు">
+                        </div>
+                        <div class="form-group">
+                            <label for="grvPhone">మొబైల్ నంబర్ *</label>
+                            <input type="tel" id="grvPhone" class="form-control" required placeholder="10 అంకెల మొబైల్ నంబర్" maxlength="10">
+                        </div>
+                        <div class="form-group">
+                            <label for="grvHospital">ఆసుపత్రి</label>
+                            <select id="grvHospital" class="form-control">
+                                <option value="Government Hospital, Bhimavaram">ప్రభుత్వ జిల్లా ఆసుపత్రి, భీమవరం</option>
+                                <option value="Area Hospital, Palakollu">ఏరియా ఆసుపత్రి, పాలకొల్లు</option>
+                                <option value="GGH Eluru">ప్రభుత్వ సర్వజన ఆసుపత్రి, ఏలూరు</option>
+                                <option value="GGH Kakinada">ప్రభుత్వ సర్వజన ఆసుపత్రి, కాకినాడ</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="grvCategory">వర్గం</label>
+                            <select id="grvCategory" class="form-control">
+                                <option value="OPD Queues">ఓపీడీ క్యూ / వేచి ఉండే సమయం</option>
+                                <option value="Medicine Availability">మందుల లభ్యత</option>
+                                <option value="Sanitation & Cleanliness">పారిశుధ్యం & పరిశుభ్రత</option>
+                                <option value="Staff Assistance">సిబ్బంది సహాయం</option>
+                                <option value="Doctor Availability">వైద్యుల లభ్యత</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:16px">
+                        <label for="grvMessage">ఫిర్యాదు / అభిప్రాయం వివరాలు *</label>
+                        <textarea id="grvMessage" class="form-control" rows="3" required placeholder="మీ సమస్యను క్లుప్తంగా వివరించండి..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary" data-i18n="btnSubmitGrievance">ఫిర్యాదు సమర్పించండి</button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Main Footer -->
+    <footer class="main-footer no-print">
+        <div class="footer-top">
+            <div>
+                <h4 style="font-size:16px;font-weight:800;margin-bottom:6px">ఆంధ్రప్రదేశ్ ప్రభుత్వ డిజిటల్ ఓపీడీ పోర్టల్</h4>
+                <p style="color:#adcce8;line-height:1.6">వైద్య, ఆరోగ్య మరియు కుటుంబ సంక్షేమ శాఖ ద్వారా ప్రజల సౌలభ్యం కోసం అందించబడుతున్న అధికారిక ఆన్‌లైన్ ఓపీడీ స్లాట్ & టోకెన్ రిజిస్ట్రేషన్ వేదిక.</p>
+            </div>
+            <div>
+                <h5 style="font-size:14px;font-weight:700;margin-bottom:8px">అత్యవసర హెల్ప్‌లైన్లు</h5>
+                <p style="color:#adcce8">🚨 ఉచిత అంబులెన్స్ సేవలు: <b>108</b></p>
+                <p style="color:#adcce8">🩺 ఆరోగ్య సలహాలు & సమాచారం: <b>104</b></p>
+                <p style="color:#adcce8">👶 జననీ శిశు సురక్ష యోజన: <b>102</b></p>
+                <p style="color:#adcce8">🛡️ డా. వైఎస్సార్ ఆరోగ్యశ్రీ టోల్‌ఫ్రీ: <b>104</b></p>
+            </div>
+            <div>
+                <h5 style="font-size:14px;font-weight:700;margin-bottom:8px">ఆసుపత్రి పనివేళలు</h5>
+                <p style="color:#adcce8">సాధారణ ఓపీడీ: సోమ - శని (8:00 AM – 4:00 PM)</p>
+                <p style="color:#adcce8">క్యాజువాలిటీ & ఎమర్జెన్సీ: 24 గంటలు / 365 రోజులు</p>
+                <p style="color:#adcce8">ల్యాబ్ & రక్తనిధి: 24/7 అందుబాటులో</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 ఆంధ్రప్రదేశ్ ప్రభుత్వం · వైద్య & కుటుంబ సంక్షేమ శాఖ. సర్వ హక్కులు ప్రత్యేకించబడ్డాయి.</span>
+            <span>AP MediSlot Digital OPD System v2.0</span>
+        </div>
+    </footer>
+
+    <!-- ========================================================
+         MODALS
+         ======================================================== -->
+
+    <!-- Booking Modal -->
+    <div class="modal-overlay" id="bookingModal" role="dialog" aria-modal="true">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <h3 data-i18n="modalBookTitle">ఓపీడీ అపాయింట్‌మెంట్ వివరాలు నమోదు చేయండి</h3>
+                    <p style="font-size:12px;color:var(--blue-600);margin-top:2px">
+                        <span id="modalDocName"></span> · <span id="modalHospName"></span> · <b id="modalSlotText"></b>
+                    </p>
+                </div>
+                <button class="modal-close-btn" onclick="closeBookingModal()">✕</button>
+            </div>
+
+            <div>
+                <div class="form-group" style="margin-bottom:12px">
+                    <label for="patientName" data-i18n="lblFullName">రోగి పూర్తి పేరు *</label>
+                    <input type="text" id="patientName" class="form-control" placeholder="రోగి పేరు నమోదు చేయండి" required>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:12px;margin-bottom:12px">
+                    <div class="form-group">
+                        <label for="patientPhone" data-i18n="lblPhone">మొబైల్ నంబర్ (10 అంకెలు) *</label>
+                        <input type="tel" id="patientPhone" class="form-control" placeholder="9848012345" maxlength="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientAge" data-i18n="lblAge">వయస్సు (సంవత్సరాలు) *</label>
+                        <input type="number" id="patientAge" class="form-control" placeholder="వయస్సు" min="0" max="120" required>
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:12px;margin-bottom:12px">
+                    <div class="form-group">
+                        <label for="patientGender" data-i18n="lblGender">లింగం</label>
+                        <select id="patientGender" class="form-control">
+                            <option value="Male">పురుషుడు (Male)</option>
+                            <option value="Female">స్త్రీ (Female)</option>
+                            <option value="Other">ఇతర (Other)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientAbha" data-i18n="lblAbha">ఆధార్ / ఆభా (ABHA) నంబర్</label>
+                        <input type="text" id="patientAbha" class="form-control" placeholder="ఐచ్ఛికం (Optional)">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:18px">
+                    <label for="patientSymptoms" data-i18n="lblSymptoms">ప్రధాన సమస్య / లక్షణాలు</label>
+                    <input type="text" id="patientSymptoms" class="form-control" placeholder="ఉదా: జ్వరం, దగ్గు, కీళ్ల నొప్పులు...">
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-secondary" onclick="closeBookingModal()" data-i18n="btnCancel">రద్దు</button>
+                    <button class="btn-primary" onclick="confirmBooking()" data-i18n="btnConfirmBooking">బుకింగ్ నిర్ధారించండి & టోకెన్ పొందండి</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Official Printable OPD Token Slip Modal -->
+    <div class="modal-overlay" id="slipModal" role="dialog" aria-modal="true">
+        <div class="modal-card large">
+            <div class="modal-header no-print">
+                <h3 style="display:flex;align-items:center;gap:8px">
+                    <span>🎫</span> <span>అధికారిక ప్రభుత్వ ఓపీడీ స్లిప్</span>
+                </h3>
+                <button class="modal-close-btn" onclick="closeSlipModal()">✕</button>
+            </div>
+
+            <div id="slipContent"></div>
+
+            <div class="modal-actions no-print" style="margin-top:16px">
+                <button class="btn-secondary" onclick="closeSlipModal()" data-i18n="btnClose">మూసివేయండి</button>
+                <button class="btn-primary" onclick="printOpdSlip()" data-i18n="btnPrintSlip">🖨️ స్లిప్ ముద్రించండి (Print)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Walk-in Counter Modal -->
+    <div class="modal-overlay" id="walkinModal" role="dialog" aria-modal="true">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <h3 data-i18n="btnWalkin">➕ కౌంటర్ వాక్-ఇన్ టోకెన్ జారీ</h3>
+                    <p style="font-size:12px;color:var(--ink-500)">ఆసుపత్రి రిసెప్షన్ కౌంటర్ వద్ద తక్షణ ఓపీడీ టోకెన్ జారీ చేయండి</p>
+                </div>
+                <button class="modal-close-btn" onclick="closeWalkinModal()">✕</button>
+            </div>
+
+            <div>
+                <div class="form-group" style="margin-bottom:12px">
+                    <label for="walkinName" data-i18n="lblFullName">రోగి పూర్తి పేరు *</label>
+                    <input type="text" id="walkinName" class="form-control" required placeholder="పేరు నమోదు చేయండి">
+                </div>
+
+                <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:12px;margin-bottom:12px">
+                    <div class="form-group">
+                        <label for="walkinPhone" data-i18n="lblPhone">మొబైల్ నంబర్ *</label>
+                        <input type="tel" id="walkinPhone" class="form-control" placeholder="10 అంకెల మొబైల్ నంబర్" maxlength="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="walkinAge" data-i18n="lblAge">వయస్సు *</label>
+                        <input type="number" id="walkinAge" class="form-control" placeholder="వయస్సు" min="0" max="120" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px">
+                    <label for="walkinGender" data-i18n="lblGender">లింగం</label>
+                    <select id="walkinGender" class="form-control">
+                        <option value="Male">పురుషుడు (Male)</option>
+                        <option value="Female">స్త్రీ (Female)</option>
+                        <option value="Other">ఇతర (Other)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom:18px">
+                    <label for="walkinSymptoms" data-i18n="lblSymptoms">సమస్య / లక్షణాలు</label>
+                    <input type="text" id="walkinSymptoms" class="form-control" placeholder="కౌంటర్ వాక్-ఇన్ ఓపీడీ">
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-secondary" onclick="closeWalkinModal()" data-i18n="btnCancel">రద్దు</button>
+                    <button class="btn-primary" onclick="submitWalkinToken()">తక్షణ టోకెన్ జారీ చేయండి</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Element -->
+    <div id="toast" class="toast-msg"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
