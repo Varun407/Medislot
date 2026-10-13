@@ -77,6 +77,8 @@ MediSlot is a full-stack public healthcare digital portal designed for governmen
 
 ```text
 CSP/
+├── start.sh             # 1-Click All-in-One Startup Script (Linux & macOS)
+├── start.bat            # 1-Click All-in-One Startup Script (Windows)
 ├── database.js          # SQLite3 database connection, schema setup & initial AP seeds
 ├── server.js            # Express.js REST API server & static file server
 ├── package.json         # NPM scripts and project dependencies
@@ -99,7 +101,30 @@ CSP/
 - [Node.js](https://nodejs.org/) (version 18 or higher recommended)
 - `npm` (bundled with Node.js)
 
-### Installation
+---
+
+### ⚡ 1-Step Startup (Recommended)
+
+Simply clone and run the startup script for your operating system. It will **automatically check Node.js, install dependencies, initialize the database, start the server, and open your browser**:
+
+#### On Linux / macOS / WSL:
+```bash
+git clone https://github.com/Varun407/Medislot.git
+cd Medislot
+./start.sh
+```
+
+#### On Windows:
+Double-click [`start.bat`](start.bat) or execute in Command Prompt / PowerShell:
+```cmd
+git clone https://github.com/Varun407/Medislot.git
+cd Medislot
+start.bat
+```
+
+---
+
+### 🛠️ Manual Installation (Alternative)
 
 1. **Clone the repository**:
    ```bash
