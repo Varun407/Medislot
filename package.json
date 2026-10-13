@@ -1,20 +1,27 @@
 {
-  "name": "csp",
-  "version": "1.0.0",
-  "main": "index.js",
+  "name": "medislot",
+  "version": "2.0.0",
+  "description": "MediSlot - Government Hospital OPD Appointment & Digital Token Queue System with Role-Based Authentication",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-    "setup": "npm install",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "npm run dev:backend",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "start:backend": "npm --prefix backend start",
+    "build:frontend": "npm --prefix frontend run build",
+    "test": "npm --prefix backend test",
+    "seed:admin": "npm --prefix backend run seed:admin",
+    "install:all": "npm --prefix backend install && npm --prefix frontend install",
+    "legacy:server": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "cors": "^2.8.6",
-    "express": "^5.3.0",
-    "sqlite3": "^6.0.1"
-  }
+  "keywords": [
+    "healthcare",
+    "hospital",
+    "opd-management",
+    "appointments",
+    "react",
+    "express",
+    "sqlite"
+  ],
+  "author": "MediSlot Team",
+  "license": "MIT"
 }
