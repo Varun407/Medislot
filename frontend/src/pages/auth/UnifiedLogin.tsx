@@ -93,6 +93,11 @@ export const UnifiedLogin: React.FC = () => {
     setPassword('PatientPass@2026');
   };
 
+  const fillAdminDemo = () => {
+    setEmail('admin@medislot.gov.in');
+    setPassword('AdminSecure@2026');
+  };
+
   return (
     <div className="main-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '75vh', padding: '30px 16px' }}>
       <div className="med-card" style={{ maxWidth: '480px', width: '100%', padding: '38px 32px', boxShadow: 'var(--shadow-xl)', border: '1px solid var(--slate-200)' }}>
@@ -111,7 +116,7 @@ export const UnifiedLogin: React.FC = () => {
           </p>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--blue-50)', color: 'var(--blue-600)', padding: '4px 12px', borderRadius: '12px', fontSize: '0.74rem', fontWeight: 700, marginTop: '10px' }}>
             <span className="pulse-dot" style={{ width: '6px', height: '6px' }} />
-            Single Gateway for Patients & Doctors
+            Single Gateway for Patients, Doctors & Admin
           </div>
         </div>
 
@@ -121,24 +126,33 @@ export const UnifiedLogin: React.FC = () => {
             <Sparkles size={13} color="var(--blue-600)" />
             <span>Quick Test Credentials (1-Click Fill):</span>
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '6px' }}>
             <button
               type="button"
               onClick={fillDoctorDemo}
               className="btn btn-outline btn-sm"
-              style={{ flex: 1, fontSize: '0.76rem', padding: '6px 8px', justifyContent: 'center' }}
+              style={{ flex: 1, fontSize: '0.74rem', padding: '6px 4px', justifyContent: 'center' }}
             >
-              <Stethoscope size={13} color="var(--emerald-600)" />
-              Doctor Account
+              <Stethoscope size={12} color="var(--emerald-600)" />
+              Doctor
             </button>
             <button
               type="button"
               onClick={fillPatientDemo}
               className="btn btn-outline btn-sm"
-              style={{ flex: 1, fontSize: '0.76rem', padding: '6px 8px', justifyContent: 'center' }}
+              style={{ flex: 1, fontSize: '0.74rem', padding: '6px 4px', justifyContent: 'center' }}
             >
-              <UserIcon size={13} color="var(--blue-600)" />
-              Patient Account
+              <UserIcon size={12} color="var(--blue-600)" />
+              Patient
+            </button>
+            <button
+              type="button"
+              onClick={fillAdminDemo}
+              className="btn btn-outline btn-sm"
+              style={{ flex: 1, fontSize: '0.74rem', padding: '6px 4px', justifyContent: 'center' }}
+            >
+              <ShieldCheck size={12} color="var(--navy-700)" />
+              Admin
             </button>
           </div>
         </div>
