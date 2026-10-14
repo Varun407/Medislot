@@ -26,7 +26,7 @@ export const Navbar: React.FC = () => {
 
   const handleLogout = async () => {
     await logout();
-    success('Logged out successfully');
+    success(lang === 'te' ? 'విజయవంతంగా లాగౌట్ అయ్యారు' : 'Logged out successfully');
     navigate('/');
   };
 
@@ -44,7 +44,7 @@ export const Navbar: React.FC = () => {
           <span>{t.bannerGov}</span>
           <span className="sys-pulse-badge">
             <span className="pulse-dot" />
-            LIVE PORTAL
+            {t.livePortal}
           </span>
         </div>
         <div className="sys-banner-right">
@@ -54,7 +54,7 @@ export const Navbar: React.FC = () => {
           </span>
           <button className="lang-toggle-btn" onClick={toggleLang} title="Toggle Language">
             <Globe size={13} />
-            {lang === 'en' ? 'తెలుగు (Telugu)' : 'English'}
+            {lang === 'en' ? 'తెలుగు' : 'English'}
           </button>
         </div>
       </div>
@@ -62,131 +62,166 @@ export const Navbar: React.FC = () => {
       {/* Main Navbar */}
       <nav className="main-header">
         <div className="header-container">
-          <Link to="/" className="brand-wrapper">
+          <Link to={isAuthenticated ? getDashboardPath() : "/"} className="brand-wrapper">
             <span className="emblem-icon">🏥</span>
             <div className="brand-text">
-              <h1>{lang === 'te' ? 'మెడిస్లాట్' : 'MediSlot'}</h1>
+              <h1>{t.brandName || (lang === 'te' ? 'మెడిస్లాట్' : 'MediSlot')}</h1>
               <p>{t.brandTagline}</p>
             </div>
           </Link>
 
-          {isAuthenticated && (
-            <ul className="nav-links">
-              {role === 'PATIENT' && (
-                <>
-                  <li>
-                    <Link to="/patient/dashboard" className={`nav-link ${location.pathname === '/patient/dashboard' ? 'active' : ''}`}>
-                      <Activity size={16} />
-                      {t.patientDashboard}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/patient/book" className={`nav-link ${location.pathname === '/patient/book' ? 'active' : ''}`}>
-                      <Calendar size={16} />
-                      {lang === 'te' ? 'స్లాట్ బుకింగ్' : 'Book OPD Slot'}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/doctors" className={`nav-link ${location.pathname === '/doctors' ? 'active' : ''}`}>
-                      <Stethoscope size={16} />
-                      {t.navDoctors}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/hospitals" className={`nav-link ${location.pathname === '/hospitals' ? 'active' : ''}`}>
-                      <Building2 size={16} />
-                      {t.navHospitals}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/grievance" className={`nav-link ${location.pathname === '/grievance' ? 'active' : ''}`}>
-                      <FileText size={16} />
-                      {t.navGrievance}
-                    </Link>
-                  </li>
-                </>
-              )}
+          <ul className="nav-links">
+            {/* Public Links (when not logged in) */}
+            {!isAuthenticated && (
+              <>
+                <li>
+                  <Link to="/" className={`nav-link ${location.pathname === '/' || location.pathname === '/home' ? 'active' : ''}`}>
+                    <Activity size={16} />
+                    {t.navHome}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/doctors" className={`nav-link ${location.pathname === '/doctors' ? 'active' : ''}`}>
+                    <Stethoscope size={16} />
+                    {t.navDoctors}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/hospitals" className={`nav-link ${location.pathname === '/hospitals' ? 'active' : ''}`}>
+                    <Building2 size={16} />
+                    {t.navHospitals}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/grievance" className={`nav-link ${location.pathname === '/grievance' ? 'active' : ''}`}>
+                    <FileText size={16} />
+                    {t.navGrievance}
+                  </Link>
+                </li>
+              </>
+            )}
 
-              {role === 'DOCTOR' && (
-                <>
-                  <li>
-                    <Link to="/doctor/dashboard" className={`nav-link ${location.pathname === '/doctor/dashboard' ? 'active' : ''}`}>
-                      <Activity size={16} />
-                      {lang === 'te' ? 'ఓపీడీ క్యూ బోర్డ్' : 'OPD Queue Board'}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/doctor/availability" className={`nav-link ${location.pathname === '/doctor/availability' ? 'active' : ''}`}>
-                      <Calendar size={16} />
-                      {lang === 'te' ? 'డ్యూటీ షెడ్యూల్' : 'Duty Schedule'}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/hospitals" className={`nav-link ${location.pathname === '/hospitals' ? 'active' : ''}`}>
-                      <Building2 size={16} />
-                      {t.navHospitals}
-                    </Link>
-                  </li>
-                </>
-              )}
+            {/* Patient Links */}
+            {isAuthenticated && role === 'PATIENT' && (
+              <>
+                <li>
+                  <Link to="/patient/dashboard" className={`nav-link ${location.pathname === '/patient/dashboard' ? 'active' : ''}`}>
+                    <Activity size={16} />
+                    {t.patientDashboard}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/patient/book" className={`nav-link ${location.pathname === '/patient/book' ? 'active' : ''}`}>
+                    <Calendar size={16} />
+                    {t.bookOpdSlot}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/doctors" className={`nav-link ${location.pathname === '/doctors' ? 'active' : ''}`}>
+                    <Stethoscope size={16} />
+                    {t.navDoctors}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/hospitals" className={`nav-link ${location.pathname === '/hospitals' ? 'active' : ''}`}>
+                    <Building2 size={16} />
+                    {t.navHospitals}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/grievance" className={`nav-link ${location.pathname === '/grievance' ? 'active' : ''}`}>
+                    <FileText size={16} />
+                    {t.navGrievance}
+                  </Link>
+                </li>
+              </>
+            )}
 
-              {role === 'ADMIN' && (
-                <>
-                  <li>
-                    <Link to="/admin/dashboard" className={`nav-link ${location.pathname === '/admin/dashboard' ? 'active' : ''}`}>
-                      <Activity size={16} />
-                      Control Center
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/admin/opd" className={`nav-link ${location.pathname === '/admin/opd' ? 'active' : ''}`}>
-                      <Stethoscope size={16} />
-                      Manage OPDs
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/admin/doctors" className={`nav-link ${location.pathname === '/admin/doctors' ? 'active' : ''}`}>
-                      <UserIcon size={16} />
-                      Doctor Licensure
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/admin/patients" className={`nav-link ${location.pathname === '/admin/patients' ? 'active' : ''}`}>
-                      <UserIcon size={16} />
-                      Patients
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/admin/appointments" className={`nav-link ${location.pathname === '/admin/appointments' ? 'active' : ''}`}>
-                      <Calendar size={16} />
-                      Appointments
-                    </Link>
-                  </li>
-                </>
-              )}
-            </ul>
-          )}
+            {/* Doctor Links */}
+            {isAuthenticated && role === 'DOCTOR' && (
+              <>
+                <li>
+                  <Link to="/doctor/dashboard" className={`nav-link ${location.pathname === '/doctor/dashboard' ? 'active' : ''}`}>
+                    <Activity size={16} />
+                    {t.opdQueueBoard}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/doctor/availability" className={`nav-link ${location.pathname === '/doctor/availability' ? 'active' : ''}`}>
+                    <Calendar size={16} />
+                    {t.dutySchedule}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/hospitals" className={`nav-link ${location.pathname === '/hospitals' ? 'active' : ''}`}>
+                    <Building2 size={16} />
+                    {t.navHospitals}
+                  </Link>
+                </li>
+              </>
+            )}
+
+            {/* Admin Links */}
+            {isAuthenticated && role === 'ADMIN' && (
+              <>
+                <li>
+                  <Link to="/admin/dashboard" className={`nav-link ${location.pathname === '/admin/dashboard' ? 'active' : ''}`}>
+                    <Activity size={16} />
+                    {t.controlCenter}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/admin/opd" className={`nav-link ${location.pathname === '/admin/opd' ? 'active' : ''}`}>
+                    <Stethoscope size={16} />
+                    {t.manageOpds}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/admin/doctors" className={`nav-link ${location.pathname === '/admin/doctors' ? 'active' : ''}`}>
+                    <UserIcon size={16} />
+                    {t.doctorLicensure}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/admin/patients" className={`nav-link ${location.pathname === '/admin/patients' ? 'active' : ''}`}>
+                    <UserIcon size={16} />
+                    {t.patients}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/admin/appointments" className={`nav-link ${location.pathname === '/admin/appointments' ? 'active' : ''}`}>
+                    <Calendar size={16} />
+                    {t.appointments}
+                  </Link>
+                </li>
+              </>
+            )}
+          </ul>
 
           <div className="header-actions">
             {isAuthenticated && user ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <Link to={getDashboardPath()} className="btn btn-primary btn-sm">
                   <UserIcon size={14} />
-                  {user.fullName.split(' ')[0]} ({role})
+                  {user.fullName.split(' ')[0]} ({role === 'DOCTOR' ? t.doctorRole : role === 'PATIENT' ? t.patientRole : t.adminRole})
                 </Link>
-                <button onClick={handleLogout} className="btn btn-secondary btn-sm" title="Sign Out">
+                <button onClick={handleLogout} className="btn btn-secondary btn-sm" title={t.btnLogout}>
                   <LogOut size={14} />
                   {t.btnLogout}
                 </button>
               </div>
-            ) : location.pathname !== '/' ? (
+            ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Link to="/" className="btn btn-primary btn-sm">
+                <Link to="/login" className={`btn ${location.pathname === '/login' ? 'btn-outline' : 'btn-primary'} btn-sm`}>
                   <LogIn size={14} />
-                  {lang === 'te' ? 'లాగిన్' : 'Sign In'}
+                  {t.btnLogin}
+                </Link>
+                <Link to="/patient/register" className="btn btn-secondary btn-sm">
+                  <UserIcon size={14} />
+                  {t.btnRegister}
                 </Link>
               </div>
-            ) : null}
+            )}
           </div>
         </div>
       </nav>

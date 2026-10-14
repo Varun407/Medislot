@@ -21,7 +21,7 @@ import {
 
 export const PatientDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { lang, t } = useLanguage();
+  const { lang, t, localizeDept, localizeRoom, localizeDoctor, localizeHospital, localizeStatus, localizeTime } = useLanguage();
   const { success, error } = useToast();
 
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -44,15 +44,15 @@ export const PatientDashboard: React.FC = () => {
   }, []);
 
   const handleCancel = async (id: string) => {
-    if (!window.confirm('Are you sure you want to cancel this appointment? Your reserved slot will be freed.')) {
+    if (!window.confirm(t.confirmCancelPrompt)) {
       return;
     }
     try {
       await apiClient.post(`/patients/appointments/${id}/cancel`);
-      success('Appointment cancelled successfully. Slot freed.');
+      success(lang === 'te' ? 'అపాయింట్‌మెంట్ విజయవంతంగా రద్దు చేయబడింది. స్లాట్ విడుదల చేయబడింది.' : 'Appointment cancelled successfully. Slot freed.');
       fetchAppointments();
     } catch (err: any) {
-      error(err.response?.data?.error || 'Failed to cancel appointment.');
+      error(err.response?.data?.error || (lang === 'te' ? 'అపాయింట్‌మెంట్ రద్దు విఫలమైంది.' : 'Failed to cancel appointment.'));
     }
   };
 
@@ -66,17 +66,17 @@ export const PatientDashboard: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1 className="section-title">
-            {lang === 'te' ? `నమస్కారం, ${user?.fullName}` : `Welcome back, ${user?.fullName}`}
+            {`${t.welcomeGreeting}, ${user?.fullName}`}
           </h1>
           <p className="section-subtitle">
-            Patient Portal · Mobile: +91 {user?.phone} · Email: {user?.email}
+            {t.patientPortalSub} +91 {user?.phone} · {t.emailAddress}: {user?.email}
           </p>
         </div>
 
         <div style={{ display: 'flex', gap: '10px' }}>
           <Link to="/patient/profile" className="btn btn-secondary btn-sm">
             <User size={15} />
-            My Profile & ABHA
+            {t.myProfileAbha}
           </Link>
           <Link to="/patient/book" className="btn btn-primary btn-sm">
             <PlusCircle size={15} />
@@ -91,7 +91,7 @@ export const PatientDashboard: React.FC = () => {
           <div className="stat-icon" style={{ background: 'var(--blue-50)', color: 'var(--blue-600)' }}><Calendar /></div>
           <div>
             <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--navy-900)' }}>{upcoming.length}</div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--slate-500)', fontWeight: 600 }}>Active Upcoming Visits</div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--slate-500)', fontWeight: 600 }}>{t.activeUpcomingVisits}</div>
           </div>
         </div>
 
@@ -101,7 +101,7 @@ export const PatientDashboard: React.FC = () => {
             <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--navy-900)' }}>
               {appointments.filter((a) => a.status === 'COMPLETED').length}
             </div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--slate-500)', fontWeight: 600 }}>Completed Consultations</div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--slate-500)', fontWeight: 600 }}>{t.completedConsultations}</div>
           </div>
         </div>
 
@@ -109,7 +109,7 @@ export const PatientDashboard: React.FC = () => {
           <div className="stat-icon" style={{ background: 'var(--slate-100)', color: 'var(--slate-600)' }}><Activity /></div>
           <div>
             <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--navy-900)' }}>{appointments.length}</div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--slate-500)', fontWeight: 600 }}>Total OPD Records</div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--slate-500)', fontWeight: 600 }}>{t.totalOpdRecords}</div>
           </div>
         </div>
       </div>
@@ -124,25 +124,25 @@ export const PatientDashboard: React.FC = () => {
             </h3>
           </div>
           <Link to="/patient/book" style={{ fontSize: '0.82rem', fontWeight: 600 }}>
-            + Book another appointment
+            {t.bookAnother}
           </Link>
         </div>
 
         {loading ? (
           <div style={{ padding: '30px', textAlign: 'center' }}>
             <div className="pulse-dot" style={{ margin: '0 auto 8px' }} />
-            <p style={{ color: 'var(--slate-500)', fontSize: '0.85rem' }}>Loading appointments...</p>
+            <p style={{ color: 'var(--slate-500)', fontSize: '0.85rem' }}>{t.loadingAppointments}</p>
           </div>
         ) : upcoming.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '36px 20px', background: 'var(--slate-50)', borderRadius: '10px' }}>
             <p style={{ color: 'var(--slate-600)', fontWeight: 600, fontSize: '0.95rem' }}>
-              No active upcoming appointments.
+              {t.noUpcomingAppointments}
             </p>
             <p style={{ color: 'var(--slate-400)', fontSize: '0.8rem', marginTop: '4px' }}>
-              Need to visit a hospital? Choose a specialist doctor and book your free OPD token.
+              {t.needToVisitHospital}
             </p>
             <Link to="/patient/book" className="btn btn-primary btn-sm" style={{ marginTop: '14px' }}>
-              Book OPD Appointment
+              {t.bookOpdAppointmentBtn}
             </Link>
           </div>
         ) : (
@@ -162,7 +162,7 @@ export const PatientDashboard: React.FC = () => {
               >
                 {/* Big Token Number */}
                 <div style={{ textAlign: 'center', background: 'var(--blue-50)', padding: '10px', borderRadius: '8px', border: '1px solid var(--blue-100)' }}>
-                  <div style={{ fontSize: '0.68rem', color: 'var(--blue-600)', fontWeight: 700 }}>TOKEN</div>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--blue-600)', fontWeight: 700 }}>{t.tokenBadge}</div>
                   <div style={{ fontSize: '1.7rem', fontWeight: 900, color: 'var(--blue-600)', lineHeight: 1 }}>
                     #{String(app.tokenNumber).padStart(2, '0')}
                   </div>
@@ -171,13 +171,13 @@ export const PatientDashboard: React.FC = () => {
                 {/* Doctor & Hospital Details */}
                 <div>
                   <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--navy-900)' }}>
-                    {app.doctorNameEn}
+                    {lang === 'te' && app.doctorNameTe ? app.doctorNameTe : localizeDoctor(app.doctorNameEn)}
                   </h4>
                   <p style={{ margin: '2px 0', fontSize: '0.8rem', color: 'var(--blue-600)', fontWeight: 600 }}>
-                    {app.department} · {app.roomNo}
+                    {localizeDept(app.department)} · {localizeRoom(app.roomNo)}
                   </p>
                   <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--slate-500)' }}>
-                    {app.hospitalNameEn}
+                    {lang === 'te' && app.hospitalNameTe ? app.hospitalNameTe : localizeHospital(app.hospitalNameEn)}
                   </p>
                 </div>
 
@@ -189,11 +189,11 @@ export const PatientDashboard: React.FC = () => {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: 'var(--slate-600)', marginTop: '2px' }}>
                     <Clock size={14} color="var(--slate-400)" />
-                    {app.slotTime} (Report: {app.reportingTime})
+                    {localizeTime(app.slotTime)} ({t.reportPrefix} {localizeTime(app.reportingTime)})
                   </div>
                   <div style={{ marginTop: '6px' }}>
                     <span className={`status-pill status-${app.status.toLowerCase()}`}>
-                      {app.status}
+                      {localizeStatus(app.status)}
                     </span>
                   </div>
                 </div>
@@ -202,11 +202,11 @@ export const PatientDashboard: React.FC = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '130px' }}>
                   <button className="btn btn-primary btn-sm" onClick={() => setSelectedSlip(app)}>
                     <Printer size={14} />
-                    View Slip
+                    {t.viewSlip}
                   </button>
                   <button className="btn btn-secondary btn-sm" onClick={() => handleCancel(app.id)} style={{ color: 'var(--rose-600)' }}>
                     <XCircle size={14} />
-                    Cancel
+                    {t.cancelAppt}
                   </button>
                 </div>
               </div>
@@ -222,34 +222,38 @@ export const PatientDashboard: React.FC = () => {
         </h3>
 
         {past.length === 0 ? (
-          <p style={{ color: 'var(--slate-400)', fontSize: '0.85rem' }}>No past consultations recorded.</p>
+          <p style={{ color: 'var(--slate-400)', fontSize: '0.85rem' }}>{t.noPastVisits}</p>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid var(--slate-200)', textAlign: 'left', color: 'var(--slate-500)', fontSize: '0.78rem' }}>
-                  <th style={{ padding: '8px 12px' }}>REF ID</th>
-                  <th style={{ padding: '8px 12px' }}>DOCTOR</th>
-                  <th style={{ padding: '8px 12px' }}>DEPARTMENT</th>
-                  <th style={{ padding: '8px 12px' }}>DATE & TIME</th>
-                  <th style={{ padding: '8px 12px' }}>STATUS</th>
-                  <th style={{ padding: '8px 12px' }}>ACTION</th>
+                  <th style={{ padding: '8px 12px' }}>{t.colRefId}</th>
+                  <th style={{ padding: '8px 12px' }}>{t.colDoctor}</th>
+                  <th style={{ padding: '8px 12px' }}>{t.colDept}</th>
+                  <th style={{ padding: '8px 12px' }}>{t.colDateTime}</th>
+                  <th style={{ padding: '8px 12px' }}>{t.colStatusText}</th>
+                  <th style={{ padding: '8px 12px' }}>{t.colActionText}</th>
                 </tr>
               </thead>
               <tbody>
                 {past.map((app) => (
                   <tr key={app.id} style={{ borderBottom: '1px solid var(--slate-100)' }}>
                     <td style={{ padding: '10px 12px', fontWeight: 700, color: 'var(--navy-900)' }}>{app.id}</td>
-                    <td style={{ padding: '10px 12px', fontWeight: 600 }}>{app.doctorNameEn}</td>
-                    <td style={{ padding: '10px 12px' }}>{app.department}</td>
-                    <td style={{ padding: '10px 12px' }}>{app.appointmentDate} · {app.slotTime}</td>
+                    <td style={{ padding: '10px 12px', fontWeight: 600 }}>
+                      {lang === 'te' && app.doctorNameTe ? app.doctorNameTe : localizeDoctor(app.doctorNameEn)}
+                    </td>
+                    <td style={{ padding: '10px 12px' }}>{localizeDept(app.department)}</td>
+                    <td style={{ padding: '10px 12px' }}>{app.appointmentDate} · {localizeTime(app.slotTime)}</td>
                     <td style={{ padding: '10px 12px' }}>
-                      <span className={`status-pill status-${app.status.toLowerCase()}`}>{app.status}</span>
+                      <span className={`status-pill status-${app.status.toLowerCase()}`}>
+                        {localizeStatus(app.status)}
+                      </span>
                     </td>
                     <td style={{ padding: '10px 12px' }}>
                       <button className="btn btn-secondary btn-sm" onClick={() => setSelectedSlip(app)}>
                         <Printer size={13} />
-                        Slip
+                        {t.slipBtn}
                       </button>
                     </td>
                   </tr>

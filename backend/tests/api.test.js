@@ -32,16 +32,32 @@ describe('Medislot Backend Comprehensive Tests', () => {
         assert.equal(data.status, 'healthy');
     });
 
-    test('2. Unauthenticated request to content endpoints is rejected with 401', async () => {
+    test('2. Public content is accessible and unauthenticated grievance submission is rejected with 401', async () => {
         const resHosp = await fetch(`${baseUrl}/api/v1/public/hospitals`);
-        assert.equal(resHosp.status, 401);
-        const dataHosp = await resHosp.json();
-        assert.ok(dataHosp.error.includes('Authentication required'));
+        assert.equal(resHosp.status, 200);
+        const hospitals = await resHosp.json();
+        assert.ok(Array.isArray(hospitals));
+        assert.ok(hospitals.length >= 4);
 
         const resDepts = await fetch(`${baseUrl}/api/v1/public/departments`);
-        assert.equal(resDepts.status, 401);
-        const dataDepts = await resDepts.json();
-        assert.ok(dataDepts.error.includes('Authentication required'));
+        assert.equal(resDepts.status, 200);
+        const depts = await resDepts.json();
+        assert.ok(Array.isArray(depts));
+        assert.ok(depts.length >= 9);
+
+        // Submitting grievance without an account must be rejected with 401
+        const resGrv = await fetch(`${baseUrl}/api/v1/public/grievances`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                citizenName: 'Anonymous Citizen',
+                citizenPhone: '9848123456',
+                message: 'Testing unauthenticated rejection'
+            })
+        });
+        assert.equal(resGrv.status, 401);
+        const dataGrv = await resGrv.json();
+        assert.ok(dataGrv.error.includes('Authentication required'));
     });
 
     const testPatientEmail = `testpatient_${Date.now()}@example.com`;

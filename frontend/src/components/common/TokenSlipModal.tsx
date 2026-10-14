@@ -10,7 +10,7 @@ interface TokenSlipModalProps {
 }
 
 export const TokenSlipModal: React.FC<TokenSlipModalProps> = ({ appointment, onClose }) => {
-  const { lang } = useLanguage();
+  const { lang, t, localizeDept, localizeRoom, localizeDoctor, localizeHospital, localizeTime, localizeGender } = useLanguage();
 
   if (!appointment) return null;
 
@@ -30,13 +30,13 @@ export const TokenSlipModal: React.FC<TokenSlipModalProps> = ({ appointment, onC
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <CheckCircle size={20} color="var(--emerald-600)" />
             <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>
-              {lang === 'te' ? 'ఓపీడీ అపాయింట్‌మెంట్ టోకెన్ స్లిప్' : 'Official OPD Token Slip'}
+              {t.tokenSlipTitle}
             </h3>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button className="btn btn-primary btn-sm" onClick={handlePrint}>
               <Printer size={15} />
-              {lang === 'te' ? 'ప్రింట్' : 'Print Slip'}
+              {t.printSlipBtn}
             </button>
             <button className="toast-close" onClick={onClose} style={{ color: 'var(--slate-500)' }}>
               <X size={20} />
@@ -49,76 +49,76 @@ export const TokenSlipModal: React.FC<TokenSlipModalProps> = ({ appointment, onC
             {/* Header */}
             <div className="slip-header">
               <div className="slip-govt-title">
-                Government of Andhra Pradesh · Department of Health & Family Welfare
+                {t.govtHeader}
               </div>
               <div className="slip-hosp-name">
-                {lang === 'te' && appointment.hospitalNameTe ? appointment.hospitalNameTe : appointment.hospitalNameEn}
+                {lang === 'te' && appointment.hospitalNameTe ? appointment.hospitalNameTe : localizeHospital(appointment.hospitalNameEn)}
               </div>
               <div style={{ fontSize: '0.8rem', color: 'var(--slate-500)' }}>
-                Outpatient Department (OPD) Consultation Token Slip
+                {t.outpatientSlipSubtitle}
               </div>
             </div>
 
             {/* Big Token Display */}
             <div className="slip-token-banner">
               <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--blue-600)', textTransform: 'uppercase' }}>
-                {lang === 'te' ? 'మీ టోకెన్ నంబర్' : 'Your Sequential Token Number'}
+                {t.yourTokenNumber}
               </div>
               <div className="huge-token-number">
                 #{String(appointment.tokenNumber).padStart(2, '0')}
               </div>
               <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--slate-600)' }}>
-                OPD Reference ID: <strong style={{ color: 'var(--navy-900)' }}>{appointment.id}</strong>
+                {t.opdRefIdLabel} <strong style={{ color: 'var(--navy-900)' }}>{appointment.id}</strong>
               </div>
             </div>
 
             {/* Grid details */}
             <div className="slip-details-grid">
               <div className="slip-detail-row">
-                <strong>Patient Name</strong>
+                <strong>{t.patientNameLabel}</strong>
                 <span>{appointment.patientName}</span>
               </div>
               <div className="slip-detail-row">
-                <strong>Contact / Phone</strong>
+                <strong>{t.contactPhoneLabel}</strong>
                 <span>+91 {appointment.patientPhone}</span>
               </div>
               <div className="slip-detail-row">
-                <strong>Age & Gender</strong>
-                <span>{appointment.patientAge || '32'} Yrs · {appointment.patientGender}</span>
+                <strong>{t.ageGenderLabel}</strong>
+                <span>{appointment.patientAge || '32'} {t.ageYrs} · {localizeGender(appointment.patientGender)}</span>
               </div>
               <div className="slip-detail-row">
-                <strong>Arogyasri ID</strong>
-                <span>{appointment.abhaId || 'N/A (Standard Citizen)'}</span>
+                <strong>{t.arogyasriLabel}</strong>
+                <span>{appointment.abhaId || (lang === 'te' ? 'వర్తించదు (ప్రామాణిక పౌరుడు)' : 'N/A (Standard Citizen)')}</span>
               </div>
               <div className="slip-detail-row">
-                <strong>Specialist Doctor</strong>
+                <strong>{t.specialistDoctorLabel}</strong>
                 <span style={{ fontWeight: 700, color: 'var(--navy-900)' }}>
-                  {lang === 'te' && appointment.doctorNameTe ? appointment.doctorNameTe : appointment.doctorNameEn}
+                  {lang === 'te' && appointment.doctorNameTe ? appointment.doctorNameTe : localizeDoctor(appointment.doctorNameEn)}
                 </span>
               </div>
               <div className="slip-detail-row">
-                <strong>Clinical Department</strong>
-                <span>{appointment.department}</span>
+                <strong>{t.clinicalDeptLabel}</strong>
+                <span>{localizeDept(appointment.department)}</span>
               </div>
               <div className="slip-detail-row">
-                <strong>OPD Consultation Date</strong>
+                <strong>{t.opdDateLabel}</strong>
                 <span style={{ fontWeight: 700 }}>{appointment.appointmentDate}</span>
               </div>
               <div className="slip-detail-row">
-                <strong>Slot & Reporting Time</strong>
+                <strong>{t.slotReportingLabel}</strong>
                 <span style={{ color: 'var(--blue-600)', fontWeight: 700 }}>
-                  {appointment.slotTime} (Report: {appointment.reportingTime})
+                  {localizeTime(appointment.slotTime)} ({t.reportPrefix} {localizeTime(appointment.reportingTime)})
                 </span>
               </div>
               <div className="slip-detail-row" style={{ gridColumn: 'span 2' }}>
-                <strong>Room / Counter Number</strong>
+                <strong>{t.roomCounterLabel}</strong>
                 <span style={{ fontWeight: 700, color: 'var(--emerald-700)' }}>
-                  {appointment.roomNo}
+                  {localizeRoom(appointment.roomNo)}
                 </span>
               </div>
               {appointment.symptoms && (
                 <div className="slip-detail-row" style={{ gridColumn: 'span 2' }}>
-                  <strong>Chief Complaint / Notes</strong>
+                  <strong>{t.complaintNotesLabel}</strong>
                   <span style={{ color: 'var(--slate-600)' }}>{appointment.symptoms}</span>
                 </div>
               )}
@@ -132,9 +132,9 @@ export const TokenSlipModal: React.FC<TokenSlipModalProps> = ({ appointment, onC
 
             {/* Instructions */}
             <div style={{ marginTop: '16px', padding: '10px', background: 'var(--slate-50)', borderRadius: '6px', fontSize: '0.74rem', color: 'var(--slate-600)', lineHeight: 1.5 }}>
-              • Please arrive at the OPD Counter 15 minutes before your scheduled slot time.<br />
-              • Present this digital or printed slip with barcode/QR code at the OPD entrance desk.<br />
-              • Consultations, basic diagnostic blood tests, and government formulary medicines are 100% free of charge.
+              {t.slipInstruction1}<br />
+              {t.slipInstruction2}<br />
+              {t.slipInstruction3}
             </div>
           </div>
         </div>

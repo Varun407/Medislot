@@ -48,7 +48,7 @@ export const UnifiedLogin: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password) {
-      error('Please enter your email and password.');
+      error(lang === 'te' ? 'దయచేసి మీ ఈమెయిల్ మరియు పాస్‌వర్డ్ నమోదు చేయండి.' : 'Please enter your email and password.');
       return;
     }
 
@@ -61,23 +61,23 @@ export const UnifiedLogin: React.FC = () => {
 
       if (authUser.role === 'DOCTOR') {
         if (authUser.verificationStatus === 'PENDING') {
-          success(`Welcome Dr. ${authUser.fullName}! Your verification is pending.`);
+          success(lang === 'te' ? `స్వాగతం డాక్టర్ ${authUser.fullName}! మీ లైసెన్స్ పరిశీలనలో ఉంది.` : `Welcome Dr. ${authUser.fullName}! Your verification is pending.`);
           navigate('/doctor/pending', { replace: true });
         } else {
-          success(`Welcome Dr. ${authUser.fullName}! Opening Doctor OPD Queue.`);
+          success(lang === 'te' ? `స్వాగతం డాక్టర్ ${authUser.fullName}! ఓపీడీ క్యూ తెరుచుకుంటోంది.` : `Welcome Dr. ${authUser.fullName}! Opening Doctor OPD Queue.`);
           navigate('/doctor/dashboard', { replace: true });
         }
       } else if (authUser.role === 'PATIENT') {
-        success(`Welcome back, ${authUser.fullName}! Opening Patient Portal.`);
+        success(lang === 'te' ? `తిరిగి స్వాగతం, ${authUser.fullName}! రోగి పోర్టల్ తెరుచుకుంటోంది.` : `Welcome back, ${authUser.fullName}! Opening Patient Portal.`);
         navigate('/patient/dashboard', { replace: true });
       } else if (authUser.role === 'ADMIN') {
-        success(`Chief Medical Administrator authenticated.`);
+        success(lang === 'te' ? `చీఫ్ మెడికల్ అడ్మినిస్ట్రేటర్ లాగిన్ అయ్యారు.` : `Chief Medical Administrator authenticated.`);
         navigate('/admin/dashboard', { replace: true });
       } else {
         navigate('/patient/dashboard', { replace: true });
       }
     } catch (err: any) {
-      error(err.response?.data?.error || 'Invalid email or password.');
+      error(err.response?.data?.error || (lang === 'te' ? 'చెల్లని ఈమెయిల్ లేదా పాస్‌వర్డ్.' : 'Invalid email or password.'));
     } finally {
       setLoading(false);
     }
@@ -107,16 +107,14 @@ export const UnifiedLogin: React.FC = () => {
             🏥
           </div>
           <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--navy-900)', letterSpacing: '-0.3px', margin: 0 }}>
-            {lang === 'te' ? 'మెడిస్లాట్ పోర్టల్ లాగిన్' : 'MediSlot Healthcare Sign In'}
+            {t.portalLoginTitle}
           </h2>
           <p style={{ fontSize: '0.82rem', color: 'var(--slate-500)', marginTop: '5px' }}>
-            {lang === 'te'
-              ? 'ఆంధ్రప్రదేశ్ ప్రభుత్వ ఆసుపత్రి అపాయింట్‌మెంట్లు & డిజిటల్ ఓపీడీ క్యూ'
-              : 'Government Hospital OPD Appointments & Digital Queue Portal'}
+            {t.portalLoginSub}
           </p>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--blue-50)', color: 'var(--blue-600)', padding: '4px 12px', borderRadius: '12px', fontSize: '0.74rem', fontWeight: 700, marginTop: '10px' }}>
             <span className="pulse-dot" style={{ width: '6px', height: '6px' }} />
-            Single Gateway for Patients, Doctors & Admin
+            {t.singleGateway}
           </div>
         </div>
 
@@ -124,7 +122,7 @@ export const UnifiedLogin: React.FC = () => {
         <div style={{ background: 'var(--slate-50)', border: '1px solid var(--slate-200)', borderRadius: '8px', padding: '10px 14px', marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.74rem', fontWeight: 700, color: 'var(--slate-600)', marginBottom: '8px' }}>
             <Sparkles size={13} color="var(--blue-600)" />
-            <span>Quick Test Credentials (1-Click Fill):</span>
+            <span>{t.quickTestCredentials}</span>
           </div>
           <div style={{ display: 'flex', gap: '6px' }}>
             <button
@@ -134,7 +132,7 @@ export const UnifiedLogin: React.FC = () => {
               style={{ flex: 1, fontSize: '0.74rem', padding: '6px 4px', justifyContent: 'center' }}
             >
               <Stethoscope size={12} color="var(--emerald-600)" />
-              Doctor
+              {t.doctorRole}
             </button>
             <button
               type="button"
@@ -143,7 +141,7 @@ export const UnifiedLogin: React.FC = () => {
               style={{ flex: 1, fontSize: '0.74rem', padding: '6px 4px', justifyContent: 'center' }}
             >
               <UserIcon size={12} color="var(--blue-600)" />
-              Patient
+              {t.patientRole}
             </button>
             <button
               type="button"
@@ -152,7 +150,7 @@ export const UnifiedLogin: React.FC = () => {
               style={{ flex: 1, fontSize: '0.74rem', padding: '6px 4px', justifyContent: 'center' }}
             >
               <ShieldCheck size={12} color="var(--navy-700)" />
-              Admin
+              {t.adminRole}
             </button>
           </div>
         </div>
@@ -160,13 +158,13 @@ export const UnifiedLogin: React.FC = () => {
         {/* Unified Login Form */}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">{lang === 'te' ? 'ఇమెయిల్ చిరునామా' : 'Email Address'}</label>
+            <label className="form-label">{t.emailAddress}</label>
             <div style={{ position: 'relative' }}>
               <input
                 type="email"
                 className="form-input"
                 required
-                placeholder="your.email@medislot.gov.in"
+                placeholder={lang === 'te' ? 'మీ.ఈమెయిల్@medislot.gov.in' : 'your.email@medislot.gov.in'}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
@@ -175,7 +173,7 @@ export const UnifiedLogin: React.FC = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">{lang === 'te' ? 'పాస్‌వర్డ్' : 'Password'}</label>
+            <label className="form-label">{t.passwordLabel}</label>
             <div style={{ position: 'relative' }}>
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -201,7 +199,7 @@ export const UnifiedLogin: React.FC = () => {
                   cursor: 'pointer',
                   padding: 0
                 }}
-                title={showPassword ? 'Hide password' : 'Show password'}
+                title={showPassword ? (lang === 'te' ? 'పాస్‌వర్డ్ దాచండి' : 'Hide password') : (lang === 'te' ? 'పాస్‌వర్డ్ చూపించండి' : 'Show password')}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -214,28 +212,28 @@ export const UnifiedLogin: React.FC = () => {
             disabled={loading}
             style={{ width: '100%', marginTop: '12px', padding: '12px', fontSize: '0.98rem' }}
           >
-            {loading ? 'Authenticating...' : (lang === 'te' ? 'లాగిన్ చేయండి' : 'Sign In')}
+            {loading ? t.authenticating : t.signInBtn}
             <ArrowRight size={17} />
           </button>
         </form>
 
         {/* Role Helper Info */}
         <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '10px 14px', marginTop: '20px', fontSize: '0.78rem', color: '#166534', lineHeight: 1.45 }}>
-          <strong>Automatic Role Redirection:</strong> Entering patient credentials opens the Patient Dashboard. Entering doctor credentials immediately opens the Doctor OPD Queue Dashboard.
+          {t.autoRedirectNotice}
         </div>
 
         {/* Registration Options */}
         <div style={{ borderTop: '1px solid var(--slate-200)', marginTop: '22px', paddingTop: '18px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'center', fontSize: '0.84rem' }}>
           <div>
-            <span style={{ color: 'var(--slate-500)' }}>New patient seeking care? </span>
+            <span style={{ color: 'var(--slate-500)' }}>{t.newPatientQuestion} </span>
             <Link to="/patient/register" style={{ fontWeight: 700, color: 'var(--blue-600)' }}>
-              Register as Patient
+              {t.registerAsPatient}
             </Link>
           </div>
           <div>
-            <span style={{ color: 'var(--slate-500)' }}>Hospital doctor joining roster? </span>
+            <span style={{ color: 'var(--slate-500)' }}>{t.doctorJoiningQuestion} </span>
             <Link to="/doctor/register" style={{ fontWeight: 700, color: 'var(--emerald-600)' }}>
-              Register as Doctor
+              {t.registerAsDoctor}
             </Link>
           </div>
         </div>
