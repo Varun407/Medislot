@@ -635,6 +635,14 @@ async function run(sql, params = []) {
             const res = await collection.insertOne(doc);
             return { changes: 1, lastID: doc.id || res.insertedId };
         }
+
+        // General entity upsert / insert (e.g., grievances, audit_logs)
+        if (doc.id) {
+            await collection.updateOne({ id: doc.id }, { $set: doc }, { upsert: true });
+            return { changes: 1, lastID: doc.id };
+        }
+        const res = await collection.insertOne(doc);
+        return { changes: 1, lastID: res.insertedId };
     }
 
     // 2. UPDATE
@@ -750,7 +758,52 @@ async function all(sql, params = []) {
         return merged.map(normalizeDoc);
     }
 
-    // B. Joins in Admin Portal: users u LEFT JOIN patient_profiles pp ON u.id = pp.userId
+    // B. Grievances in Admin Portal
+    if (/FROM\s+grievances/i.test(trimmed) && !/COUNT|MAX|SUM/i.test(trimmed)) {
+        const grvCol = db.collection('grievances');
+        let docs = await grvCol.find({}).toArray();
+
+        // Check if there is status filter
+        const statusMatch = trimmed.match(/status\s*=\s*\?/i);
+        let pIdx = 0;
+        if (statusMatch) {
+            const st = params[pIdx++];
+            docs = docs.filter(d => (d.status || '').toUpperCase() === String(st).toUpperCase());
+        }
+
+        // Check if there is category filter
+        const catMatch = trimmed.match(/category\s*=\s*\?/i);
+        if (catMatch) {
+            const cat = params[pIdx++];
+            docs = docs.filter(d => (d.category || '').toLowerCase() === String(cat).toLowerCase());
+        }
+
+        // Check if there is search keyword
+        if (/citizenName\s+LIKE/i.test(trimmed) || /message\s+LIKE/i.test(trimmed) || /id\s+LIKE/i.test(trimmed)) {
+            const s = String(params[pIdx++] || '').replace(/%/g, '').toLowerCase();
+            if (s) {
+                docs = docs.filter(d =>
+                    (d.id && d.id.toLowerCase().includes(s)) ||
+                    (d.citizenName && d.citizenName.toLowerCase().includes(s)) ||
+                    (d.citizenPhone && d.citizenPhone.includes(s)) ||
+                    (d.hospitalName && d.hospitalName.toLowerCase().includes(s)) ||
+                    (d.category && d.category.toLowerCase().includes(s)) ||
+                    (d.message && d.message.toLowerCase().includes(s))
+                );
+            }
+        }
+
+        docs.sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+
+        const limitMatch = trimmed.match(/LIMIT\s+(\d+)/i);
+        if (limitMatch) {
+            docs = docs.slice(0, parseInt(limitMatch[1], 10));
+        }
+
+        return docs.map(normalizeDoc);
+    }
+
+    // C. Joins in Admin Portal: users u LEFT JOIN patient_profiles pp ON u.id = pp.userId
     if (/FROM\s+users\s+u\s+LEFT\s+JOIN\s+patient_profiles\s+pp/i.test(trimmed)) {
         const uCol = db.collection('users');
         const ppCol = db.collection('patient_profiles');
@@ -893,6 +946,24 @@ async function all(sql, params = []) {
             }];
         }
 
+        // Grievances count & breakdown
+        if (tableName === 'grievances') {
+            const total = docs.length;
+            const submitted = docs.filter(g => (g.status || '').toUpperCase() === 'SUBMITTED').length;
+            const inReview = docs.filter(g => (g.status || '').toUpperCase() === 'IN_REVIEW').length;
+            const resolved = docs.filter(g => (g.status || '').toUpperCase() === 'RESOLVED').length;
+            const rejected = docs.filter(g => (g.status || '').toUpperCase() === 'REJECTED').length;
+            return [{
+                total,
+                count: total,
+                cnt: total,
+                submitted,
+                inReview,
+                resolved,
+                rejected
+            }];
+        }
+
         // 5. Default generic count
         const count = docs.length;
         return [{
@@ -980,6 +1051,7 @@ async function initDatabase() {
     await bootstrapAdmin();
     await seedVerifiedDoctorAccounts();
     await seedDefaultPatientAccount();
+    await seedDefaultGrievances();
 
     console.log('[MongoDB Atlas] Initialization and indexes completed successfully.');
 }
@@ -1431,6 +1503,76 @@ async function seedDefaultPatientAccount() {
             userId, fullName, phone, age, gender, abhaId, address, updatedAt
         ) VALUES (?, 'Venkata Satyanarayana', '9849012345', 42, 'Male', 'AROGYASRI-AP-9821443', 'Door No 4-21, Main Road, Bhimavaram, West Godavari', ?)
     `, [pId, now]);
+}
+
+async function seedDefaultGrievances() {
+    const countRes = await get('SELECT COUNT(*) as cnt FROM grievances');
+    if (!countRes || countRes.cnt === 0) {
+        console.log('[MongoDB Atlas] Seeding authentic citizen grievances for AP hospitals...');
+        const now = new Date();
+        const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+        const twoDaysAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000).toISOString();
+        const threeDaysAgo = new Date(now.getTime() - 72 * 60 * 60 * 1000).toISOString();
+
+        const seedList = [
+            {
+                id: 'AP-GRV-8142',
+                citizenName: 'S. Radhakrishna',
+                citizenPhone: '9848012345',
+                hospitalName: 'Government District Hospital, Bhimavaram',
+                category: 'OPD Waiting Time',
+                message: 'Cardiology room had only one counter open this morning. Requesting additional staff during peak 9-11 AM hours.',
+                status: 'SUBMITTED',
+                createdAt: now.toISOString()
+            },
+            {
+                id: 'AP-GRV-6521',
+                citizenName: 'K. Venkateswara Rao',
+                citizenPhone: '9440156789',
+                hospitalName: 'Government General Hospital (GGH), Eluru',
+                category: 'Medicine Availability',
+                message: 'Requested pediatric syrup was temporarily out of stock at counter 2. Was informed to return tomorrow.',
+                status: 'IN_REVIEW',
+                createdAt: yesterday
+            },
+            {
+                id: 'AP-GRV-4209',
+                citizenName: 'Lakshmi Vijaya',
+                citizenPhone: '9989011223',
+                hospitalName: 'Area Hospital, Palakollu',
+                category: 'Hospital Sanitation',
+                message: 'Waiting area chairs cleaned properly today, thank you for quick action on last week suggestion.',
+                status: 'RESOLVED',
+                createdAt: twoDaysAgo
+            },
+            {
+                id: 'AP-GRV-3118',
+                citizenName: 'N. Rama Krishna',
+                citizenPhone: '9701023456',
+                hospitalName: 'Rangaraya Government General Hospital, Kakinada',
+                category: 'Doctor Availability',
+                message: 'Orthopedics specialist on urgent surgery duty, nurse desk handled token sequence smoothly.',
+                status: 'RESOLVED',
+                createdAt: threeDaysAgo
+            }
+        ];
+
+        for (const item of seedList) {
+            await run(`
+                INSERT INTO grievances (id, citizenName, citizenPhone, hospitalName, category, message, status, createdAt)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            `, [
+                item.id,
+                item.citizenName,
+                item.citizenPhone,
+                item.hospitalName,
+                item.category,
+                item.message,
+                item.status,
+                item.createdAt
+            ]);
+        }
+    }
 }
 
 module.exports = {
