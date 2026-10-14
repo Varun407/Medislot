@@ -10,7 +10,7 @@ interface TokenSlipModalProps {
 }
 
 export const TokenSlipModal: React.FC<TokenSlipModalProps> = ({ appointment, onClose }) => {
-  const { lang, t, localizeDept, localizeRoom, localizeDoctor, localizeHospital, localizeTime, localizeGender } = useLanguage();
+  const { lang, t, localizeDoctor, localizeName, localizeDept, localizeHospital, localizeRoom, localizeTime, localizeGender } = useLanguage();
 
   if (!appointment) return null;
 
@@ -52,7 +52,7 @@ export const TokenSlipModal: React.FC<TokenSlipModalProps> = ({ appointment, onC
                 {t.govtHeader}
               </div>
               <div className="slip-hosp-name">
-                {lang === 'te' && appointment.hospitalNameTe ? appointment.hospitalNameTe : localizeHospital(appointment.hospitalNameEn)}
+                {localizeHospital(appointment.hospitalNameEn, appointment.hospitalNameTe)}
               </div>
               <div style={{ fontSize: '0.8rem', color: 'var(--slate-500)' }}>
                 {t.outpatientSlipSubtitle}
@@ -76,7 +76,7 @@ export const TokenSlipModal: React.FC<TokenSlipModalProps> = ({ appointment, onC
             <div className="slip-details-grid">
               <div className="slip-detail-row">
                 <strong>{t.patientNameLabel}</strong>
-                <span>{appointment.patientName}</span>
+                <span>{localizeName(appointment.patientName)}</span>
               </div>
               <div className="slip-detail-row">
                 <strong>{t.contactPhoneLabel}</strong>
@@ -88,12 +88,12 @@ export const TokenSlipModal: React.FC<TokenSlipModalProps> = ({ appointment, onC
               </div>
               <div className="slip-detail-row">
                 <strong>{t.arogyasriLabel}</strong>
-                <span>{appointment.abhaId || (lang === 'te' ? 'వర్తించదు (ప్రామాణిక పౌరుడు)' : 'N/A (Standard Citizen)')}</span>
+                <span>{appointment.abhaId || (lang === 'te' ? 'లభ్యం కాలేదు' : 'N/A (Standard Citizen)')}</span>
               </div>
               <div className="slip-detail-row">
                 <strong>{t.specialistDoctorLabel}</strong>
                 <span style={{ fontWeight: 700, color: 'var(--navy-900)' }}>
-                  {lang === 'te' && appointment.doctorNameTe ? appointment.doctorNameTe : localizeDoctor(appointment.doctorNameEn)}
+                  {localizeDoctor(appointment.doctorNameEn, appointment.doctorNameTe)}
                 </span>
               </div>
               <div className="slip-detail-row">
@@ -130,12 +130,7 @@ export const TokenSlipModal: React.FC<TokenSlipModalProps> = ({ appointment, onC
               <div dangerouslySetInnerHTML={{ __html: qrSvg }} />
             </div>
 
-            {/* Instructions */}
-            <div style={{ marginTop: '16px', padding: '10px', background: 'var(--slate-50)', borderRadius: '6px', fontSize: '0.74rem', color: 'var(--slate-600)', lineHeight: 1.5 }}>
-              {t.slipInstruction1}<br />
-              {t.slipInstruction2}<br />
-              {t.slipInstruction3}
-            </div>
+            {/* Note: The 3 bullet instructions previously here have been removed as requested */}
           </div>
         </div>
       </div>

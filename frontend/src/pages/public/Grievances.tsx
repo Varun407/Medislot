@@ -4,21 +4,22 @@ import { apiClient } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
-import { FileText, Send, CheckCircle2, ShieldAlert, ShieldCheck, LogIn, UserPlus } from 'lucide-react';
+import { FileText, Send, CheckCircle2, ShieldAlert, LogIn, UserPlus, CheckCircle } from 'lucide-react';
 
 export const Grievances: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
-  const { lang, t, localizeHospital } = useLanguage();
+  const { lang, t, localizeHospital, localizeName } = useLanguage();
   const { success, error } = useToast();
 
-  const [citizenName, setCitizenName] = useState(user?.fullName || '');
-  const [citizenPhone, setCitizenPhone] = useState(user?.phone || '');
+  const [citizenName, setCitizenName] = useState('');
+  const [citizenPhone, setCitizenPhone] = useState('');
   const [hospitalName, setHospitalName] = useState('Government District Hospital, Bhimavaram');
   const [category, setCategory] = useState('OPD Waiting Time');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [submittedId, setSubmittedId] = useState<string | null>(null);
 
+  // Auto-populate verified user credentials when authenticated
   useEffect(() => {
     if (user) {
       if (user.fullName) setCitizenName(user.fullName);
@@ -28,14 +29,8 @@ export const Grievances: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!isAuthenticated) {
-      error(lang === 'te' ? 'ఫిర్యాదు సమర్పించడానికి దయచేసి రోగి ఖాతాతో లాగిన్ అవ్వండి.' : 'Please sign in with a patient account to lodge a grievance.');
-      return;
-    }
-
     if (!citizenName.trim() || !citizenPhone.trim() || !message.trim()) {
-      error(lang === 'te' ? 'దయచేసి అన్ని అవసరమైన ఫీల్డులను పూర్తి చేయండి.' : 'Please complete all required fields.');
+      error(t.pleaseCompleteFields);
       return;
     }
 
@@ -49,14 +44,30 @@ export const Grievances: React.FC = () => {
         message
       });
       setSubmittedId(res.data.grievanceId);
-      success(res.data.message || (lang === 'te' ? 'ఫిర్యాదు విజయవంతంగా సమర్పించబడింది.' : 'Grievance submitted successfully.'));
+      success(res.data.message || t.grievanceSubmitSuccess);
       setMessage('');
     } catch (err: any) {
-      error(err.response?.data?.error || (lang === 'te' ? 'ఫిర్యాదు సమర్పించడం విఫలమైంది.' : 'Failed to submit grievance.'));
+      error(err.response?.data?.error || t.grievanceSubmitFail);
     } finally {
       setLoading(false);
     }
   };
+
+  const hospitalOptions = [
+    'Government District Hospital, Bhimavaram',
+    'Area Hospital, Palakollu',
+    'Government General Hospital (GGH), Eluru',
+    'Rangaraya Government General Hospital, Kakinada'
+  ];
+
+  const categoryOptions = [
+    { value: 'OPD Waiting Time', label: t.catOpdWaiting },
+    { value: 'Medicine Availability', label: t.catMedicineAvail },
+    { value: 'Hospital Sanitation', label: t.catSanitation },
+    { value: 'Doctor Availability', label: t.catDoctorAvail },
+    { value: 'Diagnostics & Lab', label: t.catDiagnosticsLab },
+    { value: 'Other Suggestion', label: t.catOtherSuggestion }
+  ];
 
   return (
     <div className="main-content" style={{ maxWidth: '800px' }}>
@@ -69,64 +80,64 @@ export const Grievances: React.FC = () => {
         </p>
       </div>
 
+      {/* Access Gate: Block Unauthenticated Visitors from Lodging Grievances */}
       {!isAuthenticated ? (
-        /* Authentication Gate: Only citizens with an account can lodge grievances */
-        <div className="med-card" style={{ padding: '42px 32px', textAlign: 'center', border: '1px solid var(--slate-200)', boxShadow: 'var(--shadow-lg)' }}>
-          <div style={{ width: '68px', height: '68px', borderRadius: '50%', background: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-            <ShieldAlert size={36} />
+        <div className="med-card" style={{ padding: '40px 28px', textAlign: 'center', border: '1px solid var(--slate-200)', boxShadow: 'var(--shadow-md)' }}>
+          <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--blue-50)', color: 'var(--blue-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+            <ShieldAlert size={34} />
           </div>
-          <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--navy-900)', marginBottom: '10px' }}>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--navy-900)', marginBottom: '8px' }}>
             {t.grievanceAccountRequiredTitle}
           </h2>
-          <p style={{ color: 'var(--slate-600)', fontSize: '0.92rem', lineHeight: 1.6, maxWidth: '600px', margin: '0 auto 26px' }}>
+          <p style={{ color: 'var(--slate-600)', fontSize: '0.92rem', lineHeight: 1.6, maxWidth: '580px', margin: '0 auto 24px' }}>
             {t.grievanceAccountRequiredDesc}
           </p>
 
-          <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/login" className="btn btn-primary btn-lg" style={{ padding: '12px 24px', fontSize: '0.95rem' }}>
-              <LogIn size={17} />
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/login" className="btn btn-primary" style={{ minWidth: '180px' }}>
+              <LogIn size={16} />
               {t.grievanceSignInPrompt}
             </Link>
-            <Link to="/patient/register" className="btn btn-secondary btn-lg" style={{ padding: '12px 24px', fontSize: '0.95rem' }}>
-              <UserPlus size={17} />
+            <Link to="/patient/register" className="btn btn-outline" style={{ minWidth: '180px' }}>
+              <UserPlus size={16} />
               {t.grievanceRegisterPrompt}
             </Link>
           </div>
-
-          <div style={{ marginTop: '28px', paddingTop: '18px', borderTop: '1px solid var(--slate-200)', fontSize: '0.82rem', color: 'var(--slate-500)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-            <ShieldCheck size={15} color="var(--blue-600)" />
-            <span>{t.grievanceSubmitNotice}</span>
-          </div>
         </div>
       ) : submittedId ? (
-        /* Success Screen with Tracking Reference */
-        <div className="med-card" style={{ textAlign: 'center', padding: '44px 24px', border: '2px solid var(--emerald-600)', boxShadow: 'var(--shadow-lg)' }}>
-          <CheckCircle2 size={52} color="var(--emerald-600)" style={{ margin: '0 auto 14px' }} />
-          <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--navy-900)' }}>
+        <div className="med-card" style={{ textAlign: 'center', padding: '40px 20px', border: '2px solid var(--emerald-600)' }}>
+          <CheckCircle2 size={48} color="var(--emerald-600)" style={{ margin: '0 auto 14px' }} />
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--navy-900)' }}>
             {t.grievanceSuccessTitle}
           </h2>
-          <p style={{ color: 'var(--slate-600)', margin: '8px 0 22px', fontSize: '0.92rem', lineHeight: 1.5 }}>
+          <p style={{ color: 'var(--slate-600)', margin: '8px 0 20px', lineHeight: 1.6 }}>
             {t.grievanceSuccessDesc}
           </p>
-          <div style={{ background: 'var(--blue-50)', padding: '16px 24px', borderRadius: '8px', display: 'inline-block', border: '1px solid var(--blue-200)' }}>
-            <span style={{ fontSize: '0.82rem', color: 'var(--slate-500)', fontWeight: 700, textTransform: 'uppercase' }}>{t.trackingRefId}</span>
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--blue-600)', letterSpacing: '1px', marginTop: '2px' }}>
+          <div style={{ background: 'var(--blue-50)', padding: '14px', borderRadius: '8px', display: 'inline-block', border: '1px solid var(--blue-100)' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--slate-500)', fontWeight: 600 }}>{t.trackingRefId}</span>
+            <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--blue-600)', letterSpacing: '1px', marginTop: '4px' }}>
               {submittedId}
             </div>
           </div>
-          <div style={{ marginTop: '26px' }}>
+          <div style={{ marginTop: '24px' }}>
             <button className="btn btn-secondary btn-sm" onClick={() => setSubmittedId(null)}>
               {t.submitAnotherGrievance}
             </button>
           </div>
         </div>
       ) : (
-        /* Authenticated Grievance Lodge Form */
-        <div className="med-card" style={{ padding: '32px', boxShadow: 'var(--shadow-md)' }}>
-          {/* Verified Citizen Indicator */}
-          <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', padding: '12px 16px', borderRadius: '8px', marginBottom: '22px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.86rem', fontWeight: 600 }}>
-            <ShieldCheck size={18} color="#16a34a" />
-            <span>{t.grievanceLoggedInAs} <strong>{user?.fullName}</strong> · +91 {user?.phone}</span>
+        <div className="med-card">
+          {/* Verified Citizen Badge */}
+          <div style={{ background: 'var(--slate-50)', border: '1px solid var(--slate-200)', borderRadius: '8px', padding: '12px 16px', marginBottom: '22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.86rem', color: 'var(--slate-700)' }}>
+              <CheckCircle size={16} color="var(--emerald-600)" />
+              <span>
+                <strong>{t.grievanceLoggedInAs}</strong> {localizeName(user?.fullName)} ({user?.email})
+              </span>
+            </div>
+            <span className="status-pill status-verified" style={{ fontSize: '0.72rem' }}>
+              {t.statusActive}
+            </span>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -159,30 +170,22 @@ export const Grievances: React.FC = () => {
             <div className="form-group">
               <label className="form-label">{t.hospitalFacility}</label>
               <select className="form-select" value={hospitalName} onChange={(e) => setHospitalName(e.target.value)}>
-                <option value="Government District Hospital, Bhimavaram">
-                  {localizeHospital('Government District Hospital, Bhimavaram')}
-                </option>
-                <option value="Area Hospital, Palakollu">
-                  {localizeHospital('Area Hospital, Palakollu')}
-                </option>
-                <option value="Government General Hospital (GGH), Eluru">
-                  {localizeHospital('Government General Hospital (GGH), Eluru')}
-                </option>
-                <option value="Rangaraya Government General Hospital, Kakinada">
-                  {localizeHospital('Rangaraya Government General Hospital, Kakinada')}
-                </option>
+                {hospitalOptions.map((hosp) => (
+                  <option key={hosp} value={hosp}>
+                    {localizeHospital(hosp)}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div className="form-group">
               <label className="form-label">{t.categoryLabel}</label>
               <select className="form-select" value={category} onChange={(e) => setCategory(e.target.value)}>
-                <option value="OPD Waiting Time">{t.catOpdWaiting}</option>
-                <option value="Medicine Availability">{t.catMedicineAvail}</option>
-                <option value="Hospital Sanitation">{t.catSanitation}</option>
-                <option value="Doctor Availability">{t.catDoctorAvail}</option>
-                <option value="Diagnostics & Lab">{t.catDiagnosticsLab}</option>
-                <option value="Other Suggestion">{t.catOtherSuggestion}</option>
+                {categoryOptions.map((cat) => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -198,7 +201,11 @@ export const Grievances: React.FC = () => {
               />
             </div>
 
-            <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginTop: '6px', padding: '12px' }}>
+            <p style={{ fontSize: '0.78rem', color: 'var(--slate-500)', marginBottom: '14px' }}>
+              {t.grievanceSubmitNotice}
+            </p>
+
+            <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%' }}>
               <Send size={16} />
               {loading ? t.submittingGrievance : t.submitGrievanceBtn}
             </button>

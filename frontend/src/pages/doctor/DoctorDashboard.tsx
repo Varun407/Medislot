@@ -16,13 +16,14 @@ import {
   Settings,
   Printer,
   Activity,
-  AlertCircle
+  AlertCircle,
+  Sparkles
 } from 'lucide-react';
 
 export const DoctorDashboard: React.FC = () => {
   const { user } = useAuth();
   const { success, error } = useToast();
-  const { lang, t, localizeStatus, localizeGender, localizeTime, localizeDept, localizeRoom } = useLanguage();
+  const { lang, t, localizeName, localizeDoctor, localizeDept, localizeRoom, localizeStatus, localizeGender, localizeTime } = useLanguage();
 
   const [queueState, setQueueState] = useState<DoctorQueueState | null>(null);
   const [loading, setLoading] = useState(true);
@@ -61,13 +62,13 @@ export const DoctorDashboard: React.FC = () => {
     try {
       const res = await apiClient.post('/doctors/queue/call-next', {});
       if (res.data.patient) {
-        success(res.data.message || `Token #${res.data.currentServingToken} called.`);
+        success(res.data.message || (lang === 'te' ? `టోకెన్ #${res.data.currentServingToken} పిలవబడింది.` : `Token #${res.data.currentServingToken} called.`));
       } else {
-        success('No more waiting patients in today\'s queue.');
+        success(lang === 'te' ? 'నేటి క్యూలో వేచి ఉన్న రోగులు లేరు.' : "No more waiting patients in today's queue.");
       }
       fetchQueue();
     } catch (err: any) {
-      error(err.response?.data?.error || 'Failed to advance queue.');
+      error(err.response?.data?.error || (lang === 'te' ? 'క్యూ ముందుకు జరపడం విఫలమైంది.' : 'Failed to advance queue.'));
     } finally {
       setCallingNext(false);
     }
@@ -76,10 +77,10 @@ export const DoctorDashboard: React.FC = () => {
   const handleUpdateStatus = async (appointmentId: string, newStatus: string) => {
     try {
       await apiClient.put(`/doctors/appointments/${appointmentId}/status`, { status: newStatus });
-      success(`Patient status updated to ${newStatus}.`);
+      success(lang === 'te' ? `రోగి స్థితి ${localizeStatus(newStatus)} కు నవీకరించబడింది.` : `Patient status updated to ${newStatus}.`);
       fetchQueue();
     } catch (err: any) {
-      error(err.response?.data?.error || 'Failed to update status.');
+      error(err.response?.data?.error || (lang === 'te' ? 'స్థితిని నవీకరించడం విఫలమైంది.' : 'Failed to update status.'));
     }
   };
 
@@ -95,7 +96,7 @@ export const DoctorDashboard: React.FC = () => {
         symptoms: walkinSymptoms
       });
 
-      success(res.data.message || 'Walk-in token generated successfully.');
+      success(res.data.message || (lang === 'te' ? 'వాక్-ఇన్ టోకెన్ విజయవంతంగా జారీ చేయబడింది.' : 'Walk-in token generated successfully.'));
       setIsWalkinOpen(false);
       setWalkinName('');
       setWalkinSymptoms('');
@@ -106,7 +107,7 @@ export const DoctorDashboard: React.FC = () => {
         setSelectedSlip(res.data.appointment);
       }
     } catch (err: any) {
-      error(err.response?.data?.error || 'Failed to generate walk-in token.');
+      error(err.response?.data?.error || (lang === 'te' ? 'వాక్-ఇన్ టోకెన్ జారీ చేయడం విఫలమైంది.' : 'Failed to generate walk-in token.'));
     } finally {
       setWalkinLoading(false);
     }
@@ -121,7 +122,7 @@ export const DoctorDashboard: React.FC = () => {
             {t.doctorLiveQueueTitle}
           </h1>
           <p className="section-subtitle">
-            {t.physicianLabel} <strong>{user?.fullName}</strong> · {t.deptLabel} {localizeDept(user?.profile && (user.profile as any).specialization)} · {t.roomLabel} {localizeRoom((user?.profile as any)?.roomNo || 'Room 102')}
+            {t.physicianLabel} <strong>{localizeDoctor(user?.fullName)}</strong> · {t.deptLabel} {localizeDept(user?.profile && (user.profile as any).specialization)} · {t.roomLabel} {localizeRoom((user?.profile as any)?.roomNo || 'Room 102')}
           </p>
         </div>
 
@@ -249,7 +250,7 @@ export const DoctorDashboard: React.FC = () => {
                         </span>
                       </td>
                       <td style={{ padding: '12px' }}>
-                        <div style={{ fontWeight: 700, color: 'var(--navy-900)' }}>{p.patientName}</div>
+                        <div style={{ fontWeight: 700, color: 'var(--navy-900)' }}>{localizeName(p.patientName)}</div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>+91 {p.patientPhone} · {p.id}</div>
                       </td>
                       <td style={{ padding: '12px' }}>
@@ -261,7 +262,7 @@ export const DoctorDashboard: React.FC = () => {
                       </td>
                       <td style={{ padding: '12px', maxWidth: '200px' }}>
                         <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--slate-600)' }}>
-                          {p.symptoms || (lang === 'te' ? 'సాధారణ ఓపీడీ' : 'General OPD')}
+                          {p.symptoms || (lang === 'te' ? 'సాధారణ సంప్రదింపు' : 'General OPD')}
                         </div>
                       </td>
                       <td style={{ padding: '12px' }}>
@@ -276,12 +277,12 @@ export const DoctorDashboard: React.FC = () => {
                             value={p.status}
                             onChange={(e) => handleUpdateStatus(p.id, e.target.value)}
                           >
-                            <option value="CONFIRMED">{t.statusConfirmed}</option>
-                            <option value="CALLED">{t.statusCalled}</option>
-                            <option value="IN_CONSULTATION">{t.statusInConsult}</option>
-                            <option value="COMPLETED">{t.statusCompleted}</option>
-                            <option value="NO_SHOW">{t.statusNoShow}</option>
-                            <option value="CANCELLED">{t.statusCancelled}</option>
+                            <option value="CONFIRMED">{localizeStatus('CONFIRMED')}</option>
+                            <option value="CALLED">{localizeStatus('CALLED')}</option>
+                            <option value="IN_CONSULTATION">{localizeStatus('IN_CONSULTATION')}</option>
+                            <option value="COMPLETED">{localizeStatus('COMPLETED')}</option>
+                            <option value="NO_SHOW">{localizeStatus('NO_SHOW')}</option>
+                            <option value="CANCELLED">{localizeStatus('CANCELLED')}</option>
                           </select>
                           <button
                             className="btn btn-secondary btn-sm"
@@ -318,10 +319,16 @@ export const DoctorDashboard: React.FC = () => {
                     type="text"
                     className="form-input"
                     required
-                    placeholder={t.fullNamePlaceholder}
+                    placeholder={lang === 'te' ? 'ఉదా: వరుణ్ కుమార్' : 'Patient Name'}
                     value={walkinName}
                     onChange={(e) => setWalkinName(e.target.value)}
                   />
+                  {walkinName.trim() && (
+                    <div style={{ fontSize: '0.78rem', color: 'var(--blue-600)', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Sparkles size={12} />
+                      <span>{t.autoTeluguPreview} <strong>{localizeName(walkinName)}</strong></span>
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -359,7 +366,7 @@ export const DoctorDashboard: React.FC = () => {
                   <input
                     type="text"
                     className="form-input"
-                    placeholder={t.symptomsPlaceholder}
+                    placeholder={lang === 'te' ? 'ఉదా: జ్వరం, తీవ్రమైన దగ్గు' : 'e.g. fever, acute cough, trauma'}
                     value={walkinSymptoms}
                     onChange={(e) => setWalkinSymptoms(e.target.value)}
                   />

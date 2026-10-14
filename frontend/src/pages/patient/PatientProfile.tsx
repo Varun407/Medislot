@@ -8,7 +8,7 @@ import { User, Save, ShieldCheck } from 'lucide-react';
 export const PatientProfile: React.FC = () => {
   const { user, refreshUser } = useAuth();
   const { success, error } = useToast();
-  const { lang, t } = useLanguage();
+  const { lang, t, localizeName } = useLanguage();
 
   const [fullName, setFullName] = useState(user?.fullName || '');
   const [phone, setPhone] = useState(user?.phone || '');
@@ -53,7 +53,7 @@ export const PatientProfile: React.FC = () => {
       await refreshUser();
       success(lang === 'te' ? 'రోగి ప్రొఫైల్ విజయవంతంగా నవీకరించబడింది.' : 'Patient profile updated successfully.');
     } catch (err: any) {
-      error(err.response?.data?.error || (lang === 'te' ? 'ప్రొఫైల్ నవీకరణ విఫలమైంది.' : 'Failed to update profile.'));
+      error(err.response?.data?.error || (lang === 'te' ? 'ప్రొఫైల్ నవీకరించడం విఫలమైంది.' : 'Failed to update profile.'));
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,7 @@ export const PatientProfile: React.FC = () => {
       <div className="med-card" style={{ padding: '30px' }}>
         <form onSubmit={handleSave}>
           <div className="form-group">
-            <label className="form-label">{t.fullName}</label>
+            <label className="form-label">{lang === 'te' ? 'పూర్తి పేరు *' : 'Full Name *'}</label>
             <input
               type="text"
               className="form-input"
@@ -79,6 +79,11 @@ export const PatientProfile: React.FC = () => {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
             />
+            {lang === 'te' && fullName.trim() && (
+              <span style={{ fontSize: '0.78rem', color: 'var(--slate-500)', marginTop: '4px', display: 'block' }}>
+                {t.autoTeluguPreview} <strong>{localizeName(fullName)}</strong>
+              </span>
+            )}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -94,7 +99,7 @@ export const PatientProfile: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">{t.mobileNumber}</label>
+              <label className="form-label">{t.mobileNumber} *</label>
               <input
                 type="tel"
                 className="form-input"
@@ -144,7 +149,7 @@ export const PatientProfile: React.FC = () => {
             <textarea
               className="form-textarea"
               rows={2}
-              placeholder={lang === 'te' ? 'ఇంటి నంబరు, వీధి, గ్రామం/పట్టణం, జిల్లా' : 'Door No, Street, Village/Town, District'}
+              placeholder={lang === 'te' ? 'డోర్ నం, వీధి, గ్రామం/పట్టణం, జిల్లా' : 'Door No, Street, Village/Town, District'}
               value={address}
               onChange={(e) => setAddress(e.target.value)}
             />

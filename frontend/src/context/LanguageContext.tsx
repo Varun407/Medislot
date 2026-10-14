@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import { transliterateNameToTelugu } from '../utils/teluguTransliteration';
 
 export type Language = 'te' | 'en';
 
@@ -13,6 +14,7 @@ export const translations = {
     brandTagline: "ఆంధ్రప్రదేశ్ స్మార్ట్ ఓపీడీ & క్యూ నిర్వహణ వ్యవస్థ",
     locationAP: "📍 పశ్చిమ గోదావరి & ఏపీ జిల్లాలు",
     livePortal: "ప్రత్యక్ష పోర్టల్",
+    brandName: "మెడిస్లాట్",
 
     // Navigation
     navHome: "హోమ్",
@@ -143,6 +145,15 @@ export const translations = {
     catDoctorAvail: "వైద్యులు / స్పెషలిస్ట్ లభ్యత",
     catDiagnosticsLab: "ఉచిత ల్యాబ్ / రోగనిర్ధారణ పరికరాలు",
     catOtherSuggestion: "ఇతర సూచనలు",
+    grievanceAccountRequiredTitle: "ఫిర్యాదు సమర్పించడానికి ఖాతా తప్పనిసరి",
+    grievanceAccountRequiredDesc: "ప్రభుత్వ నిబంధనల ప్రకారం, అధికారిక విచారణ మరియు పరిష్కార ట్రాకింగ్ కొరకు నమోదైన పౌరులు మాత్రమే ఫిర్యాదులు దాఖలు చేయగలరు. దయచేసి మీ ఖాతాతో లాగిన్ అవ్వండి లేదా కొత్త రోగి ఖాతాను నమోదు చేసుకోండి.",
+    grievanceSignInPrompt: "లాగిన్ అవ్వండి",
+    grievanceRegisterPrompt: "కొత్త రోగి ఖాతా నమోదు చేసుకోండి",
+    grievanceLoggedInAs: "లాగిన్ అయిన పౌరుడు:",
+    grievanceSubmitNotice: "మీ ఫిర్యాదు సంబంధిత జిల్లా వైద్య మరియు ఆరోగ్య అధికారి (డీఎంహెచ్‌ఓ) పర్యవేక్షణకు పంపబడుతుంది.",
+    pleaseCompleteFields: "దయచేసి అన్ని అవసరమైన వివరాలను నమోదు చేయండి.",
+    grievanceSubmitSuccess: "ఫిర్యాదు విజయవంతంగా నమోదైంది.",
+    grievanceSubmitFail: "ఫిర్యాదు సమర్పించడం విఫలమైంది.",
 
     // Patient Dashboard
     patientDashboard: "రోగి డ్యాష్‌బోర్డ్",
@@ -357,17 +368,11 @@ export const translations = {
     statusCompleted: "పూర్తయింది",
     statusCancelled: "రద్దు చేయబడింది",
     statusNoShow: "హాజరుకాలేదు",
-    brandName: "మెడిస్లాట్",
-    grievanceAccountRequiredTitle: "ఫిర్యాదు సమర్పించడానికి ఖాతా తప్పనిసరి",
-    grievanceAccountRequiredDesc: "ప్రభుత్వ నిబంధనల ప్రకారం, అధికారిక విచారణ మరియు పరిష్కార ట్రాకింగ్ కొరకు నమోదైన పౌరులు మాత్రమే ఫిర్యాదులు దాఖలు చేయగలరు. దయచేసి మీ ఖాతాతో లాగిన్ అవ్వండి లేదా కొత్త రోగి ఖాతాను నమోదు చేసుకోండి.",
-    grievanceSignInPrompt: "లాగిన్ అవ్వండి",
-    grievanceRegisterPrompt: "కొత్త రోగి ఖాతా నమోదు చేసుకోండి",
-    grievanceLoggedInAs: "లాగిన్ అయిన పౌరుడు:",
-    grievanceSubmitNotice: "మీ ఫిర్యాదు సంబంధిత జిల్లా వైద్య మరియు ఆరోగ్య అధికారి (డీఎంహెచ్‌ఓ) పర్యవేక్షణకు పంపబడుతుంది.",
     statusPending: "పరిశీలనలో ఉంది",
     statusSubmitted: "సమర్పించబడింది",
     statusActive: "యాక్టివ్",
     statusInactive: "నిష్క్రియం",
+    autoTeluguPreview: "తెలుగు లిపిలో (ఆటోమేటిక్):"
   },
   en: {
     // Brand & Banner
@@ -379,6 +384,7 @@ export const translations = {
     brandTagline: "Andhra Pradesh Smart OPD & Queue Management System",
     locationAP: "📍 West Godavari & AP Region",
     livePortal: "LIVE PORTAL",
+    brandName: "MediSlot",
 
     // Navigation
     navHome: "Home",
@@ -509,6 +515,15 @@ export const translations = {
     catDoctorAvail: "Doctor / Specialist Availability",
     catDiagnosticsLab: "Free Lab / Diagnostic Equipment",
     catOtherSuggestion: "Other Suggestions",
+    grievanceAccountRequiredTitle: "Account Required to Lodge Grievance",
+    grievanceAccountRequiredDesc: "Under government regulations, only registered citizens with an account can file grievances for official investigation and tracking. Please sign in or register a patient account to proceed.",
+    grievanceSignInPrompt: "Sign In to Lodge Grievance",
+    grievanceRegisterPrompt: "Register New Patient Account",
+    grievanceLoggedInAs: "Logged in Citizen:",
+    grievanceSubmitNotice: "Your grievance will be forwarded to the District Medical and Health Officer (DMHO) for review.",
+    pleaseCompleteFields: "Please complete all required fields.",
+    grievanceSubmitSuccess: "Grievance submitted successfully.",
+    grievanceSubmitFail: "Failed to submit grievance.",
 
     // Patient Dashboard
     patientDashboard: "Patient Dashboard",
@@ -723,20 +738,13 @@ export const translations = {
     statusCompleted: "Completed",
     statusCancelled: "Cancelled",
     statusNoShow: "No Show",
-    brandName: "MediSlot",
-    grievanceAccountRequiredTitle: "Account Required to Lodge Grievance",
-    grievanceAccountRequiredDesc: "Under government regulations, only registered citizens with an account can file grievances for official investigation and tracking. Please sign in or register a patient account to proceed.",
-    grievanceSignInPrompt: "Sign In to Lodge Grievance",
-    grievanceRegisterPrompt: "Register New Patient Account",
-    grievanceLoggedInAs: "Logged in Citizen:",
-    grievanceSubmitNotice: "Your grievance will be forwarded to the District Medical and Health Officer (DMHO) for review.",
     statusPending: "Pending Verification",
     statusSubmitted: "Submitted",
     statusActive: "Active",
     statusInactive: "Inactive",
+    autoTeluguPreview: "In Telugu Script (Automatic):"
   }
 };
-
 
 // --------------------------------------------------------------------------
 // Multi-Language Translation Mapping Dictionaries
@@ -799,6 +807,9 @@ export const QUAL_MAP: Record<string, { en: string; te: string }> = {
   'MBBS, MD (Internal Medicine)': { en: 'MBBS, MD (Internal Medicine)', te: 'ఎంబీబీఎస్, ఎండీ (ఇంటర్నల్ మెడిసిన్)' },
   'MBBS, MD': { en: 'MBBS, MD', te: 'ఎంబీబీఎస్, ఎండీ' },
   'MBBS, MS': { en: 'MBBS, MS', te: 'ఎంబీబీఎస్, ఎంఎస్' },
+  'MBBS, MD (Medicine), DM (Cardiology)': { en: 'MBBS, MD (Medicine), DM (Cardiology)', te: 'ఎంబీబీఎస్, ఎండీ (వైద్యం), డీఎం (కార్డియాలజీ)' },
+  'MBBS, MD (Medicine)': { en: 'MBBS, MD (Medicine)', te: 'ఎంబీబీఎస్, ఎండీ (వైద్యం)' },
+  'DM (Cardiology)': { en: 'DM (Cardiology)', te: 'డీఎం (కార్డియాలజీ)' },
   'MBBS': { en: 'MBBS', te: 'ఎంబీబీఎస్' }
 };
 
@@ -812,7 +823,13 @@ export const DOC_MAP: Record<string, { en: string; te: string }> = {
   'Dr. T. Venkat': { en: 'Dr. T. Venkat', te: 'డాక్టర్ టి. వెంకట్' },
   'Dr. S. Radhika': { en: 'Dr. S. Radhika', te: 'డాక్టర్ ఎస్. రాధిక' },
   'Dr. Ch. Prasad': { en: 'Dr. Ch. Prasad', te: 'డాక్టర్ సిహెచ్. ప్రసాద్' },
-  'Dr. G. Anitha': { en: 'Dr. G. Anitha', te: 'డాక్టర్ జి. అనిత' }
+  'Dr. G. Anitha': { en: 'Dr. G. Anitha', te: 'డాక్టర్ జి. అనిత' },
+  'Dr. Ch. Vijay Kumar': { en: 'Dr. Ch. Vijay Kumar', te: 'డాక్టర్ సిహెచ్. విజయ్ కుమార్' },
+  'Dr. Ch Vijay Kumar': { en: 'Dr. Ch. Vijay Kumar', te: 'డాక్టర్ సిహెచ్. విజయ్ కుమార్' },
+  'Dr. Ch.Vijay Kumar': { en: 'Dr. Ch. Vijay Kumar', te: 'డాక్టర్ సిహెచ్. విజయ్ కుమార్' },
+  'Dr. Vijay Kumar': { en: 'Dr. Vijay Kumar', te: 'డాక్టర్ విజయ్ కుమార్' },
+  'Ch. Vijay Kumar': { en: 'Dr. Ch. Vijay Kumar', te: 'డాక్టర్ సిహెచ్. విజయ్ కుమార్' },
+  'Vijay Kumar': { en: 'Vijay Kumar', te: 'విజయ్ కుమార్' }
 };
 
 export type Translations = typeof translations['en'];
@@ -823,14 +840,15 @@ interface LanguageContextType {
   t: Translations;
   toggleLang: () => void;
   localizeDept: (dept?: string) => string;
-  localizeHospital: (hosp?: string) => string;
-  localizeDoctor: (doc?: string) => string;
+  localizeHospital: (hospEn?: string, hospTe?: string) => string;
+  localizeDoctor: (nameEn?: string, nameTe?: string) => string;
+  localizeName: (name?: string) => string;
   localizeQual: (qual?: string) => string;
   localizeRoom: (room?: string) => string;
   localizeStatus: (status?: string) => string;
   localizeGender: (gender?: string) => string;
   localizeTime: (timeStr?: string) => string;
-  localizeRole: (role?: string) => string;
+  localizeRole: (role?: string | null) => string;
   localizeLanguages: (langs?: string) => string;
 }
 
@@ -855,40 +873,93 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const localizeDept = (dept?: string): string => {
     if (!dept) return '';
-    const match = DEPT_MAP[dept];
+    const clean = dept.trim();
+    const match = DEPT_MAP[clean] || Object.entries(DEPT_MAP).find(([k]) => k.toLowerCase() === clean.toLowerCase())?.[1];
     if (match) return lang === 'te' ? match.te : match.en;
     return dept;
   };
 
-  const localizeHospital = (hosp?: string): string => {
-    if (!hosp) return '';
-    const match = HOSP_MAP[hosp];
-    if (match) return lang === 'te' ? match.te : match.en;
-    return hosp;
+  const localizeHospital = (hospEn?: string, hospTe?: string): string => {
+    if (lang === 'te') {
+      if (hospTe && /[\u0C00-\u0C7F]/.test(hospTe)) return hospTe;
+      const target = (hospEn || hospTe || '').trim();
+      if (!target) return '';
+      const match = HOSP_MAP[target] || Object.entries(HOSP_MAP).find(([k]) => k.toLowerCase() === target.toLowerCase())?.[1];
+      if (match) return match.te;
+      return target;
+    } else {
+      if (hospEn && /[a-zA-Z]/.test(hospEn)) return hospEn;
+      const target = (hospEn || hospTe || '').trim();
+      if (!target) return '';
+      const match = HOSP_MAP[target] || Object.entries(HOSP_MAP).find(([k]) => k.toLowerCase() === target.toLowerCase())?.[1];
+      if (match) return match.en;
+      for (const item of Object.values(HOSP_MAP)) {
+        if (item.te === target) return item.en;
+      }
+      return target;
+    }
   };
 
-  const localizeDoctor = (doc?: string): string => {
-    if (!doc) return '';
-    const match = DOC_MAP[doc];
-    if (match) return lang === 'te' ? match.te : match.en;
-    if (lang === 'te' && doc.startsWith('Dr. ')) {
-      return doc.replace('Dr. ', 'డాక్టర్ ');
+  /**
+   * Localizes doctor name: checks whether nameTe has Telugu characters,
+   * consults DOC_MAP, or dynamically transliterates into Telugu phonetically.
+   */
+  const localizeDoctor = (nameEn?: string, nameTe?: string): string => {
+    if (lang === 'te') {
+      if (nameTe && /[\u0C00-\u0C7F]/.test(nameTe)) {
+        return nameTe;
+      }
+      const target = (nameEn || nameTe || '').trim();
+      if (!target) return '';
+      const match = DOC_MAP[target] || Object.entries(DOC_MAP).find(([k]) => k.toLowerCase() === target.toLowerCase())?.[1];
+      if (match) return match.te;
+      return transliterateNameToTelugu(target);
+    } else {
+      if (nameEn && /[a-zA-Z]/.test(nameEn)) {
+        return nameEn;
+      }
+      const target = (nameEn || nameTe || '').trim();
+      if (!target) return '';
+      const match = DOC_MAP[target] || Object.entries(DOC_MAP).find(([k]) => k.toLowerCase() === target.toLowerCase())?.[1];
+      if (match) return match.en;
+      for (const item of Object.values(DOC_MAP)) {
+        if (item.te === target) return item.en;
+      }
+      return target;
     }
-    return doc;
+  };
+
+  /**
+   * Localizes dynamic citizen, patient, or doctor name using phonetic transliteration into Telugu.
+   */
+  const localizeName = (name?: string): string => {
+    if (!name) return '';
+    if (lang === 'en') return name;
+    return transliterateNameToTelugu(name);
   };
 
   const localizeQual = (qual?: string): string => {
     if (!qual) return '';
-    const match = QUAL_MAP[qual];
+    const clean = qual.trim();
+    const match = QUAL_MAP[clean] || Object.entries(QUAL_MAP).find(([k]) => k.toLowerCase() === clean.toLowerCase())?.[1];
     if (match) return lang === 'te' ? match.te : match.en;
     if (lang === 'te') {
       return qual
-        .replace(/MBBS/g, 'ఎంబీబీఎస్')
-        .replace(/MD/g, 'ఎండీ')
-        .replace(/MS/g, 'ఎంఎస్')
-        .replace(/DCH/g, 'డీసీహెచ్')
-        .replace(/DM/g, 'డీఎం')
-        .replace(/DGO/g, 'డీజీఓ');
+        .replace(/MBBS/gi, 'ఎంబీబీఎస్')
+        .replace(/MD/gi, 'ఎండీ')
+        .replace(/MS/gi, 'ఎంఎస్')
+        .replace(/DCH/gi, 'డీసీహెచ్')
+        .replace(/DM/gi, 'డీఎం')
+        .replace(/DGO/gi, 'డీజీఓ')
+        .replace(/Medicine/gi, 'వైద్యం')
+        .replace(/Cardiology/gi, 'కార్డియాలజీ')
+        .replace(/Pediatrics/gi, 'పీడియాట్రిక్స్')
+        .replace(/Orthopedics/gi, 'ఆర్థోపెడిక్స్')
+        .replace(/Gynecology/gi, 'గైనకాలజీ')
+        .replace(/Ophthalmology/gi, 'ఆప్తాల్మాలజీ')
+        .replace(/Dermatology/gi, 'డెర్మటాలజీ')
+        .replace(/ENT/gi, 'ఈఎన్‌టీ')
+        .replace(/Internal/gi, 'ఇంటర్నల్');
     }
     return qual;
   };
@@ -901,7 +972,11 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         .replace(/Ground Floor/gi, 'గ్రౌండ్ ఫ్లోర్')
         .replace(/First Floor/gi, 'మొదటి అంతస్తు')
         .replace(/Second Floor/gi, 'రెండవ అంతస్తు')
-        .replace(/OPD Block/gi, 'ఓపీడీ బ్లాక్');
+        .replace(/OPD Super-Specialty/gi, 'ఓపీడీ సూపర్ స్పెషాలిటీ')
+        .replace(/Super-Specialty/gi, 'సూపర్ స్పెషాలిటీ')
+        .replace(/OPD Block/gi, 'ఓపీడీ బ్లాక్')
+        .replace(/OPD/gi, 'ఓపీడీ')
+        .replace(/Block/gi, 'బ్లాక్');
     }
     return room;
   };
@@ -936,7 +1011,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return timeStr;
   };
 
-  const localizeRole = (role?: string): string => {
+  const localizeRole = (role?: string | null): string => {
     const r = (role || '').toUpperCase();
     if (r === 'DOCTOR') return lang === 'te' ? 'వైద్యుడు' : 'Doctor';
     if (r === 'PATIENT') return lang === 'te' ? 'రోగి' : 'Patient';
@@ -964,6 +1039,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       localizeDept,
       localizeHospital,
       localizeDoctor,
+      localizeName,
       localizeQual,
       localizeRoom,
       localizeStatus,

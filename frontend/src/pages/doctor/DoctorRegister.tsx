@@ -5,12 +5,12 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { Hospital, Department } from '../../types';
-import { Stethoscope, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Stethoscope, ArrowRight, ShieldCheck, AlertCircle, Sparkles } from 'lucide-react';
 
 export const DoctorRegister: React.FC = () => {
   const { login } = useAuth();
   const { success, error } = useToast();
-  const { lang, t } = useLanguage();
+  const { lang, t, localizeName, localizeDept, localizeHospital } = useLanguage();
   const navigate = useNavigate();
 
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
@@ -47,13 +47,13 @@ export const DoctorRegister: React.FC = () => {
     e.preventDefault();
 
     if (!fullName.trim() || !email.trim() || !phone.trim() || !qualifications.trim() || !password) {
-      error(lang === 'te' ? 'దయచేసి అన్ని అవసరమైన వివరాలను నమోదు చేయండి.' : 'Please fill in all required credentials.');
+      error(lang === 'te' ? 'దయచేసి అన్ని అవసరమైన వివరాలను పూరించండి.' : 'Please fill in all required credentials.');
       return;
     }
 
     const cleanPhone = phone.replace(/\D/g, '').slice(-10);
     if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
-      error(lang === 'te' ? 'దయచేసి సరైన 10 అంకెల మొబైల్ నంబర్‌ను నమోదు చేయండి.' : 'Please provide a valid 10-digit mobile number.');
+      error(lang === 'te' ? 'దయచేసి చెల్లుబాటు అయ్యే 10 అంకెల మొబైల్ నంబర్‌ను నమోదు చేయండి.' : 'Please provide a valid 10-digit mobile number.');
       return;
     }
 
@@ -81,7 +81,7 @@ export const DoctorRegister: React.FC = () => {
         confirmPassword
       });
 
-      success(res.data.message || (lang === 'te' ? 'డాక్టర్ దరఖాస్తు సమర్పించబడింది. ఖాతా పరిశీలనలో ఉంది.' : 'Doctor application submitted. Account pending approval.'));
+      success(res.data.message || (lang === 'te' ? 'డాక్టర్ దరఖాస్తు సమర్పించబడింది. ఖాతా ఆమోదం కోసం పెండింగ్‌లో ఉంది.' : 'Doctor application submitted. Account pending approval.'));
       navigate('/doctor/login');
     } catch (err: any) {
       error(err.response?.data?.error || (lang === 'te' ? 'డాక్టర్ రిజిస్ట్రేషన్ విఫలమైంది.' : 'Doctor registration failed.'));
@@ -123,6 +123,12 @@ export const DoctorRegister: React.FC = () => {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
             />
+            {fullName.trim() && (
+              <div style={{ fontSize: '0.78rem', color: 'var(--emerald-600)', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Sparkles size={12} />
+                <span>{t.autoTeluguPreview} <strong>{localizeName(fullName)}</strong></span>
+              </div>
+            )}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '14px' }}>
@@ -132,14 +138,14 @@ export const DoctorRegister: React.FC = () => {
                 type="email"
                 className="form-input"
                 required
-                placeholder={lang === 'te' ? 'dr.పేరు@medislot.gov.in' : 'dr.name@medislot.gov.in'}
+                placeholder="dr.name@medislot.gov.in"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
             <div className="form-group">
-              <label className="form-label">{t.mobileNumber} *</label>
+              <label className="form-label">{t.mobile10Digits}</label>
               <input
                 type="tel"
                 className="form-input"
@@ -157,7 +163,7 @@ export const DoctorRegister: React.FC = () => {
               <select className="form-select" value={specialization} onChange={(e) => setSpecialization(e.target.value)}>
                 {departments.map((d) => (
                   <option key={d.key} value={d.key}>
-                    {lang === 'te' && d.nameTe ? d.nameTe : d.key}
+                    {localizeDept(d.key)}
                   </option>
                 ))}
               </select>
@@ -183,7 +189,7 @@ export const DoctorRegister: React.FC = () => {
               type="text"
               className="form-input"
               required
-              placeholder={lang === 'te' ? 'ఉదా: ఎంబీబీఎస్, ఎండీ (సాధారణ వైద్యం), డీసీహెచ్' : 'e.g. MBBS, MD (General Medicine), DCH'}
+              placeholder={lang === 'te' ? 'ఉదా: ఎంబీబీఎస్, ఎండీ (సాధారణ వైద్యం)' : 'e.g. MBBS, MD (General Medicine)'}
               value={qualifications}
               onChange={(e) => setQualifications(e.target.value)}
             />
@@ -194,7 +200,7 @@ export const DoctorRegister: React.FC = () => {
             <select className="form-select" value={hospitalId} onChange={(e) => setHospitalId(e.target.value)}>
               {hospitals.map((h) => (
                 <option key={h.id} value={h.id}>
-                  {lang === 'te' && h.nameTe ? h.nameTe : h.nameEn} ({lang === 'te' && h.districtTe ? h.districtTe : h.districtEn})
+                  {lang === 'te' ? h.nameTe : h.nameEn} ({lang === 'te' ? h.districtTe : h.districtEn})
                 </option>
               ))}
             </select>

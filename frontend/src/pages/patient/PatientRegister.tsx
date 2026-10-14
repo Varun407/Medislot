@@ -4,12 +4,12 @@ import { apiClient } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { UserPlus, ArrowRight, ShieldCheck, Check, AlertCircle } from 'lucide-react';
+import { UserPlus, ArrowRight, ShieldCheck, Check, AlertCircle, Sparkles } from 'lucide-react';
 
 export const PatientRegister: React.FC = () => {
   const { login } = useAuth();
   const { success, error } = useToast();
-  const { lang, t } = useLanguage();
+  const { lang, t, localizeName } = useLanguage();
   const navigate = useNavigate();
 
   const [fullName, setFullName] = useState('');
@@ -36,13 +36,13 @@ export const PatientRegister: React.FC = () => {
     e.preventDefault();
 
     if (!fullName.trim() || !email.trim() || !phone.trim() || !password) {
-      error(lang === 'te' ? 'దయచేసి అన్ని అవసరమైన ఫీల్డ్‌లను పూరించండి.' : 'Please complete all required fields.');
+      error(lang === 'te' ? 'దయచేసి అన్ని అవసరమైన వివరాలను నమోదు చేయండి.' : 'Please complete all required fields.');
       return;
     }
 
     const cleanPhone = phone.replace(/\D/g, '').slice(-10);
     if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
-      error(lang === 'te' ? 'దయచేసి సరైన 10 అంకెల మొబైల్ నంబర్‌ను నమోదు చేయండి.' : 'Please provide a valid 10-digit Indian mobile number.');
+      error(lang === 'te' ? 'దయచేసి చెల్లుబాటు అయ్యే 10 అంకెల మొబైల్ నంబర్‌ను నమోదు చేయండి.' : 'Please provide a valid 10-digit Indian mobile number.');
       return;
     }
 
@@ -57,7 +57,7 @@ export const PatientRegister: React.FC = () => {
     }
 
     if (!agreeTerms) {
-      error(lang === 'te' ? 'దయచేసి ఏపీ ప్రభుత్వ ఆరోగ్య నిబంధనలు మరియు గోప్యతా విధానాన్ని అంగీకరించండి.' : 'Please accept the AP Public Health Privacy Policy & Terms.');
+      error(lang === 'te' ? 'దయచేసి ఏపీ పబ్లిక్ హెల్త్ నిబంధనలను అంగీకరించండి.' : 'Please accept the AP Public Health Privacy Policy & Terms.');
       return;
     }
 
@@ -72,7 +72,7 @@ export const PatientRegister: React.FC = () => {
       });
 
       login(res.data.user, res.data.token);
-      success(lang === 'te' ? 'రోగి ఖాతా విజయవంతంగా నమోదైంది!' : 'Patient account registered successfully!');
+      success(lang === 'te' ? 'రోగి ఖాతా విజయవంతంగా నమోదు చేయబడింది!' : 'Patient account registered successfully!');
       navigate('/patient/dashboard');
     } catch (err: any) {
       error(err.response?.data?.error || (lang === 'te' ? 'రిజిస్ట్రేషన్ విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.' : 'Registration failed. Please try again.'));
@@ -98,7 +98,7 @@ export const PatientRegister: React.FC = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">{t.fullName} *</label>
+            <label className="form-label">{t.fullName}</label>
             <input
               type="text"
               className="form-input"
@@ -107,6 +107,12 @@ export const PatientRegister: React.FC = () => {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
             />
+            {fullName.trim() && (
+              <div style={{ fontSize: '0.78rem', color: 'var(--blue-600)', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Sparkles size={12} />
+                <span>{t.autoTeluguPreview} <strong>{localizeName(fullName)}</strong></span>
+              </div>
+            )}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '14px' }}>
@@ -123,7 +129,7 @@ export const PatientRegister: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">{t.mobileNumber} *</label>
+              <label className="form-label">{t.mobile10Digits}</label>
               <input
                 type="tel"
                 className="form-input"

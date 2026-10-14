@@ -9,19 +9,20 @@ import { TokenSlipModal } from '../../components/common/TokenSlipModal';
 import {
   Calendar,
   Clock,
+  MapPin,
+  User,
+  PlusCircle,
+  FileText,
   Printer,
   XCircle,
-  PlusCircle,
-  User,
+  AlertCircle,
   Activity,
-  CheckCircle,
-  Building2,
-  AlertCircle
+  CheckCircle
 } from 'lucide-react';
 
 export const PatientDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { lang, t, localizeDept, localizeRoom, localizeDoctor, localizeHospital, localizeStatus, localizeTime } = useLanguage();
+  const { lang, t, localizeDept, localizeHospital, localizeDoctor, localizeName, localizeRoom, localizeStatus, localizeTime } = useLanguage();
   const { success, error } = useToast();
 
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -33,7 +34,7 @@ export const PatientDashboard: React.FC = () => {
       const res = await apiClient.get('/patients/appointments');
       setAppointments(res.data);
     } catch (err) {
-      console.error('Failed to fetch patient appointments:', err);
+      console.error('Failed to load appointments:', err);
     } finally {
       setLoading(false);
     }
@@ -52,7 +53,7 @@ export const PatientDashboard: React.FC = () => {
       success(lang === 'te' ? 'అపాయింట్‌మెంట్ విజయవంతంగా రద్దు చేయబడింది. స్లాట్ విడుదల చేయబడింది.' : 'Appointment cancelled successfully. Slot freed.');
       fetchAppointments();
     } catch (err: any) {
-      error(err.response?.data?.error || (lang === 'te' ? 'అపాయింట్‌మెంట్ రద్దు విఫలమైంది.' : 'Failed to cancel appointment.'));
+      error(err.response?.data?.error || (lang === 'te' ? 'అపాయింట్‌మెంట్ రద్దు చేయడం విఫలమైంది.' : 'Failed to cancel appointment.'));
     }
   };
 
@@ -66,10 +67,10 @@ export const PatientDashboard: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1 className="section-title">
-            {`${t.welcomeGreeting}, ${user?.fullName}`}
+            {lang === 'te' ? `నమస్కారం, ${localizeName(user?.fullName)}` : `${t.welcomeGreeting}, ${user?.fullName}`}
           </h1>
           <p className="section-subtitle">
-            {t.patientPortalSub} +91 {user?.phone} · {t.emailAddress}: {user?.email}
+            {t.patientPortalSub} +91 {user?.phone} · {user?.email}
           </p>
         </div>
 
@@ -171,13 +172,13 @@ export const PatientDashboard: React.FC = () => {
                 {/* Doctor & Hospital Details */}
                 <div>
                   <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--navy-900)' }}>
-                    {lang === 'te' && app.doctorNameTe ? app.doctorNameTe : localizeDoctor(app.doctorNameEn)}
+                    {localizeDoctor(app.doctorNameEn, app.doctorNameTe)}
                   </h4>
                   <p style={{ margin: '2px 0', fontSize: '0.8rem', color: 'var(--blue-600)', fontWeight: 600 }}>
                     {localizeDept(app.department)} · {localizeRoom(app.roomNo)}
                   </p>
                   <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--slate-500)' }}>
-                    {lang === 'te' && app.hospitalNameTe ? app.hospitalNameTe : localizeHospital(app.hospitalNameEn)}
+                    {localizeHospital(app.hospitalNameEn, app.hospitalNameTe)}
                   </p>
                 </div>
 
@@ -241,14 +242,12 @@ export const PatientDashboard: React.FC = () => {
                   <tr key={app.id} style={{ borderBottom: '1px solid var(--slate-100)' }}>
                     <td style={{ padding: '10px 12px', fontWeight: 700, color: 'var(--navy-900)' }}>{app.id}</td>
                     <td style={{ padding: '10px 12px', fontWeight: 600 }}>
-                      {lang === 'te' && app.doctorNameTe ? app.doctorNameTe : localizeDoctor(app.doctorNameEn)}
+                      {localizeDoctor(app.doctorNameEn, app.doctorNameTe)}
                     </td>
                     <td style={{ padding: '10px 12px' }}>{localizeDept(app.department)}</td>
                     <td style={{ padding: '10px 12px' }}>{app.appointmentDate} · {localizeTime(app.slotTime)}</td>
                     <td style={{ padding: '10px 12px' }}>
-                      <span className={`status-pill status-${app.status.toLowerCase()}`}>
-                        {localizeStatus(app.status)}
-                      </span>
+                      <span className={`status-pill status-${app.status.toLowerCase()}`}>{localizeStatus(app.status)}</span>
                     </td>
                     <td style={{ padding: '10px 12px' }}>
                       <button className="btn btn-secondary btn-sm" onClick={() => setSelectedSlip(app)}>
