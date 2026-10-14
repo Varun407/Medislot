@@ -129,9 +129,34 @@ export const AppointmentManagement: React.FC = () => {
                       <span className={`status-pill status-${a.status.toLowerCase()}`}>{a.status}</span>
                     </td>
                     <td style={{ padding: '12px' }}>
-                      <button className="btn btn-secondary btn-sm" style={{ padding: '3px 8px' }} onClick={() => setSelectedSlip(a)}>
-                        <Printer size={13} />
-                      </button>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <button className="btn btn-secondary btn-sm" style={{ padding: '3px 8px' }} onClick={() => setSelectedSlip(a)} title="View Token Slip">
+                          <Printer size={13} />
+                        </button>
+                        <select
+                          className="form-select"
+                          value={a.status}
+                          style={{ fontSize: '0.74rem', padding: '2px 6px', height: 'auto', width: 'auto' }}
+                          onChange={async (e) => {
+                            const newStatus = e.target.value;
+                            if (newStatus === a.status) return;
+                            if (!window.confirm(`Update status of Token #${a.tokenNumber} to ${newStatus}?`)) return;
+                            try {
+                              await apiClient.patch(`/admin/appointments/${a.id}/status`, { status: newStatus });
+                              fetchAppointments();
+                            } catch (err: any) {
+                              alert(err.response?.data?.error || 'Failed to update status');
+                            }
+                          }}
+                        >
+                          <option value="CONFIRMED">CONFIRMED</option>
+                          <option value="CALLED">CALLED</option>
+                          <option value="IN_CONSULTATION">IN_CONSULTATION</option>
+                          <option value="COMPLETED">COMPLETED</option>
+                          <option value="SKIPPED">SKIPPED</option>
+                          <option value="CANCELLED">CANCELLED</option>
+                        </select>
+                      </div>
                     </td>
                   </tr>
                 ))}

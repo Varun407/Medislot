@@ -1,7 +1,7 @@
 const { test, describe, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const app = require('../src/app');
-const { initDatabase, run, get } = require('../src/config/db');
+const { initDatabase, run, get, closeDatabase } = require('../src/config/db');
 
 let server;
 let baseUrl;
@@ -21,6 +21,7 @@ after(async () => {
     if (server) {
         await new Promise((resolve) => server.close(resolve));
     }
+    await closeDatabase();
 });
 
 describe('Medislot Backend Comprehensive Tests', () => {
@@ -425,5 +426,231 @@ describe('Medislot Backend Comprehensive Tests', () => {
         const data = await updateRes.json();
         assert.equal(data.doctor.roomNo, 'Room 205 (OPD Super-Specialty)');
         assert.equal(data.doctor.consultationHours, '9:00 AM - 3:00 PM');
+    });
+
+    test('23. Emergency help endpoint is accessible without authentication (Phase Five)', async () => {
+        const res = await fetch(`${baseUrl}/api/v1/public/emergency`);
+        assert.equal(res.status, 200);
+        const data = await res.json();
+        assert.ok(Array.isArray(data.primaryHotlines));
+        assert.ok(data.primaryHotlines.some(h => h.number === '108'));
+        assert.ok(data.primaryHotlines.some(h => h.number === '104'));
+        assert.ok(Array.isArray(data.hospitalEmergencyDesks));
+        assert.ok(data.disclaimer.includes('108'));
+    });
+
+    let patientRescheduleApptId = '';
+
+    test('24. Patient can book appointment and query live token status (Phase Five My Token)', async () => {
+        const dateStr = new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0];
+        await run("DELETE FROM appointments WHERE slotTime = '11:00 AM' AND appointmentDate = ?", [dateStr]);
+        const bookRes = await fetch(`${baseUrl}/api/v1/patients/appointments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${patientToken}`
+            },
+            body: JSON.stringify({
+                doctorNameEn: 'Dr. K. Ramesh',
+                hospitalId: 'GH_BHIMAVARAM',
+                appointmentDate: dateStr,
+                slotTime: '11:00 AM',
+                patientAge: 38,
+                patientGender: 'Female',
+                symptoms: 'Follow-up checkup'
+            })
+        });
+
+        assert.equal(bookRes.status, 201);
+        const bookData = await bookRes.json();
+        assert.ok(bookData.appointment.id);
+        patientRescheduleApptId = bookData.appointment.id;
+
+        const statusRes = await fetch(`${baseUrl}/api/v1/patients/appointments/${patientRescheduleApptId}/token-status`, {
+            headers: { 'Authorization': `Bearer ${patientToken}` }
+        });
+        assert.equal(statusRes.status, 200);
+        const statusData = await statusRes.json();
+        assert.equal(statusData.appointmentId, patientRescheduleApptId);
+        assert.ok(typeof statusData.tokensAhead === 'number');
+        assert.ok(typeof statusData.estimatedWaitMinutes === 'number');
+    });
+
+    test('25. Patient can reschedule an appointment to a new date and slot (Phase Four Rescheduling)', async () => {
+        const newDateStr = new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0];
+        await run("DELETE FROM appointments WHERE slotTime = '11:30 AM' AND appointmentDate = ?", [newDateStr]);
+        const resRes = await fetch(`${baseUrl}/api/v1/patients/appointments/${patientRescheduleApptId}/reschedule`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${patientToken}`
+            },
+            body: JSON.stringify({
+                newDate: newDateStr,
+                newSlotTime: '11:30 AM'
+            })
+        });
+
+        assert.equal(resRes.status, 200);
+        const resData = await resRes.json();
+        assert.equal(resData.appointment.appointmentDate, newDateStr);
+        assert.equal(resData.appointment.slotTime, '11:30 AM');
+        assert.equal(resData.appointment.status, 'CONFIRMED');
+    });
+
+    test('26. Patient data isolation prevents accessing another patient\'s appointment (Phase Three Security)', async () => {
+        // Register a second patient
+        const secondPatientEmail = `second_patient_${Date.now()}@example.com`;
+        const regRes = await fetch(`${baseUrl}/api/v1/auth/patient/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fullName: 'Another Patient',
+                email: secondPatientEmail,
+                phone: '9849556677',
+                password: 'SecondPassword@2026',
+                confirmPassword: 'SecondPassword@2026'
+            })
+        });
+        assert.equal(regRes.status, 201);
+        const secondData = await regRes.json();
+        const secondToken = secondData.token;
+
+        // Second patient tries to access first patient's appointment
+        const accessRes = await fetch(`${baseUrl}/api/v1/patients/appointments/${patientRescheduleApptId}`, {
+            headers: { 'Authorization': `Bearer ${secondToken}` }
+        });
+        assert.equal(accessRes.status, 403);
+
+        // Second patient tries to cancel first patient's appointment
+        const cancelRes = await fetch(`${baseUrl}/api/v1/patients/appointments/${patientRescheduleApptId}/cancel`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${secondToken}` }
+        });
+        assert.equal(cancelRes.status, 403);
+    });
+
+    test('27. Doctor queue state machine supports SKIPPED status (Phase Two B & Four)', async () => {
+        const loginRes = await fetch(`${baseUrl}/api/v1/auth/doctor/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: 'dr.ramesh@medislot.gov.in',
+                password: 'DoctorPass@2026'
+            })
+        });
+        assert.equal(loginRes.status, 200);
+        const docAuth = await loginRes.json();
+        const docToken = docAuth.token;
+
+        // Doctor issues a walk-in token
+        const walkinRes = await fetch(`${baseUrl}/api/v1/doctors/queue/walkin`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${docToken}`
+            },
+            body: JSON.stringify({
+                patientName: 'Test Walkin Subject',
+                patientPhone: '9848112233',
+                patientAge: 40,
+                patientGender: 'Male',
+                symptoms: 'Fever and chills'
+            })
+        });
+        assert.equal(walkinRes.status, 201);
+        const walkinData = await walkinRes.json();
+        const walkinId = walkinData.appointment.id;
+
+        // Doctor updates status to SKIPPED
+        const skipRes = await fetch(`${baseUrl}/api/v1/doctors/appointments/${walkinId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${docToken}`
+            },
+            body: JSON.stringify({
+                status: 'SKIPPED'
+            })
+        });
+        assert.equal(skipRes.status, 200);
+        const skipData = await skipRes.json();
+        assert.equal(skipData.appointment.status, 'SKIPPED');
+
+        // Doctor calls next token
+        const callNextRes = await fetch(`${baseUrl}/api/v1/doctors/queue/call-next`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${docToken}`
+            },
+            body: JSON.stringify({})
+        });
+        assert.equal(callNextRes.status, 200);
+    });
+
+    test('28. Doctor cross-tenant isolation prevents updating another physician\'s appointment', async () => {
+        // Log in as Dr. S. Anitha
+        const anithaLoginRes = await fetch(`${baseUrl}/api/v1/auth/doctor/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: 'dr.anitha@medislot.gov.in',
+                password: 'DoctorPass@2026'
+            })
+        });
+        assert.equal(anithaLoginRes.status, 200);
+        const anithaAuth = await anithaLoginRes.json();
+        const anithaToken = anithaAuth.token;
+
+        // Dr. Anitha tries to modify Dr. Ramesh's appointment
+        const res = await fetch(`${baseUrl}/api/v1/doctors/appointments/${patientRescheduleApptId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${anithaToken}`
+            },
+            body: JSON.stringify({ status: 'COMPLETED' })
+        });
+        assert.equal(res.status, 403);
+    });
+
+    test('29. Admin can suspend and activate patient accounts with audit trail (Phase Two C)', async () => {
+        // Suspend patient
+        const suspendRes = await fetch(`${baseUrl}/api/v1/admin/patients/${patientUserId}/status`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${adminToken}`
+            },
+            body: JSON.stringify({ status: 'SUSPENDED' })
+        });
+        assert.equal(suspendRes.status, 200);
+        const suspendData = await suspendRes.json();
+        assert.equal(suspendData.patient.status, 'SUSPENDED');
+
+        // Verify suspended patient login is blocked with 403
+        const loginBlockedRes = await fetch(`${baseUrl}/api/v1/auth/patient/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: testPatientEmail,
+                password: 'PatientPassword@2026'
+            })
+        });
+        assert.equal(loginBlockedRes.status, 403);
+
+        // Reactivate patient
+        const reactivateRes = await fetch(`${baseUrl}/api/v1/admin/patients/${patientUserId}/status`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${adminToken}`
+            },
+            body: JSON.stringify({ status: 'ACTIVE' })
+        });
+        assert.equal(reactivateRes.status, 200);
+        const reactivateData = await reactivateRes.json();
+        assert.equal(reactivateData.patient.status, 'ACTIVE');
     });
 });

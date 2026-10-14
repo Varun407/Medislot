@@ -1,9 +1,8 @@
-const { get, all, run } = require('../config/db');
+const { get, all, run, withTransaction } = require('../config/db');
 const { createAuditLog } = require('../utils/audit');
 
 function getTodayString() {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date());
 }
 
 // 1. Platform Overview Stats
@@ -226,6 +225,40 @@ async function getPatients(req, res, next) {
     }
 }
 
+// 4b. Update Patient Account Status (Admin activating or suspending patient account)
+async function updatePatientStatus(req, res, next) {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        if (!['ACTIVE', 'SUSPENDED', 'INACTIVE'].includes(status)) {
+            return res.status(400).json({ error: 'Invalid patient account status.' });
+        }
+
+        const user = await get("SELECT * FROM users WHERE id = ? AND role = 'PATIENT'", [id]);
+        if (!user) {
+            return res.status(404).json({ error: 'Patient account not found.' });
+        }
+
+        const now = new Date().toISOString();
+        await run('UPDATE users SET status = ?, updatedAt = ? WHERE id = ?', [status, now, id]);
+
+        await createAuditLog({
+            actorUserId: req.user.id,
+            actorRole: 'ADMIN',
+            action: `ADMIN_PATIENT_STATUS_${status}`,
+            resource: 'users',
+            resourceId: id,
+            details: { patientName: user.fullName, email: user.email, newStatus: status },
+            ipAddress: req.ip
+        });
+
+        const updated = await get('SELECT id, email, phone, fullName, role, status, updatedAt FROM users WHERE id = ?', [id]);
+        res.json({ message: `Patient account status changed to ${status}.`, patient: updated });
+    } catch (err) {
+        next(err);
+    }
+}
+
 // 5. System-wide Appointments Query
 async function getAppointments(req, res, next) {
     try {
@@ -434,7 +467,7 @@ async function getDoctorOpdQueue(req, res, next) {
     }
 }
 
-// 10. Call Next OPD Token (Admin advances doctor queue on behalf of clinic)
+// 10. Call Next OPD Token (Admin advances doctor queue on behalf of clinic atomically)
 async function callNextOpdToken(req, res, next) {
     try {
         const { doctorName } = req.body;
@@ -442,66 +475,105 @@ async function callNextOpdToken(req, res, next) {
             return res.status(400).json({ error: 'doctorName is required.' });
         }
         const queryDate = req.body.date || getTodayString();
+        const now = new Date().toISOString();
 
-        const queueState = await get(
-            'SELECT currentServingToken FROM opd_queue_state WHERE doctorNameEn = ? AND appointmentDate = ?',
-            [doctorName, queryDate]
-        );
-        const currentToken = queueState ? queueState.currentServingToken : 0;
+        let calledPatient = null;
+        let newServingToken = 0;
 
-        const nextPatient = await get(`
-            SELECT * FROM appointments 
-            WHERE doctorNameEn = ? AND appointmentDate = ? AND tokenNumber > ? 
-              AND status != 'CANCELLED' AND status != 'COMPLETED' 
-            ORDER BY tokenNumber ASC LIMIT 1
-        `, [doctorName, queryDate, currentToken]);
+        await withTransaction(async () => {
+            const queueState = await get(
+                'SELECT currentServingToken FROM opd_queue_state WHERE doctorNameEn = ? AND appointmentDate = ?',
+                [doctorName, queryDate]
+            );
+            const currentToken = queueState ? queueState.currentServingToken : 0;
 
-        if (!nextPatient) {
+            // Automatically complete any token currently CALLED for this doctor/date
+            await run(`
+                UPDATE appointments 
+                SET status = 'COMPLETED', updatedAt = ?
+                WHERE doctorNameEn = ? AND appointmentDate = ? AND status = 'CALLED'
+            `, [now, doctorName, queryDate]);
+
+            const nextPatient = await get(`
+                SELECT * FROM appointments 
+                WHERE doctorNameEn = ? AND appointmentDate = ? 
+                  AND tokenNumber > ?
+                  AND status IN ('CONFIRMED', 'WAITING')
+                ORDER BY tokenNumber ASC LIMIT 1
+            `, [doctorName, queryDate, currentToken]);
+
+            if (!nextPatient) {
+                const fallbackPatient = await get(`
+                    SELECT * FROM appointments 
+                    WHERE doctorNameEn = ? AND appointmentDate = ? 
+                      AND status IN ('CONFIRMED', 'WAITING')
+                    ORDER BY tokenNumber ASC LIMIT 1
+                `, [doctorName, queryDate]);
+
+                if (!fallbackPatient) {
+                    newServingToken = currentToken;
+                    return;
+                }
+                calledPatient = fallbackPatient;
+            } else {
+                calledPatient = nextPatient;
+            }
+
+            newServingToken = calledPatient.tokenNumber;
+
+            await run(`
+                INSERT INTO opd_queue_state (doctorNameEn, appointmentDate, currentServingToken)
+                VALUES (?, ?, ?)
+                ON CONFLICT(doctorNameEn, appointmentDate) DO UPDATE SET currentServingToken = excluded.currentServingToken
+            `, [doctorName, queryDate, newServingToken]);
+
+            await run(
+                "UPDATE appointments SET status = 'CALLED', updatedAt = ? WHERE id = ?",
+                [now, calledPatient.id]
+            );
+            calledPatient.status = 'CALLED';
+
+            await createAuditLog({
+                actorUserId: req.user.id,
+                actorRole: 'ADMIN',
+                action: 'ADMIN_CALLED_OPD_TOKEN',
+                resource: 'appointments',
+                resourceId: calledPatient.id,
+                details: { doctorName, tokenNumber: newServingToken, patientName: calledPatient.patientName },
+                ipAddress: req.ip
+            });
+        });
+
+        if (!calledPatient) {
             return res.json({
                 message: 'No more waiting patients in queue for today.',
-                currentServingToken: currentToken,
+                currentServingToken: newServingToken,
                 patient: null
             });
         }
 
-        await run(`
-            INSERT INTO opd_queue_state (doctorNameEn, appointmentDate, currentServingToken)
-            VALUES (?, ?, ?)
-            ON CONFLICT(doctorNameEn, appointmentDate) DO UPDATE SET currentServingToken = excluded.currentServingToken
-        `, [doctorName, queryDate, nextPatient.tokenNumber]);
-
-        await run(
-            "UPDATE appointments SET status = 'CALLED', updatedAt = ? WHERE id = ?",
-            [new Date().toISOString(), nextPatient.id]
-        );
-
-        await createAuditLog({
-            actorUserId: req.user.id,
-            actorRole: 'ADMIN',
-            action: 'ADMIN_CALLED_OPD_TOKEN',
-            resource: 'appointments',
-            resourceId: nextPatient.id,
-            details: { doctorName, tokenNumber: nextPatient.tokenNumber, patientName: nextPatient.patientName },
-            ipAddress: req.ip
-        });
-
         res.json({
-            message: `Token #${String(nextPatient.tokenNumber).padStart(2, '0')} (${nextPatient.patientName}) called for consultation.`,
-            currentServingToken: nextPatient.tokenNumber,
-            patient: nextPatient
+            message: `Token #${String(newServingToken).padStart(2, '0')} (${calledPatient.patientName}) called for consultation.`,
+            currentServingToken: newServingToken,
+            patient: calledPatient
         });
     } catch (err) {
         next(err);
     }
 }
 
-// 11. Update Specific Appointment Status (Admin marking completed / in-consultation / cancelled)
+// 11. Update Specific Appointment Status (Admin marking completed / in-consultation / cancelled / skipped)
 async function updateAppointmentStatus(req, res, next) {
     try {
-        const { appointmentId, status } = req.body;
-        if (!['IN_CONSULTATION', 'COMPLETED', 'CANCELLED', 'CONFIRMED'].includes(status)) {
+        const { appointmentId } = req.body;
+        let { status } = req.body;
+        const validStatuses = ['CONFIRMED', 'WAITING', 'CALLED', 'IN_CONSULTATION', 'COMPLETED', 'CANCELLED', 'NO_SHOW', 'SKIPPED'];
+
+        if (!validStatuses.includes(status)) {
             return res.status(400).json({ error: 'Invalid appointment status.' });
         }
+
+        if (status === 'WAITING') status = 'CONFIRMED';
 
         const appt = await get('SELECT * FROM appointments WHERE id = ?', [appointmentId]);
         if (!appt) {
@@ -536,6 +608,7 @@ module.exports = {
     getDoctors,
     updateDoctorStatus,
     getPatients,
+    updatePatientStatus,
     getAppointments,
     getAuditLogs,
     getOpdDoctors,

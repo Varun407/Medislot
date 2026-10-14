@@ -7,14 +7,34 @@ import { useLanguage } from '../../context/LanguageContext';
 import { Hospital, Department } from '../../types';
 import { Stethoscope, ArrowRight, ShieldCheck, AlertCircle, Sparkles } from 'lucide-react';
 
+const DEFAULT_FALLBACK_HOSPITALS: Hospital[] = [
+  { id: 'GH_BHIMAVARAM', nameEn: 'Government District Hospital, Bhimavaram', nameTe: 'ప్రభుత్వ జిల్లా ఆసుపత్రి, భీమవరం', districtEn: 'West Godavari', districtTe: 'పశ్చిమ గోదావరి', typeEn: 'District Hospital', typeTe: 'జిల్లా ఆసుపత్రి', addressEn: '', addressTe: '', phone: '', emergencyPhone: '', totalBeds: 250, availableBeds: 50, icuBedsAvailable: 10, oxygenBedsAvailable: 30, opdTimingsEn: '', opdTimingsTe: '', bloodBankStatus: '', rating: 4.8 },
+  { id: 'AH_TADEPALLIGUDEM', nameEn: 'Area Hospital, Tadepalligudem', nameTe: 'ఏరియా ఆసుపత్రి, తాడేపల్లిగూడెం', districtEn: 'West Godavari', districtTe: 'పశ్చిమ గోదావరి', typeEn: 'Area Hospital', typeTe: 'ఏరియా ఆసుపత్రి', addressEn: '', addressTe: '', phone: '', emergencyPhone: '', totalBeds: 150, availableBeds: 30, icuBedsAvailable: 5, oxygenBedsAvailable: 15, opdTimingsEn: '', opdTimingsTe: '', bloodBankStatus: '', rating: 4.5 },
+  { id: 'CH_NARASAPURAM', nameEn: 'Community Health Centre, Narasapuram', nameTe: 'సామాజిక ఆరోగ్య కేంద్రం, నరసాపురం', districtEn: 'West Godavari', districtTe: 'పశ్చిమ గోదావరి', typeEn: 'CHC', typeTe: 'సామాజిక ఆరోగ్య కేంద్రం', addressEn: '', addressTe: '', phone: '', emergencyPhone: '', totalBeds: 100, availableBeds: 20, icuBedsAvailable: 4, oxygenBedsAvailable: 10, opdTimingsEn: '', opdTimingsTe: '', bloodBankStatus: '', rating: 4.6 },
+  { id: 'GGH_ELURU', nameEn: 'Government General Hospital (GGH), Eluru', nameTe: 'ప్రభుత్వ సర్వజన ఆసుపత్రి (GGH), ఏలూరు', districtEn: 'Eluru', districtTe: 'ఏలూరు', typeEn: 'Teaching General Hospital', typeTe: 'బోధనా సర్వజన ఆసుపత్రి', addressEn: '', addressTe: '', phone: '', emergencyPhone: '', totalBeds: 500, availableBeds: 112, icuBedsAvailable: 22, oxygenBedsAvailable: 68, opdTimingsEn: '', opdTimingsTe: '', bloodBankStatus: '', rating: 4.7 },
+  { id: 'GGH_KAKINADA', nameEn: 'Rangaraya Government General Hospital, Kakinada', nameTe: 'రంగరాయ ప్రభుత్వ సర్వజన ఆసుపత్రి, కాకినాడ', districtEn: 'Kakinada', districtTe: 'కాకినాడ', typeEn: 'Super Specialty Referral Hospital', typeTe: 'సూపర్ స్పెషాలిటీ రిఫరల్ ఆసుపత్రి', addressEn: '', addressTe: '', phone: '', emergencyPhone: '', totalBeds: 1000, availableBeds: 215, icuBedsAvailable: 45, oxygenBedsAvailable: 130, opdTimingsEn: '', opdTimingsTe: '', bloodBankStatus: '', rating: 4.8 }
+];
+
+const DEFAULT_FALLBACK_DEPARTMENTS: Department[] = [
+  { key: 'General Medicine', nameEn: 'General Medicine', nameTe: 'జనరల్ మెడిసిన్', icon: '🩺', descriptionEn: '', descriptionTe: '', doctorCount: 24 },
+  { key: 'Pediatrics', nameEn: 'Pediatrics', nameTe: 'పీడియాట్రిక్స్ (శిశు వైద్యం)', icon: '🧸', descriptionEn: '', descriptionTe: '', doctorCount: 12 },
+  { key: 'Gynecology', nameEn: 'Gynecology & Obstetrics', nameTe: 'గైనకాలజీ & ప్రసూతి', icon: '🌸', descriptionEn: '', descriptionTe: '', doctorCount: 14 },
+  { key: 'Orthopedics', nameEn: 'Orthopedics', nameTe: 'ఆర్థోపెడిక్స్ (ఎముకల వైద్యం)', icon: '🦴', descriptionEn: '', descriptionTe: '', doctorCount: 8 },
+  { key: 'Cardiology', nameEn: 'Cardiology', nameTe: 'కార్డియాలజీ (గుండె వైద్యం)', icon: '❤️', descriptionEn: '', descriptionTe: '', doctorCount: 7 },
+  { key: 'Dermatology', nameEn: 'Dermatology', nameTe: 'డెర్మటాలజీ (చర్మ వైద్యం)', icon: '✋', descriptionEn: '', descriptionTe: '', doctorCount: 6 },
+  { key: 'ENT', nameEn: 'ENT (Otorhinolaryngology)', nameTe: 'ఈఎన్‌టీ (చెవి, ముక్కు, గొంతు)', icon: '👂', descriptionEn: '', descriptionTe: '', doctorCount: 6 },
+  { key: 'Ophthalmology', nameEn: 'Ophthalmology', nameTe: 'ఆప్తాల్మాలజీ (నేత్ర వైద్యం)', icon: '👁️', descriptionEn: '', descriptionTe: '', doctorCount: 5 },
+  { key: 'Pulmonology', nameEn: 'Pulmonology', nameTe: 'పల్మనాలజీ (ఊపిరితిత్తుల వైద్యం)', icon: '🫁', descriptionEn: '', descriptionTe: '', doctorCount: 4 }
+];
+
 export const DoctorRegister: React.FC = () => {
   const { login } = useAuth();
   const { success, error } = useToast();
   const { lang, t, localizeName, localizeDept, localizeHospital } = useLanguage();
   const navigate = useNavigate();
 
-  const [hospitals, setHospitals] = useState<Hospital[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
+  const [hospitals, setHospitals] = useState<Hospital[]>(DEFAULT_FALLBACK_HOSPITALS);
+  const [departments, setDepartments] = useState<Department[]>(DEFAULT_FALLBACK_DEPARTMENTS);
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -34,10 +54,10 @@ export const DoctorRegister: React.FC = () => {
           apiClient.get('/public/hospitals'),
           apiClient.get('/public/departments')
         ]);
-        setHospitals(hospRes.data);
-        setDepartments(deptRes.data);
+        if (hospRes.data && hospRes.data.length > 0) setHospitals(hospRes.data);
+        if (deptRes.data && deptRes.data.length > 0) setDepartments(deptRes.data);
       } catch (err) {
-        console.error('Failed to load metadata:', err);
+        // Keeps DEFAULT_FALLBACK_HOSPITALS and DEFAULT_FALLBACK_DEPARTMENTS intact
       }
     }
     loadMeta();

@@ -1,4 +1,8 @@
-const { get, all, run } = require('../config/db');
+const { get, all, run, withTransaction } = require('../config/db');
+
+function getTodayString() {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date());
+}
 
 // Helper: Generate Unique AP OPD Reference ID
 function generateRefId() {
@@ -98,7 +102,6 @@ async function updateProfile(req, res, next) {
 // 3. Get Patient's Own Appointments (Tenant Isolated)
 async function getMyAppointments(req, res, next) {
     try {
-        // Query by patientUserId or matching verified phone
         const appointments = await all(`
             SELECT * FROM appointments 
             WHERE patientUserId = ? OR patientPhone = ?
@@ -111,7 +114,29 @@ async function getMyAppointments(req, res, next) {
     }
 }
 
-// 4. Book Appointment (Atomic verification and token issuance)
+// 4. Get Specific Appointment by ID (Strict Ownership Verification)
+async function getAppointmentById(req, res, next) {
+    try {
+        const { id } = req.params;
+        const appointment = await get('SELECT * FROM appointments WHERE UPPER(id) = UPPER(?)', [id.trim()]);
+        if (!appointment) {
+            return res.status(404).json({ error: 'Appointment not found.' });
+        }
+
+        // Ownership isolation
+        const isOwner = (appointment.patientUserId && appointment.patientUserId === req.user.id) ||
+                        (appointment.patientPhone && appointment.patientPhone === req.user.phone);
+        if (!isOwner) {
+            return res.status(403).json({ error: 'Unauthorized. You may only view your own medical appointments.' });
+        }
+
+        res.json(appointment);
+    } catch (err) {
+        next(err);
+    }
+}
+
+// 5. Book Appointment (Atomic Concurrency-safe verification and token issuance)
 async function bookAppointment(req, res, next) {
     try {
         const {
@@ -135,15 +160,21 @@ async function bookAppointment(req, res, next) {
         }
 
         // Validate date is not in the past
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = getTodayString();
         if (appointmentDate < todayStr) {
             return res.status(400).json({ error: 'Cannot book appointments for past dates.' });
+        }
+
+        // Validate date is within reasonable OPD advance booking horizon (30 days)
+        const maxAdvanceDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        const maxAdvanceStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(maxAdvanceDate);
+        if (appointmentDate > maxAdvanceStr) {
+            return res.status(400).json({ error: 'OPD appointments cannot be booked more than 30 days in advance.' });
         }
 
         // Fetch Doctor details (from doctors or doctor_profiles)
         let doctor = await get('SELECT * FROM doctors WHERE nameEn = ?', [doctorNameEn]);
         if (!doctor) {
-            // Check verified doctor profiles
             const docProf = await get("SELECT * FROM doctor_profiles WHERE fullName = ? AND verificationStatus = 'VERIFIED'", [doctorNameEn]);
             if (docProf) {
                 doctor = {
@@ -151,7 +182,8 @@ async function bookAppointment(req, res, next) {
                     nameTe: docProf.fullName,
                     spec: docProf.specialization,
                     hospitalId: docProf.hospitalId,
-                    roomNo: docProf.roomNo || 'Room 101'
+                    roomNo: docProf.roomNo || 'Room 101',
+                    todayAvailable: docProf.todayAvailable
                 };
             }
         }
@@ -160,18 +192,11 @@ async function bookAppointment(req, res, next) {
             return res.status(404).json({ error: 'Selected doctor is not available or unverified.' });
         }
 
-        // Prevent double booking for slot
-        if (slotTime && slotTime !== 'Walk-in / Next Available') {
-            const existingSlot = await get(`
-                SELECT id FROM appointments 
-                WHERE doctorNameEn = ? AND appointmentDate = ? AND slotTime = ? AND status != 'CANCELLED'
-            `, [doctorNameEn, appointmentDate, slotTime]);
-
-            if (existingSlot) {
-                return res.status(409).json({
-                    error: 'This time slot was just reserved by another patient. Please choose an alternative slot.'
-                });
-            }
+        // Check if doctor is on leave today
+        if (appointmentDate === todayStr && doctor.todayAvailable === 0) {
+            return res.status(400).json({
+                error: `Dr. ${doctor.nameEn} is not available for OPD consultations today. Please choose an alternative date or doctor.`
+            });
         }
 
         // Fetch Hospital
@@ -179,63 +204,228 @@ async function bookAppointment(req, res, next) {
         const hospital = (await get('SELECT * FROM hospitals WHERE id = ?', [hospId])) ||
             (await get('SELECT * FROM hospitals WHERE id = ?', ['GH_BHIMAVARAM']));
 
-        // Sequential Token Generation
-        const maxTokenRow = await get(`
-            SELECT MAX(tokenNumber) as maxToken FROM appointments 
-            WHERE doctorNameEn = ? AND appointmentDate = ?
-        `, [doctorNameEn, appointmentDate]);
-
-        const nextToken = (maxTokenRow && maxTokenRow.maxToken ? maxTokenRow.maxToken : 0) + 1;
-        const refId = generateRefId();
         const reportingTime = computeReportingTime(slotTime);
         const nowIso = new Date().toISOString();
-
         const bookingName = (patientName || req.user.fullName).trim();
         const bookingPhone = req.user.phone;
         const bookingAge = patientAge ? parseInt(patientAge, 10) : 30;
 
-        await run(`
-            INSERT INTO appointments (
-                id, tokenNumber, patientName, patientPhone, patientAge, patientGender, abhaId, symptoms,
-                doctorNameEn, doctorNameTe, department, hospitalId, hospitalNameEn, hospitalNameTe,
-                appointmentDate, slotTime, status, roomNo, reportingTime, patientUserId, createdAt, updatedAt
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED', ?, ?, ?, ?, ?)
-        `, [
-            refId,
-            nextToken,
-            bookingName,
-            bookingPhone,
-            bookingAge,
-            patientGender,
-            abhaId.trim(),
-            symptoms.trim() || 'General Consultation',
-            doctor.nameEn,
-            doctor.nameTe || doctor.nameEn,
-            doctor.spec,
-            hospital.id,
-            hospital.nameEn,
-            hospital.nameTe,
-            appointmentDate,
-            slotTime || 'General OPD',
-            doctor.roomNo || 'Room 102',
-            reportingTime,
-            req.user.id,
-            nowIso,
-            nowIso
-        ]);
+        // Atomic Transaction: Check slot reservation, compute sequential token, and insert
+        let createdAppointment = null;
+        await withTransaction(async () => {
+            // Prevent double booking for slot
+            if (slotTime && slotTime !== 'Walk-in / Next Available') {
+                const existingSlot = await get(`
+                    SELECT id FROM appointments 
+                    WHERE doctorNameEn = ? AND appointmentDate = ? AND slotTime = ? AND status != 'CANCELLED'
+                `, [doctorNameEn, appointmentDate, slotTime]);
 
-        const created = await get('SELECT * FROM appointments WHERE id = ?', [refId]);
+                if (existingSlot) {
+                    const err = new Error('This time slot was just reserved by another patient. Please choose an alternative slot.');
+                    err.statusCode = 409;
+                    throw err;
+                }
+            }
+
+            // Check capacity limit (max 60 tokens per doctor session per day)
+            const maxTokenRow = await get(`
+                SELECT MAX(tokenNumber) as maxToken FROM appointments 
+                WHERE doctorNameEn = ? AND appointmentDate = ?
+            `, [doctorNameEn, appointmentDate]);
+
+            const currentMax = maxTokenRow && maxTokenRow.maxToken ? maxTokenRow.maxToken : 0;
+            if (currentMax >= 60) {
+                const err = new Error(`OPD token capacity for ${doctor.nameEn} on ${appointmentDate} is full (maximum 60 tokens). Please select another date.`);
+                err.statusCode = 400;
+                throw err;
+            }
+
+            const nextToken = currentMax + 1;
+            const refId = generateRefId();
+
+            await run(`
+                INSERT INTO appointments (
+                    id, tokenNumber, patientName, patientPhone, patientAge, patientGender, abhaId, symptoms,
+                    doctorNameEn, doctorNameTe, department, hospitalId, hospitalNameEn, hospitalNameTe,
+                    appointmentDate, slotTime, status, roomNo, reportingTime, patientUserId, createdAt, updatedAt
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED', ?, ?, ?, ?, ?)
+            `, [
+                refId,
+                nextToken,
+                bookingName,
+                bookingPhone,
+                bookingAge,
+                patientGender,
+                abhaId ? abhaId.trim() : '',
+                symptoms.trim() || 'General Consultation',
+                doctor.nameEn,
+                doctor.nameTe || doctor.nameEn,
+                doctor.spec,
+                hospital.id,
+                hospital.nameEn,
+                hospital.nameTe,
+                appointmentDate,
+                slotTime || 'General OPD',
+                doctor.roomNo || 'Room 102',
+                reportingTime,
+                req.user.id,
+                nowIso,
+                nowIso
+            ]);
+
+            createdAppointment = await get('SELECT * FROM appointments WHERE id = ?', [refId]);
+        });
 
         res.status(201).json({
             message: 'OPD Appointment confirmed successfully.',
-            appointment: created
+            appointment: createdAppointment
+        });
+    } catch (err) {
+        if (err.message && err.message.includes('UNIQUE constraint failed')) {
+            return res.status(409).json({
+                error: 'This time slot was just reserved by another patient. Please choose an alternative slot.'
+            });
+        }
+        next(err);
+    }
+}
+
+// 6. Reschedule Appointment
+async function rescheduleMyAppointment(req, res, next) {
+    try {
+        const { id } = req.params;
+        const { newDate, newSlotTime } = req.body;
+
+        if (!newDate || !newSlotTime) {
+            return res.status(400).json({ error: 'New appointment date and slot time are required for rescheduling.' });
+        }
+
+        const todayStr = getTodayString();
+        if (newDate < todayStr) {
+            return res.status(400).json({ error: 'Cannot reschedule appointments to past dates.' });
+        }
+
+        const appointment = await get('SELECT * FROM appointments WHERE UPPER(id) = UPPER(?)', [id.trim()]);
+        if (!appointment) {
+            return res.status(404).json({ error: 'Appointment not found.' });
+        }
+
+        // Ownership verification
+        const isOwner = (appointment.patientUserId && appointment.patientUserId === req.user.id) ||
+                        (appointment.patientPhone && appointment.patientPhone === req.user.phone);
+        if (!isOwner) {
+            return res.status(403).json({ error: 'Unauthorized. You may only reschedule your own appointments.' });
+        }
+
+        if (appointment.status === 'CANCELLED') {
+            return res.status(400).json({ error: 'Cancelled appointments cannot be rescheduled. Please book a new appointment.' });
+        }
+        if (appointment.status === 'COMPLETED') {
+            return res.status(400).json({ error: 'Completed consultations cannot be rescheduled.' });
+        }
+
+        const nowIso = new Date().toISOString();
+        const reportingTime = computeReportingTime(newSlotTime);
+        let updatedAppointment = null;
+
+        await withTransaction(async () => {
+            // Check if target slot is already reserved by someone else
+            const existingSlot = await get(`
+                SELECT id FROM appointments 
+                WHERE doctorNameEn = ? AND appointmentDate = ? AND slotTime = ? AND status != 'CANCELLED' AND UPPER(id) != UPPER(?)
+            `, [appointment.doctorNameEn, newDate, newSlotTime, id.trim()]);
+
+            if (existingSlot) {
+                const err = new Error('The selected new slot is already reserved by another patient. Please pick an alternative slot.');
+                err.statusCode = 409;
+                throw err;
+            }
+
+            // Compute new sequential token on new date
+            const maxTokenRow = await get(`
+                SELECT MAX(tokenNumber) as maxToken FROM appointments 
+                WHERE doctorNameEn = ? AND appointmentDate = ?
+            `, [appointment.doctorNameEn, newDate]);
+
+            const nextToken = (maxTokenRow && maxTokenRow.maxToken ? maxTokenRow.maxToken : 0) + 1;
+
+            await run(`
+                UPDATE appointments 
+                SET appointmentDate = ?,
+                    slotTime = ?,
+                    tokenNumber = ?,
+                    reportingTime = ?,
+                    status = 'CONFIRMED',
+                    updatedAt = ?
+                WHERE UPPER(id) = UPPER(?)
+            `, [newDate, newSlotTime, nextToken, reportingTime, nowIso, id.trim()]);
+
+            updatedAppointment = await get('SELECT * FROM appointments WHERE UPPER(id) = UPPER(?)', [id.trim()]);
+        });
+
+        res.json({
+            message: `Appointment successfully rescheduled to ${newDate} at ${newSlotTime}. Your new token is #${updatedAppointment.tokenNumber}.`,
+            appointment: updatedAppointment
+        });
+    } catch (err) {
+        if (err.message && err.message.includes('UNIQUE constraint failed')) {
+            return res.status(409).json({
+                error: 'The selected new slot is already reserved by another patient. Please pick an alternative slot.'
+            });
+        }
+        next(err);
+    }
+}
+
+// 7. Get Live Token & Queue Status (Phase Five "My Token")
+async function getTokenStatus(req, res, next) {
+    try {
+        const { id } = req.params;
+        const appointment = await get('SELECT * FROM appointments WHERE UPPER(id) = UPPER(?)', [id.trim()]);
+        if (!appointment) {
+            return res.status(404).json({ error: 'Appointment not found.' });
+        }
+
+        // Ownership verification
+        const isOwner = (appointment.patientUserId && appointment.patientUserId === req.user.id) ||
+                        (appointment.patientPhone && appointment.patientPhone === req.user.phone);
+        if (!isOwner) {
+            return res.status(403).json({ error: 'Unauthorized. You may only view status for your own appointments.' });
+        }
+
+        // Fetch live doctor OPD queue state
+        const queueState = await get(
+            'SELECT currentServingToken FROM opd_queue_state WHERE doctorNameEn = ? AND appointmentDate = ?',
+            [appointment.doctorNameEn, appointment.appointmentDate]
+        );
+
+        const currentServingToken = queueState ? queueState.currentServingToken : 0;
+        const tokensAhead = Math.max(0, appointment.tokenNumber - currentServingToken);
+        const estimatedWaitMinutes = tokensAhead * 10;
+
+        res.json({
+            appointmentId: appointment.id,
+            tokenNumber: appointment.tokenNumber,
+            patientName: appointment.patientName,
+            doctorNameEn: appointment.doctorNameEn,
+            doctorNameTe: appointment.doctorNameTe,
+            roomNo: appointment.roomNo,
+            appointmentDate: appointment.appointmentDate,
+            slotTime: appointment.slotTime,
+            reportingTime: appointment.reportingTime,
+            status: appointment.status,
+            currentServingToken,
+            tokensAhead,
+            estimatedWaitMinutes,
+            isCurrent: appointment.tokenNumber === currentServingToken && appointment.status !== 'COMPLETED',
+            lastUpdated: new Date().toISOString()
         });
     } catch (err) {
         next(err);
     }
 }
 
-// 5. Cancel Appointment
+// 8. Cancel Appointment
 async function cancelMyAppointment(req, res, next) {
     try {
         const { id } = req.params;
@@ -245,7 +435,9 @@ async function cancelMyAppointment(req, res, next) {
         }
 
         // Data isolation guard: ensure this appointment belongs to the calling patient
-        if (appointment.patientUserId && appointment.patientUserId !== req.user.id && appointment.patientPhone !== req.user.phone) {
+        const isOwner = (appointment.patientUserId && appointment.patientUserId === req.user.id) ||
+                        (appointment.patientPhone && appointment.patientPhone === req.user.phone);
+        if (!isOwner) {
             return res.status(403).json({ error: 'Unauthorized. You may only cancel your own appointments.' });
         }
 
@@ -274,6 +466,9 @@ module.exports = {
     getProfile,
     updateProfile,
     getMyAppointments,
+    getAppointmentById,
     bookAppointment,
+    rescheduleMyAppointment,
+    getTokenStatus,
     cancelMyAppointment
 };

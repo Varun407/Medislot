@@ -11,6 +11,7 @@ router.get('/dashboard', adminController.getDashboardStats);
 router.get('/doctors', adminController.getDoctors);
 router.patch('/doctors/:id/status', adminController.updateDoctorStatus);
 router.get('/patients', adminController.getPatients);
+router.patch('/patients/:id/status', adminController.updatePatientStatus);
 router.get('/appointments', adminController.getAppointments);
 router.get('/audit-logs', adminController.getAuditLogs);
 

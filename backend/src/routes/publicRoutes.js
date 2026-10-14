@@ -3,7 +3,10 @@ const router = express.Router();
 const publicController = require('../controllers/publicController');
 const { authenticateToken } = require('../middleware/auth');
 
-// No content can be accessed without login
+// Unauthenticated Emergency Help & Hospital Casualty Desk (Always publicly accessible 24/7)
+router.get('/emergency', publicController.getEmergencyInfo);
+
+// Authenticated Content Routes
 router.use(authenticateToken);
 
 router.get('/stats', publicController.getPublicStats);

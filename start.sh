@@ -59,12 +59,12 @@ echo -e "\n${BOLD}[2/4] Checking project dependencies...${NC}"
 NEEDS_INSTALL=0
 if [ ! -d "node_modules" ]; then
     NEEDS_INSTALL=1
-elif [ ! -d "node_modules/express" ] || [ ! -d "node_modules/sqlite3" ] || [ ! -d "node_modules/cors" ]; then
+elif [ ! -d "node_modules/express" ] || [ ! -d "node_modules/cors" ]; then
     NEEDS_INSTALL=1
 fi
 
 if [ "$NEEDS_INSTALL" -eq 1 ]; then
-    echo -e "${CYAN}📦 Installing npm dependencies (Express, SQLite3, CORS)... This may take a moment.${NC}"
+    echo -e "${CYAN}📦 Installing npm dependencies (Express, CORS)... This may take a moment.${NC}"
     npm install
     if [ $? -ne 0 ]; then
         echo -e "${RED}✖ Failed to install dependencies. Please check your internet connection and try again.${NC}"
@@ -76,12 +76,8 @@ else
 fi
 
 # Step 4: Verify Database Setup
-echo -e "\n${BOLD}[3/4] Checking SQLite database...${NC}"
-if [ -f "medislot.db" ]; then
-    echo -e "${GREEN}✔ Database file found: medislot.db${NC}"
-else
-    echo -e "${CYAN}ℹ medislot.db will be automatically created and seeded on server launch.${NC}"
-fi
+echo -e "\n${BOLD}[3/4] Checking MongoDB Atlas configuration...${NC}"
+echo -e "${GREEN}✔ Configured for MongoDB Atlas Cloud Database.${NC}"
 
 # Step 5: Port Check & Configuration
 PORT="${PORT:-3000}"

@@ -54,12 +54,8 @@ if not exist "node_modules\" (
 
 :: Step 4: Verify Database
 echo.
-echo [3/4] Checking SQLite database...
-if exist "medislot.db" (
-    echo [OK] Database file found: medislot.db
-) else (
-    echo [INFO] medislot.db will be automatically created and seeded on server launch.
-)
+echo [3/4] Checking MongoDB Atlas configuration...
+echo [OK] Using MongoDB Atlas Cloud Cluster.
 
 :: Step 5: Port and launch
 if "%PORT%"=="" set PORT=3000

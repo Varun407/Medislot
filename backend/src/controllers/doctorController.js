@@ -1,8 +1,7 @@
-const { get, all, run } = require('../config/db');
+const { get, all, run, withTransaction } = require('../config/db');
 
 function getTodayString() {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date());
 }
 
 function generateRefId() {
@@ -130,65 +129,102 @@ async function getDoctorQueue(req, res, next) {
     }
 }
 
-// 6. Call Next Patient Token
+// 6. Call Next Patient Token (Concurrency-safe and atomic state machine)
 async function callNextToken(req, res, next) {
     try {
         const docName = req.user.fullName;
         const queryDate = req.body.date || getTodayString();
+        const now = new Date().toISOString();
 
-        const queueState = await get(
-            'SELECT currentServingToken FROM opd_queue_state WHERE doctorNameEn = ? AND appointmentDate = ?',
-            [docName, queryDate]
-        );
-        const currentToken = queueState ? queueState.currentServingToken : 0;
+        let calledPatient = null;
+        let newServingToken = 0;
 
-        // Find next patient token > currentToken
-        const nextPatient = await get(`
-            SELECT * FROM appointments 
-            WHERE doctorNameEn = ? AND appointmentDate = ? AND tokenNumber > ? 
-              AND status != 'CANCELLED' AND status != 'COMPLETED' 
-            ORDER BY tokenNumber ASC LIMIT 1
-        `, [docName, queryDate, currentToken]);
+        await withTransaction(async () => {
+            const queueState = await get(
+                'SELECT currentServingToken FROM opd_queue_state WHERE doctorNameEn = ? AND appointmentDate = ?',
+                [docName, queryDate]
+            );
+            const currentToken = queueState ? queueState.currentServingToken : 0;
 
-        if (!nextPatient) {
+            // Automatically complete any patient currently CALLED to avoid conflicting states
+            await run(`
+                UPDATE appointments 
+                SET status = 'COMPLETED', updatedAt = ?
+                WHERE doctorNameEn = ? AND appointmentDate = ? AND status = 'CALLED'
+            `, [now, docName, queryDate]);
+
+            // Find next eligible patient who is waiting (tokenNumber > currentToken or status in CONFIRMED/WAITING)
+            const nextPatient = await get(`
+                SELECT * FROM appointments 
+                WHERE doctorNameEn = ? AND appointmentDate = ? 
+                  AND tokenNumber > ?
+                  AND status IN ('CONFIRMED', 'WAITING')
+                ORDER BY tokenNumber ASC LIMIT 1
+            `, [docName, queryDate, currentToken]);
+
+            if (!nextPatient) {
+                // If no tokens > currentToken, look for any earlier skipped/confirmed token
+                const fallbackPatient = await get(`
+                    SELECT * FROM appointments 
+                    WHERE doctorNameEn = ? AND appointmentDate = ? 
+                      AND status IN ('CONFIRMED', 'WAITING')
+                    ORDER BY tokenNumber ASC LIMIT 1
+                `, [docName, queryDate]);
+
+                if (!fallbackPatient) {
+                    newServingToken = currentToken;
+                    return;
+                }
+                calledPatient = fallbackPatient;
+            } else {
+                calledPatient = nextPatient;
+            }
+
+            newServingToken = calledPatient.tokenNumber;
+
+            // Update queue state atomically
+            await run(`
+                INSERT INTO opd_queue_state (doctorNameEn, appointmentDate, currentServingToken)
+                VALUES (?, ?, ?)
+                ON CONFLICT(doctorNameEn, appointmentDate) DO UPDATE SET currentServingToken = excluded.currentServingToken
+            `, [docName, queryDate, newServingToken]);
+
+            // Update patient appointment status to CALLED
+            await run("UPDATE appointments SET status = 'CALLED', updatedAt = ? WHERE id = ?", [now, calledPatient.id]);
+            calledPatient.status = 'CALLED';
+        });
+
+        if (!calledPatient) {
             return res.json({
                 message: 'No more waiting patients in queue for today.',
-                currentServingToken: currentToken,
+                currentServingToken: newServingToken,
                 patient: null
             });
         }
 
-        const newServingToken = nextPatient.tokenNumber;
-        await run(`
-            INSERT INTO opd_queue_state (doctorNameEn, appointmentDate, currentServingToken)
-            VALUES (?, ?, ?)
-            ON CONFLICT(doctorNameEn, appointmentDate) DO UPDATE SET currentServingToken = ?
-        `, [docName, queryDate, newServingToken, newServingToken]);
-
-        const now = new Date().toISOString();
-        await run("UPDATE appointments SET status = 'CALLED', updatedAt = ? WHERE id = ?", [now, nextPatient.id]);
-        nextPatient.status = 'CALLED';
-
         res.json({
-            message: `Token #${newServingToken} called: ${nextPatient.patientName}`,
+            message: `Token #${String(newServingToken).padStart(2, '0')} (${calledPatient.patientName}) called for consultation.`,
             currentServingToken: newServingToken,
-            patient: nextPatient
+            patient: calledPatient
         });
     } catch (err) {
         next(err);
     }
 }
 
-// 7. Update Appointment Status (Strict Isolation Guard)
+// 7. Update Appointment Status (Strict Isolation Guard & Support for SKIPPED)
 async function updateAppointmentStatus(req, res, next) {
     try {
         const { id } = req.params;
-        const { status } = req.body;
-        const validStatuses = ['CONFIRMED', 'CALLED', 'IN_CONSULTATION', 'COMPLETED', 'CANCELLED', 'NO_SHOW'];
+        let { status } = req.body;
+        const validStatuses = ['CONFIRMED', 'WAITING', 'CALLED', 'IN_CONSULTATION', 'COMPLETED', 'CANCELLED', 'NO_SHOW', 'SKIPPED'];
 
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ error: 'Invalid appointment status.' });
         }
+
+        // Normalize WAITING to CONFIRMED
+        if (status === 'WAITING') status = 'CONFIRMED';
 
         const appointment = await get('SELECT * FROM appointments WHERE UPPER(id) = UPPER(?)', [id.trim()]);
         if (!appointment) {
@@ -196,7 +232,9 @@ async function updateAppointmentStatus(req, res, next) {
         }
 
         // Verify doctor ownership
-        if (appointment.doctorNameEn !== req.user.fullName) {
+        const isAssignedDoctor = appointment.doctorNameEn === req.user.fullName ||
+                                 (appointment.doctorUserId && appointment.doctorUserId === req.user.id);
+        if (!isAssignedDoctor) {
             return res.status(403).json({ error: 'Access denied. You can only update appointments assigned to your roster.' });
         }
 
@@ -210,7 +248,7 @@ async function updateAppointmentStatus(req, res, next) {
     }
 }
 
-// 8. Issue Walk-in Counter Token
+// 8. Issue Walk-in Counter Token (Atomic Concurrency-safe allocation)
 async function issueWalkinToken(req, res, next) {
     try {
         const { patientName, patientPhone, patientAge, patientGender = 'Other', symptoms = '' } = req.body;
@@ -222,46 +260,52 @@ async function issueWalkinToken(req, res, next) {
         const hospitalName = profile ? profile.hospitalName : 'Government District Hospital, Bhimavaram';
         const roomNo = profile && profile.roomNo ? profile.roomNo : 'Room 102';
 
-        const maxTokenRow = await get(
-            'SELECT MAX(tokenNumber) as maxToken FROM appointments WHERE doctorNameEn = ? AND appointmentDate = ?',
-            [docName, today]
-        );
-        const nextToken = (maxTokenRow && maxTokenRow.maxToken ? maxTokenRow.maxToken : 0) + 1;
         const refId = generateRefId();
         const nowIso = new Date().toISOString();
+        let createdAppointment = null;
 
-        await run(`
-            INSERT INTO appointments (
-                id, tokenNumber, patientName, patientPhone, patientAge, patientGender, abhaId, symptoms,
-                doctorNameEn, doctorNameTe, department, hospitalId, hospitalNameEn, hospitalNameTe,
-                appointmentDate, slotTime, status, roomNo, reportingTime, createdAt, updatedAt
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED', ?, 'Immediate Counter Token', ?, ?)
-        `, [
-            refId,
-            nextToken,
-            (patientName || 'Walk-in Patient').trim(),
-            (patientPhone || '9848099999').replace(/\D/g, '').slice(-10),
-            parseInt(patientAge || 35, 10),
-            patientGender,
-            '',
-            (symptoms || 'Counter Walk-in OPD Request').trim(),
-            docName,
-            docName,
-            profile ? profile.specialization : 'General Medicine',
-            hospitalId,
-            hospitalName,
-            hospitalName,
-            today,
-            'Walk-in Immediate',
-            roomNo,
-            nowIso,
-            nowIso
-        ]);
+        await withTransaction(async () => {
+            const maxTokenRow = await get(
+                'SELECT MAX(tokenNumber) as maxToken FROM appointments WHERE doctorNameEn = ? AND appointmentDate = ?',
+                [docName, today]
+            );
+            const nextToken = (maxTokenRow && maxTokenRow.maxToken ? maxTokenRow.maxToken : 0) + 1;
 
-        const created = await get('SELECT * FROM appointments WHERE id = ?', [refId]);
+            await run(`
+                INSERT INTO appointments (
+                    id, tokenNumber, patientName, patientPhone, patientAge, patientGender, abhaId, symptoms,
+                    doctorNameEn, doctorNameTe, department, hospitalId, hospitalNameEn, hospitalNameTe,
+                    appointmentDate, slotTime, status, roomNo, reportingTime, doctorUserId, createdAt, updatedAt
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED', ?, 'Immediate Counter Token', ?, ?, ?)
+            `, [
+                refId,
+                nextToken,
+                (patientName || 'Walk-in Patient').trim(),
+                (patientPhone || '9848099999').replace(/\D/g, '').slice(-10),
+                parseInt(patientAge || 35, 10),
+                patientGender,
+                '',
+                (symptoms || 'Counter Walk-in OPD Request').trim(),
+                docName,
+                docName,
+                profile ? profile.specialization : 'General Medicine',
+                hospitalId,
+                hospitalName,
+                hospitalName,
+                today,
+                'Walk-in Immediate',
+                roomNo,
+                req.user.id,
+                nowIso,
+                nowIso
+            ]);
+
+            createdAppointment = await get('SELECT * FROM appointments WHERE id = ?', [refId]);
+        });
+
         res.status(201).json({
-            message: `Walk-in Token #${nextToken} generated successfully.`,
-            appointment: created
+            message: `Walk-in Token #${createdAppointment.tokenNumber} generated successfully.`,
+            appointment: createdAppointment
         });
     } catch (err) {
         next(err);

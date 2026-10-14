@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
+import { EmergencyModal } from './EmergencyModal';
 import {
   Activity,
   User as UserIcon,
@@ -14,7 +15,8 @@ import {
   PhoneCall,
   Calendar,
   Building2,
-  FileText
+  FileText,
+  AlertTriangle
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -23,6 +25,7 @@ export const Navbar: React.FC = () => {
   const { success } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const [showEmergency, setShowEmergency] = useState(false);
 
   // Hide Navbar completely on sign-in / authentication routes
   const hideOnAuthRoutes = [
@@ -65,10 +68,27 @@ export const Navbar: React.FC = () => {
           </span>
         </div>
         <div className="sys-banner-right">
-          <span className="sys-hotline">
+          <button
+            type="button"
+            className="sys-hotline"
+            onClick={() => setShowEmergency(true)}
+            style={{
+              background: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              color: '#fca5a5',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '2px 8px',
+              borderRadius: '6px',
+              fontSize: '0.74rem'
+            }}
+            title={lang === 'te' ? '24x7 అత్యవసర సహాయం పొందండి' : 'Access 24x7 Emergency Helplines'}
+          >
             <PhoneCall size={12} />
             {t.emergency108}
-          </span>
+          </button>
           <button className="lang-toggle-btn" onClick={toggleLang} title="Toggle Language">
             <Globe size={13} />
             {lang === 'en' ? 'తెలుగు' : 'English'}
@@ -211,6 +231,7 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
       </nav>
+      <EmergencyModal isOpen={showEmergency} onClose={() => setShowEmergency(false)} />
     </header>
   );
 };

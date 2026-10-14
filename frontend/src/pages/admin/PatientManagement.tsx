@@ -70,6 +70,7 @@ export const PatientManagement: React.FC = () => {
                   <th style={{ padding: '10px 12px' }}>AROGYASRI ID</th>
                   <th style={{ padding: '10px 12px' }}>APPOINTMENTS</th>
                   <th style={{ padding: '10px 12px' }}>ACCOUNT STATUS</th>
+                  <th style={{ padding: '10px 12px' }}>ACTION</th>
                 </tr>
               </thead>
               <tbody>
@@ -95,6 +96,28 @@ export const PatientManagement: React.FC = () => {
                       <span className={`status-pill status-${p.status.toLowerCase()}`}>
                         {p.status}
                       </span>
+                    </td>
+                    <td style={{ padding: '12px' }}>
+                      <button
+                        className="btn btn-secondary btn-sm"
+                        style={{
+                          fontSize: '0.72rem',
+                          padding: '3px 8px',
+                          color: p.status === 'ACTIVE' ? 'var(--rose-600)' : 'var(--emerald-600)'
+                        }}
+                        onClick={async () => {
+                          const targetStatus = p.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+                          if (!window.confirm(`Are you sure you want to mark this patient account as ${targetStatus}?`)) return;
+                          try {
+                            await apiClient.patch(`/admin/patients/${p.id}/status`, { status: targetStatus });
+                            fetchPatients();
+                          } catch (err: any) {
+                            alert(err.response?.data?.error || 'Failed to update patient status');
+                          }
+                        }}
+                      >
+                        {p.status === 'ACTIVE' ? 'Suspend' : 'Activate'}
+                      </button>
                     </td>
                   </tr>
                 ))}

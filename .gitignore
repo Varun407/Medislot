@@ -25,8 +25,16 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 backend/*.log
+*.db
+*.db-wal
+*.db-shm
+*.sqlite*
 backend/*.db
+backend/*.db-wal
+backend/*.db-shm
+backend/*.sqlite*
 backend/medislot.db
+medislot.db
 
 # OS & Editor
 .DS_Store

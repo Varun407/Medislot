@@ -76,7 +76,9 @@ app.get('/api/health', (req, res) => {
 // 5. Versioned API Routes (/api/v1)
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/patients', patientRoutes);
+app.use('/api/v1/patient', patientRoutes);
 app.use('/api/v1/doctors', doctorRoutes);
+app.use('/api/v1/doctor', doctorRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/public', publicRoutes);
 

@@ -22,7 +22,7 @@
     "appointments",
     "react",
     "express",
-    "sqlite"
+    "mongodb"
   ],
   "author": "MediSlot Team",
   "license": "MIT"
