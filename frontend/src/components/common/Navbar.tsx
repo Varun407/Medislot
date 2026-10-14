@@ -198,6 +198,12 @@ export const Navbar: React.FC = () => {
                       {t.appointments}
                     </Link>
                   </li>
+                  <li>
+                    <Link to="/admin/dashboard#grievances-section" className="nav-link">
+                      <FileText size={16} />
+                      {t.navGrievance || 'Grievances'}
+                    </Link>
+                  </li>
                 </>
               )}
             </ul>

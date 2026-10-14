@@ -150,6 +150,7 @@ export interface PlatformStats {
   doctors: { total: number; verified: number; pending: number; suspended: number };
   appointments: { total: number; todayTotal: number; completed: number; cancelled: number };
   hospitals: { total: number; availableBeds: number; icuBeds: number; oxygenBeds: number };
+  grievances?: { total: number; submitted: number; inReview: number; resolved: number; rejected: number };
   recentAudits: AuditLog[];
 }
 
