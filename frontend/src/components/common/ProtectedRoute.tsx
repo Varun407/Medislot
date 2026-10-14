@@ -28,7 +28,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
     if (allowedRoles.includes('ADMIN') && location.pathname.startsWith('/admin')) {
       return <Navigate to="/control-center/login" state={{ from: location }} replace />;
     }
-    return <Navigate to="/" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // Wrong role: redirect to user's assigned portal

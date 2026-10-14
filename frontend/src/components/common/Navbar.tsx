@@ -29,7 +29,6 @@ export const Navbar: React.FC = () => {
 
   // Hide Navbar completely on sign-in / authentication routes
   const hideOnAuthRoutes = [
-    '/',
     '/login',
     '/patient/login',
     '/doctor/login',
@@ -40,7 +39,7 @@ export const Navbar: React.FC = () => {
     '/doctor/pending'
   ];
   const normalizedPath = location.pathname.replace(/\/+$/, '') || '/';
-  if (hideOnAuthRoutes.includes(normalizedPath) || hideOnAuthRoutes.some((r) => r !== '/' && location.pathname.startsWith(r + '/'))) {
+  if (hideOnAuthRoutes.includes(normalizedPath) || hideOnAuthRoutes.some((r) => location.pathname.startsWith(r + '/'))) {
     return null;
   }
 
@@ -202,7 +201,40 @@ export const Navbar: React.FC = () => {
                 </>
               )}
             </ul>
-          ) : null}
+          ) : (
+            <ul className="nav-links">
+              <li>
+                <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>
+                  <Activity size={16} />
+                  {t.navHome || 'Home'}
+                </Link>
+              </li>
+              <li>
+                <Link to="/doctors" className={`nav-link ${location.pathname === '/doctors' ? 'active' : ''}`}>
+                  <Stethoscope size={16} />
+                  {t.navDoctors || 'Doctors'}
+                </Link>
+              </li>
+              <li>
+                <Link to="/hospitals" className={`nav-link ${location.pathname === '/hospitals' ? 'active' : ''}`}>
+                  <Building2 size={16} />
+                  {t.navHospitals || 'Hospitals & Beds'}
+                </Link>
+              </li>
+              <li>
+                <a href="/#how-it-works" className="nav-link">
+                  <Calendar size={16} />
+                  {lang === 'te' ? 'ఎలా పనిచేస్తుంది?' : 'How It Works'}
+                </a>
+              </li>
+              <li>
+                <Link to="/grievance" className={`nav-link ${location.pathname === '/grievance' ? 'active' : ''}`}>
+                  <FileText size={16} />
+                  {t.navGrievance || 'Grievances'}
+                </Link>
+              </li>
+            </ul>
+          )}
 
           <div className="header-actions">
             {isAuthenticated && user ? (

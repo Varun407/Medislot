@@ -12,8 +12,8 @@ console.log('\x1b[36m%s\x1b[0m', '==============================================
 console.log('\x1b[1m\x1b[32m%s\x1b[0m', '  🏥 MediSlot Healthcare OPD Platform');
 console.log('\x1b[36m%s\x1b[0m', '==================================================================');
 console.log('  ⚡ Backend API:      \x1b[33mhttp://localhost:5000\x1b[0m');
-console.log('  🌐 Frontend Portal:  \x1b[34mhttp://localhost:5173\x1b[0m');
-console.log('  🔐 Unified Sign In:  \x1b[34mhttp://localhost:5173/\x1b[0m');
+console.log('  🌐 Landing Page:     \x1b[34mhttp://localhost:5173\x1b[0m');
+console.log('  🔐 Unified Sign In:  \x1b[34mhttp://localhost:5173/login\x1b[0m');
 console.log('------------------------------------------------------------------');
 console.log('  👑 Chief Admin:      \x1b[35madmin@medislot.gov.in\x1b[0m / AdminSecure@2026');
 console.log('  👨🏻‍⚕️ Duty Doctor:      \x1b[36mdr.ramesh@medislot.gov.in\x1b[0m / DoctorPass@2026');
