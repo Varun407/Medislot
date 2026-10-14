@@ -28,19 +28,17 @@ export const HospitalsDirectory: React.FC = () => {
     <div className="main-content">
       <div className="section-header">
         <h1 className="section-title">
-          {lang === 'te' ? 'ప్రభుత్వ ఆసుపత్రులు & పడకల లభ్యత' : 'AP Government Hospitals & Live Bed Tracker'}
+          {t.hospitalsTitle}
         </h1>
         <p className="section-subtitle">
-          {lang === 'te'
-            ? 'పశ్చిమ గోదావరి మరియు పరిసర జిల్లాల్లోని ప్రభుత్వ వైద్య మౌలిక వసతులు మరియు ఐసీయూ పడకల సమాచారం'
-            : 'Real-time hospital bed status, ICU capacity, oxygen beds, and emergency care facilities'}
+          {t.hospitalsSubtitle}
         </p>
       </div>
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px 20px' }}>
           <div className="pulse-dot" style={{ margin: '0 auto 10px' }} />
-          <p style={{ color: 'var(--slate-500)' }}>Loading hospital networks...</p>
+          <p style={{ color: 'var(--slate-500)' }}>{t.loadingHospitals}</p>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '24px' }}>
@@ -56,7 +54,7 @@ export const HospitalsDirectory: React.FC = () => {
                   </h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--slate-500)', fontSize: '0.82rem', marginTop: '4px' }}>
                     <MapPin size={13} />
-                    <span>{lang === 'te' ? hosp.districtTe : hosp.districtEn} District</span>
+                    <span>{lang === 'te' ? hosp.districtTe : hosp.districtEn} {t.districtSuffix}</span>
                   </div>
                 </div>
                 <div style={{ background: '#fef3c7', color: '#b45309', padding: '4px 8px', borderRadius: '6px', fontWeight: 800, fontSize: '0.85rem' }}>
@@ -75,7 +73,7 @@ export const HospitalsDirectory: React.FC = () => {
                     {hosp.availableBeds}
                   </div>
                   <div style={{ fontSize: '0.72rem', color: 'var(--slate-500)', fontWeight: 600 }}>
-                    General Beds
+                    {t.generalBeds}
                   </div>
                 </div>
                 <div style={{ textAlign: 'center', borderLeft: '1px solid var(--slate-200)', borderRight: '1px solid var(--slate-200)' }}>
@@ -83,7 +81,7 @@ export const HospitalsDirectory: React.FC = () => {
                     {hosp.icuBedsAvailable}
                   </div>
                   <div style={{ fontSize: '0.72rem', color: 'var(--slate-500)', fontWeight: 600 }}>
-                    ICU Beds
+                    {t.icuBeds}
                   </div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
@@ -91,7 +89,7 @@ export const HospitalsDirectory: React.FC = () => {
                     {hosp.oxygenBedsAvailable}
                   </div>
                   <div style={{ fontSize: '0.72rem', color: 'var(--slate-500)', fontWeight: 600 }}>
-                    Oxygen Beds
+                    {t.oxygenBeds}
                   </div>
                 </div>
               </div>
@@ -100,11 +98,11 @@ export const HospitalsDirectory: React.FC = () => {
               <div style={{ fontSize: '0.82rem', color: 'var(--slate-600)', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '18px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Clock size={13} color="var(--slate-400)" />
-                  <span>OPD Timings: {lang === 'te' ? hosp.opdTimingsTe : hosp.opdTimingsEn}</span>
+                  <span>{t.opdTimings}: {lang === 'te' ? hosp.opdTimingsTe : hosp.opdTimingsEn}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Phone size={13} color="var(--rose-600)" />
-                  <span style={{ color: 'var(--rose-600)', fontWeight: 600 }}>Emergency: {hosp.emergencyPhone}</span>
+                  <span style={{ color: 'var(--rose-600)', fontWeight: 600 }}>{t.emergency}: {hosp.emergencyPhone}</span>
                 </div>
               </div>
 
@@ -115,7 +113,7 @@ export const HospitalsDirectory: React.FC = () => {
                   style={{ width: '100%' }}
                 >
                   <Activity size={15} />
-                  {lang === 'te' ? 'ఈ ఆసుపత్రిలో ఓపీడీ బుక్ చేయండి' : 'Book OPD at this Hospital'}
+                  {t.bookOpdAtHospital}
                 </Link>
               </div>
             </div>

@@ -11,7 +11,7 @@ import { Calendar, Clock, Building2, Stethoscope, ArrowRight, CheckCircle2, User
 export const BookAppointment: React.FC = () => {
   const { user } = useAuth();
   const { success, error } = useToast();
-  const { lang, t } = useLanguage();
+  const { lang, t, localizeDept, localizeQual, localizeRoom, localizeTime, localizeLanguages } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -99,7 +99,7 @@ export const BookAppointment: React.FC = () => {
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedDoctorName || !appointmentDate || !slotTime) {
-      error('Please select a doctor, appointment date, and available time slot.');
+      error(lang === 'te' ? 'దయచేసి వైద్యుడిని, అపాయింట్‌మెంట్ తేదీని మరియు అందుబాటు స్లాట్‌ను ఎంచుకోండి.' : 'Please select a doctor, appointment date, and available time slot.');
       return;
     }
 
@@ -116,10 +116,10 @@ export const BookAppointment: React.FC = () => {
         symptoms
       });
 
-      success('OPD Appointment confirmed! Your sequential token is generated.');
+      success(lang === 'te' ? 'ఓపీడీ అపాయింట్‌మెంట్ నిర్ధారించబడింది! మీ క్రమ సంఖ్య టోకెన్ జారీ చేయబడింది.' : 'OPD Appointment confirmed! Your sequential token is generated.');
       setConfirmedAppointment(res.data.appointment);
     } catch (err: any) {
-      error(err.response?.data?.error || 'Failed to reserve appointment slot.');
+      error(err.response?.data?.error || (lang === 'te' ? 'అపాయింట్‌మెంట్ స్లాట్ రిజర్వ్ చేయడం విఫలమైంది.' : 'Failed to reserve appointment slot.'));
     } finally {
       setBookingInProgress(false);
     }
@@ -129,10 +129,10 @@ export const BookAppointment: React.FC = () => {
     <div className="main-content" style={{ maxWidth: '900px' }}>
       <div className="section-header">
         <h1 className="section-title">
-          {lang === 'te' ? 'ఓపీడీ అపాయింట్‌మెంట్ బుకింగ్' : 'Reserve OPD Appointment Slot'}
+          {t.bookingTitle}
         </h1>
         <p className="section-subtitle">
-          Select a verified hospital specialist, choose an open roster slot, and receive your official digital queue token.
+          {t.bookingSubtitle}
         </p>
       </div>
 
@@ -186,11 +186,11 @@ export const BookAppointment: React.FC = () => {
                 disabled={loading || doctors.length === 0}
               >
                 {doctors.length === 0 ? (
-                  <option value="">No active specialists available for this department/date</option>
+                  <option value="">{t.noSpecialistsAvail}</option>
                 ) : (
                   doctors.map((d) => (
                     <option key={d.id} value={d.nameEn}>
-                      {d.nameEn} ({d.spec} - {d.qual})
+                      {lang === 'te' ? d.nameTe : d.nameEn} ({localizeDept(d.spec)} - {localizeQual(d.qual)})
                     </option>
                   ))
                 )}
@@ -204,13 +204,13 @@ export const BookAppointment: React.FC = () => {
               <span style={{ fontSize: '2.4rem' }}>{activeDoctor.emoji || '👨🏻‍⚕️'}</span>
               <div style={{ flex: 1 }}>
                 <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--navy-900)' }}>
-                  {activeDoctor.nameEn}
+                  {lang === 'te' ? activeDoctor.nameTe : activeDoctor.nameEn}
                 </h4>
                 <p style={{ margin: '2px 0', fontSize: '0.8rem', color: 'var(--blue-600)', fontWeight: 600 }}>
-                  {activeDoctor.spec} · {activeDoctor.qual} · {activeDoctor.roomNo}
+                  {localizeDept(activeDoctor.spec)} · {localizeQual(activeDoctor.qual)} · {localizeRoom(activeDoctor.roomNo)}
                 </p>
                 <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--slate-500)' }}>
-                  OPD Schedule: {activeDoctor.hours} · Languages: {activeDoctor.languages}
+                  {t.opdHours}: {localizeTime(activeDoctor.hours)} · {lang === 'te' ? 'భాషలు:' : 'Languages:'} {localizeLanguages(activeDoctor.languages)}
                 </p>
               </div>
             </div>
@@ -219,7 +219,7 @@ export const BookAppointment: React.FC = () => {
           {/* Step 3: Available Time Slots */}
           <div className="form-group" style={{ marginBottom: '24px' }}>
             <label className="form-label">
-              Available Time Slots for {appointmentDate} *
+              {t.lblSlot} ({appointmentDate}) *
             </label>
             {activeDoctor && activeDoctor.availableSlots && activeDoctor.availableSlots.length > 0 ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: '10px', marginTop: '8px' }}>
@@ -242,14 +242,14 @@ export const BookAppointment: React.FC = () => {
                         transition: 'all 0.15s ease'
                       }}
                     >
-                      {slot}
+                      {localizeTime(slot)}
                     </button>
                   );
                 })}
               </div>
             ) : (
               <div style={{ padding: '14px', background: 'var(--rose-100)', color: 'var(--rose-600)', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}>
-                All slots are booked for this specialist on {appointmentDate}. Please pick another date.
+                {t.allSlotsBookedPickAnother}
               </div>
             )}
           </div>
@@ -257,12 +257,12 @@ export const BookAppointment: React.FC = () => {
           {/* Step 4: Patient Details */}
           <div style={{ borderTop: '1px solid var(--slate-200)', paddingTop: '20px', marginBottom: '20px' }}>
             <h4 style={{ margin: '0 0 14px', fontSize: '1rem', fontWeight: 700, color: 'var(--navy-900)' }}>
-              Patient Consultation Details
+              {t.patientConsultDetails}
             </h4>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '14px' }}>
               <div className="form-group">
-                <label className="form-label">Patient Age (Years) *</label>
+                <label className="form-label">{t.patientAge}</label>
                 <input
                   type="number"
                   min="0"
@@ -275,16 +275,16 @@ export const BookAppointment: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Gender *</label>
+                <label className="form-label">{t.patientGender}</label>
                 <select className="form-select" value={patientGender} onChange={(e) => setPatientGender(e.target.value)}>
-                  <option value="Female">Female</option>
-                  <option value="Male">Male</option>
-                  <option value="Other">Other</option>
+                  <option value="Female">{t.genderFemale}</option>
+                  <option value="Male">{t.genderMale}</option>
+                  <option value="Other">{t.genderOther}</option>
                 </select>
               </div>
 
               <div className="form-group">
-                <label className="form-label">Arogyasri ID (Optional)</label>
+                <label className="form-label">{t.arogyasriIdOptional}</label>
                 <input
                   type="text"
                   className="form-input"
@@ -300,7 +300,7 @@ export const BookAppointment: React.FC = () => {
               <textarea
                 className="form-textarea"
                 rows={2}
-                placeholder="Brief reason for visit (e.g. fever for 3 days, joint pain, routine BP checkup)..."
+                placeholder={t.symptomsPlaceholder}
                 value={symptoms}
                 onChange={(e) => setSymptoms(e.target.value)}
               />
@@ -314,7 +314,7 @@ export const BookAppointment: React.FC = () => {
             style={{ width: '100%' }}
           >
             <Calendar size={18} />
-            {bookingInProgress ? 'Confirming with Hospital Queue...' : 'Confirm Booking & Issue Token Slip'}
+            {bookingInProgress ? t.confirmingBooking : t.confirmBookingIssueSlip}
           </button>
         </form>
       </div>

@@ -1,10 +1,12 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { Clock, ShieldCheck, LogOut, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const DoctorPending: React.FC = () => {
   const { user, refreshUser, logout } = useAuth();
+  const { lang, t } = useLanguage();
   const navigate = useNavigate();
 
   const handleRefresh = async () => {
@@ -27,32 +29,32 @@ export const DoctorPending: React.FC = () => {
         </div>
 
         <span className="status-pill status-pending" style={{ fontSize: '0.8rem', padding: '4px 12px', marginBottom: '14px' }}>
-          Application Status: PENDING VERIFICATION
+          {t.appPendingVerification}
         </span>
 
         <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--navy-900)', marginTop: '8px' }}>
-          Doctor Credentials Under Review
+          {t.doctorCredentialsReview}
         </h2>
 
         <p style={{ color: 'var(--slate-600)', fontSize: '0.92rem', lineHeight: 1.6, margin: '14px 0 24px' }}>
-          Thank you, <strong>{user?.fullName}</strong>. Your clinical profile and medical credentials have been securely received. To maintain patient safety and medical governance across Andhra Pradesh Government health facilities, a system administrator must verify your license before your OPD queue is activated.
+          {lang === 'te' ? `ధన్యవాదాలు, ` : `Thank you, `}<strong>{user?.fullName}</strong>. {t.doctorPendingNotice}
         </p>
 
         <div style={{ background: 'var(--slate-50)', padding: '16px', borderRadius: '10px', textAlign: 'left', fontSize: '0.82rem', color: 'var(--slate-700)', marginBottom: '24px', border: '1px solid var(--slate-200)' }}>
-          <div style={{ marginBottom: '6px' }}><strong>Registered Doctor:</strong> {user?.fullName}</div>
-          <div style={{ marginBottom: '6px' }}><strong>Official Email:</strong> {user?.email}</div>
-          <div style={{ marginBottom: '6px' }}><strong>Mobile:</strong> +91 {user?.phone}</div>
-          <div><strong>Verification Office:</strong> DMHO / Hospital Administration</div>
+          <div style={{ marginBottom: '6px' }}><strong>{t.registeredDoctorLabel}</strong> {user?.fullName}</div>
+          <div style={{ marginBottom: '6px' }}><strong>{t.officialEmailLabel}</strong> {user?.email}</div>
+          <div style={{ marginBottom: '6px' }}><strong>{t.mobileLabel}</strong> +91 {user?.phone}</div>
+          <div><strong>{t.verificationOfficeLabel}</strong> {t.dmhoOffice}</div>
         </div>
 
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
           <button className="btn btn-primary btn-sm" onClick={handleRefresh}>
             <RefreshCw size={14} />
-            Check Verification Status
+            {t.checkVerificationStatus}
           </button>
           <button className="btn btn-secondary btn-sm" onClick={handleLogout}>
             <LogOut size={14} />
-            Sign Out
+            {t.btnLogout}
           </button>
         </div>
       </div>

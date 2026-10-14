@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../../api/client';
 import { useToast } from '../../context/ToastContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { Clock, Check, Plus, Trash2, Save } from 'lucide-react';
 
 export const DoctorAvailability: React.FC = () => {
   const { success, error } = useToast();
+  const { lang, t } = useLanguage();
 
   const [todayAvailable, setTodayAvailable] = useState<boolean>(true);
   const [consultationHours, setConsultationHours] = useState('8:30 AM - 2:00 PM');
@@ -32,7 +34,7 @@ export const DoctorAvailability: React.FC = () => {
   const handleAddSlot = () => {
     if (!newSlot.trim()) return;
     if (slots.includes(newSlot.trim())) {
-      error('Slot already exists.');
+      error(lang === 'te' ? 'ఈ స్లాట్ ఇప్పటికే ఉంది.' : 'Slot already exists.');
       return;
     }
     setSlots([...slots, newSlot.trim()]);
@@ -51,9 +53,9 @@ export const DoctorAvailability: React.FC = () => {
         todayAvailable,
         slots
       });
-      success('Availability roster schedule updated successfully.');
+      success(lang === 'te' ? 'లభ్యత రోస్టర్ షెడ్యూల్ విజయవంతంగా నవీకరించబడింది.' : 'Availability roster schedule updated successfully.');
     } catch (err: any) {
-      error(err.response?.data?.error || 'Failed to save schedule.');
+      error(err.response?.data?.error || (lang === 'te' ? 'షెడ్యూల్ సేవ్ చేయడం విఫలమైంది.' : 'Failed to save schedule.'));
     } finally {
       setSaving(false);
     }
@@ -62,9 +64,9 @@ export const DoctorAvailability: React.FC = () => {
   return (
     <div className="main-content" style={{ maxWidth: '700px' }}>
       <div className="section-header">
-        <h1 className="section-title">OPD Consultation Availability & Roster</h1>
+        <h1 className="section-title">{t.opdAvailabilityTitle}</h1>
         <p className="section-subtitle">
-          Manage your active clinical shift hours, duty toggle, and appointment time slots.
+          {t.opdAvailabilitySubtitle}
         </p>
       </div>
 
@@ -73,9 +75,9 @@ export const DoctorAvailability: React.FC = () => {
           {/* Duty Toggle */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--slate-50)', padding: '16px', borderRadius: '10px', marginBottom: '24px', border: '1px solid var(--slate-200)' }}>
             <div>
-              <div style={{ fontWeight: 700, color: 'var(--navy-900)' }}>OPD Duty Status for Today</div>
+              <div style={{ fontWeight: 700, color: 'var(--navy-900)' }}>{t.opdDutyStatusToday}</div>
               <div style={{ fontSize: '0.8rem', color: 'var(--slate-500)', marginTop: '2px' }}>
-                Toggle OFF if on leave, on emergency OT duty, or unavailable for consultations.
+                {t.dutyToggleDesc}
               </div>
             </div>
             <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }}>
@@ -86,26 +88,26 @@ export const DoctorAvailability: React.FC = () => {
                 style={{ width: '18px', height: '18px', cursor: 'pointer' }}
               />
               <span style={{ fontWeight: 700, color: todayAvailable ? 'var(--emerald-600)' : 'var(--rose-600)', fontSize: '0.88rem' }}>
-                {todayAvailable ? 'ON DUTY (Active)' : 'OFF DUTY (Unavailable)'}
+                {todayAvailable ? t.onDutyActive : t.offDutyInactive}
               </span>
             </label>
           </div>
 
           {/* Time Slots */}
           <div className="form-group" style={{ marginBottom: '20px' }}>
-            <label className="form-label">Available Time Slots for Patients</label>
+            <label className="form-label">{t.availSlotsForPatients}</label>
             <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
               <input
                 type="text"
                 className="form-input"
-                placeholder="e.g. 02:30 PM"
+                placeholder={t.newSlotPlaceholder}
                 value={newSlot}
                 onChange={(e) => setNewSlot(e.target.value)}
                 style={{ maxWidth: '180px' }}
               />
               <button type="button" className="btn btn-secondary btn-sm" onClick={handleAddSlot}>
                 <Plus size={14} />
-                Add Slot
+                {t.addSlotBtn}
               </button>
             </div>
 
@@ -141,7 +143,7 @@ export const DoctorAvailability: React.FC = () => {
 
           <button type="submit" className="btn btn-primary" disabled={saving} style={{ width: '100%', marginTop: '16px' }}>
             <Save size={16} />
-            {saving ? 'Updating Schedule...' : 'Save Roster Schedule'}
+            {saving ? t.savingSchedule : t.saveRosterSchedule}
           </button>
         </form>
       </div>

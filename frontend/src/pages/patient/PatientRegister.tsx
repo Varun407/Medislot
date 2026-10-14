@@ -9,7 +9,7 @@ import { UserPlus, ArrowRight, ShieldCheck, Check, AlertCircle } from 'lucide-re
 export const PatientRegister: React.FC = () => {
   const { login } = useAuth();
   const { success, error } = useToast();
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const navigate = useNavigate();
 
   const [fullName, setFullName] = useState('');
@@ -36,28 +36,28 @@ export const PatientRegister: React.FC = () => {
     e.preventDefault();
 
     if (!fullName.trim() || !email.trim() || !phone.trim() || !password) {
-      error('Please complete all required fields.');
+      error(lang === 'te' ? 'దయచేసి అన్ని అవసరమైన ఫీల్డ్‌లను పూరించండి.' : 'Please complete all required fields.');
       return;
     }
 
     const cleanPhone = phone.replace(/\D/g, '').slice(-10);
     if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
-      error('Please provide a valid 10-digit Indian mobile number.');
+      error(lang === 'te' ? 'దయచేసి సరైన 10 అంకెల మొబైల్ నంబర్‌ను నమోదు చేయండి.' : 'Please provide a valid 10-digit Indian mobile number.');
       return;
     }
 
     if (password.length < 8) {
-      error('Password must be at least 8 characters in length.');
+      error(lang === 'te' ? 'పాస్‌వర్డ్ కనీసం 8 అక్షరాలు ఉండాలి.' : 'Password must be at least 8 characters in length.');
       return;
     }
 
     if (password !== confirmPassword) {
-      error('Passwords do not match.');
+      error(lang === 'te' ? 'పాస్‌వర్డ్‌లు సరిపోలడం లేదు.' : 'Passwords do not match.');
       return;
     }
 
     if (!agreeTerms) {
-      error('Please accept the AP Public Health Privacy Policy & Terms.');
+      error(lang === 'te' ? 'దయచేసి ఏపీ ప్రభుత్వ ఆరోగ్య నిబంధనలు మరియు గోప్యతా విధానాన్ని అంగీకరించండి.' : 'Please accept the AP Public Health Privacy Policy & Terms.');
       return;
     }
 
@@ -72,10 +72,10 @@ export const PatientRegister: React.FC = () => {
       });
 
       login(res.data.user, res.data.token);
-      success('Patient account registered successfully!');
+      success(lang === 'te' ? 'రోగి ఖాతా విజయవంతంగా నమోదైంది!' : 'Patient account registered successfully!');
       navigate('/patient/dashboard');
     } catch (err: any) {
-      error(err.response?.data?.error || 'Registration failed. Please try again.');
+      error(err.response?.data?.error || (lang === 'te' ? 'రిజిస్ట్రేషన్ విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.' : 'Registration failed. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -89,21 +89,21 @@ export const PatientRegister: React.FC = () => {
             <UserPlus size={28} />
           </div>
           <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--navy-900)' }}>
-            {lang === 'te' ? 'కొత్త రోగి రిజిస్ట్రేషన్' : 'Create Patient Account'}
+            {t.createPatientAccount}
           </h2>
           <p style={{ fontSize: '0.84rem', color: 'var(--slate-500)', marginTop: '4px' }}>
-            Sign up for digital OPD slots and official queue tokens
+            {t.createPatientAccountSub}
           </p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Full Name *</label>
+            <label className="form-label">{t.fullName} *</label>
             <input
               type="text"
               className="form-input"
               required
-              placeholder="e.g. K. Sita Devi"
+              placeholder={lang === 'te' ? 'ఉదా: కె. సీతాదేవి' : 'e.g. K. Sita Devi'}
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
             />
@@ -111,7 +111,7 @@ export const PatientRegister: React.FC = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '14px' }}>
             <div className="form-group">
-              <label className="form-label">Email Address *</label>
+              <label className="form-label">{t.emailAddress} *</label>
               <input
                 type="email"
                 className="form-input"
@@ -123,7 +123,7 @@ export const PatientRegister: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Mobile Number *</label>
+              <label className="form-label">{t.mobileNumber} *</label>
               <input
                 type="tel"
                 className="form-input"
@@ -137,24 +137,24 @@ export const PatientRegister: React.FC = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
             <div className="form-group">
-              <label className="form-label">Password *</label>
+              <label className="form-label">{t.passwordLabel} *</label>
               <input
                 type="password"
                 className="form-input"
                 required
-                placeholder="At least 8 chars"
+                placeholder={t.atLeast8Chars}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
             <div className="form-group">
-              <label className="form-label">Confirm Password *</label>
+              <label className="form-label">{t.confirmPassword}</label>
               <input
                 type="password"
                 className="form-input"
                 required
-                placeholder="Re-enter password"
+                placeholder={t.reEnterPassword}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
@@ -171,7 +171,7 @@ export const PatientRegister: React.FC = () => {
                 <div style={{ flex: 1, background: passwordScore >= 4 ? 'var(--emerald-500)' : 'var(--slate-200)' }} />
               </div>
               <div style={{ fontSize: '0.72rem', color: 'var(--slate-500)', marginTop: '4px', textAlign: 'right' }}>
-                {passwordScore <= 1 ? 'Weak' : passwordScore === 2 ? 'Moderate' : passwordScore === 3 ? 'Strong' : 'Very Strong'}
+                {passwordScore <= 1 ? t.passWeak : passwordScore === 2 ? t.passModerate : passwordScore === 3 ? t.passStrong : t.passVeryStrong}
               </div>
             </div>
           )}
@@ -185,20 +185,20 @@ export const PatientRegister: React.FC = () => {
               onChange={(e) => setAgreeTerms(e.target.checked)}
             />
             <label htmlFor="termsCheck" style={{ fontSize: '0.8rem', color: 'var(--slate-600)', cursor: 'pointer', lineHeight: 1.4 }}>
-              I agree to the Department of Health, Medical & Family Welfare Terms of Service and Privacy Policy.
+              {t.agreeTermsLabel}
             </label>
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%' }}>
-            {loading ? 'Creating Account...' : 'Complete Patient Registration'}
+            {loading ? t.creatingAccount : t.completePatientReg}
             <ArrowRight size={16} />
           </button>
         </form>
 
         <div style={{ borderTop: '1px solid var(--slate-200)', marginTop: '24px', paddingTop: '18px', textAlign: 'center', fontSize: '0.85rem' }}>
-          <span style={{ color: 'var(--slate-500)' }}>Already have an account? </span>
+          <span style={{ color: 'var(--slate-500)' }}>{t.alreadyAccount} </span>
           <Link to="/patient/login" style={{ fontWeight: 700, color: 'var(--blue-600)' }}>
-            Sign In here
+            {t.loginHere}
           </Link>
         </div>
       </div>

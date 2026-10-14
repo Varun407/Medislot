@@ -10,7 +10,7 @@ import { Stethoscope, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react'
 export const DoctorRegister: React.FC = () => {
   const { login } = useAuth();
   const { success, error } = useToast();
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const navigate = useNavigate();
 
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
@@ -47,23 +47,23 @@ export const DoctorRegister: React.FC = () => {
     e.preventDefault();
 
     if (!fullName.trim() || !email.trim() || !phone.trim() || !qualifications.trim() || !password) {
-      error('Please fill in all required credentials.');
+      error(lang === 'te' ? 'దయచేసి అన్ని అవసరమైన వివరాలను నమోదు చేయండి.' : 'Please fill in all required credentials.');
       return;
     }
 
     const cleanPhone = phone.replace(/\D/g, '').slice(-10);
     if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
-      error('Please provide a valid 10-digit mobile number.');
+      error(lang === 'te' ? 'దయచేసి సరైన 10 అంకెల మొబైల్ నంబర్‌ను నమోదు చేయండి.' : 'Please provide a valid 10-digit mobile number.');
       return;
     }
 
     if (password.length < 8) {
-      error('Password must be at least 8 characters long.');
+      error(lang === 'te' ? 'పాస్‌వర్డ్ కనీసం 8 అక్షరాలు ఉండాలి.' : 'Password must be at least 8 characters long.');
       return;
     }
 
     if (password !== confirmPassword) {
-      error('Passwords do not match.');
+      error(lang === 'te' ? 'పాస్‌వర్డ్‌లు సరిపోలడం లేదు.' : 'Passwords do not match.');
       return;
     }
 
@@ -81,10 +81,10 @@ export const DoctorRegister: React.FC = () => {
         confirmPassword
       });
 
-      success(res.data.message || 'Doctor application submitted. Account pending approval.');
+      success(res.data.message || (lang === 'te' ? 'డాక్టర్ దరఖాస్తు సమర్పించబడింది. ఖాతా పరిశీలనలో ఉంది.' : 'Doctor application submitted. Account pending approval.'));
       navigate('/doctor/login');
     } catch (err: any) {
-      error(err.response?.data?.error || 'Doctor registration failed.');
+      error(err.response?.data?.error || (lang === 'te' ? 'డాక్టర్ రిజిస్ట్రేషన్ విఫలమైంది.' : 'Doctor registration failed.'));
     } finally {
       setLoading(false);
     }
@@ -98,28 +98,28 @@ export const DoctorRegister: React.FC = () => {
             <Stethoscope size={28} />
           </div>
           <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--navy-900)' }}>
-            Doctor Clinical Portal Registration
+            {t.doctorPortalRegTitle}
           </h2>
           <p style={{ fontSize: '0.84rem', color: 'var(--slate-500)', marginTop: '4px' }}>
-            Join the Andhra Pradesh Government OPD Consultation System
+            {t.doctorPortalRegSub}
           </p>
         </div>
 
         <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.82rem', color: '#92400e' }}>
           <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
           <div>
-            <strong>Notice on Doctor Verification:</strong> Doctor accounts are created with a <em>Pending Verification</em> status by default. The platform administrator will verify your medical license before you can appear as an active bookable provider.
+            <strong>{t.doctorVerifyNoticeTitle}</strong> {t.doctorVerifyNoticeText}
           </div>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Doctor Full Name (with Title) *</label>
+            <label className="form-label">{t.doctorNameWithTitle}</label>
             <input
               type="text"
               className="form-input"
               required
-              placeholder="e.g. Dr. K. Venkata Rao"
+              placeholder={lang === 'te' ? 'ఉదా: డాక్టర్ కె. వెంకటరావు' : 'e.g. Dr. K. Venkata Rao'}
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
             />
@@ -127,19 +127,19 @@ export const DoctorRegister: React.FC = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '14px' }}>
             <div className="form-group">
-              <label className="form-label">Email Address *</label>
+              <label className="form-label">{t.emailAddress} *</label>
               <input
                 type="email"
                 className="form-input"
                 required
-                placeholder="dr.name@medislot.gov.in"
+                placeholder={lang === 'te' ? 'dr.పేరు@medislot.gov.in' : 'dr.name@medislot.gov.in'}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
             <div className="form-group">
-              <label className="form-label">Mobile Number *</label>
+              <label className="form-label">{t.mobileNumber} *</label>
               <input
                 type="tel"
                 className="form-input"
@@ -153,18 +153,18 @@ export const DoctorRegister: React.FC = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
             <div className="form-group">
-              <label className="form-label">Medical Specialization *</label>
+              <label className="form-label">{t.medSpecialization}</label>
               <select className="form-select" value={specialization} onChange={(e) => setSpecialization(e.target.value)}>
                 {departments.map((d) => (
                   <option key={d.key} value={d.key}>
-                    {d.key}
+                    {lang === 'te' && d.nameTe ? d.nameTe : d.key}
                   </option>
                 ))}
               </select>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Years of Clinical Experience *</label>
+              <label className="form-label">{t.yearsExperience}</label>
               <input
                 type="number"
                 min="0"
@@ -178,23 +178,23 @@ export const DoctorRegister: React.FC = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Medical Qualifications *</label>
+            <label className="form-label">{t.medQualifications}</label>
             <input
               type="text"
               className="form-input"
               required
-              placeholder="e.g. MBBS, MD (General Medicine), DCH"
+              placeholder={lang === 'te' ? 'ఉదా: ఎంబీబీఎస్, ఎండీ (సాధారణ వైద్యం), డీసీహెచ్' : 'e.g. MBBS, MD (General Medicine), DCH'}
               value={qualifications}
               onChange={(e) => setQualifications(e.target.value)}
             />
           </div>
 
           <div className="form-group">
-            <label className="form-label">Assigned Hospital Facility *</label>
+            <label className="form-label">{t.assignedHospital}</label>
             <select className="form-select" value={hospitalId} onChange={(e) => setHospitalId(e.target.value)}>
               {hospitals.map((h) => (
                 <option key={h.id} value={h.id}>
-                  {h.nameEn} ({h.districtEn})
+                  {lang === 'te' && h.nameTe ? h.nameTe : h.nameEn} ({lang === 'te' && h.districtTe ? h.districtTe : h.districtEn})
                 </option>
               ))}
             </select>
@@ -202,24 +202,24 @@ export const DoctorRegister: React.FC = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
             <div className="form-group">
-              <label className="form-label">Password *</label>
+              <label className="form-label">{t.passwordLabel} *</label>
               <input
                 type="password"
                 className="form-input"
                 required
-                placeholder="At least 8 chars"
+                placeholder={t.atLeast8Chars}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
             <div className="form-group">
-              <label className="form-label">Confirm Password *</label>
+              <label className="form-label">{t.confirmPassword}</label>
               <input
                 type="password"
                 className="form-input"
                 required
-                placeholder="Re-enter password"
+                placeholder={t.reEnterPassword}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
@@ -227,15 +227,15 @@ export const DoctorRegister: React.FC = () => {
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginTop: '10px' }}>
-            {loading ? 'Submitting Application...' : 'Submit Doctor Application'}
+            {loading ? t.submittingApplication : t.submitDoctorApp}
             <ArrowRight size={16} />
           </button>
         </form>
 
         <div style={{ borderTop: '1px solid var(--slate-200)', marginTop: '24px', paddingTop: '18px', textAlign: 'center', fontSize: '0.85rem' }}>
-          <span style={{ color: 'var(--slate-500)' }}>Already registered? </span>
+          <span style={{ color: 'var(--slate-500)' }}>{t.alreadyRegistered} </span>
           <Link to="/doctor/login" style={{ fontWeight: 700, color: 'var(--emerald-600)' }}>
-            Sign In here
+            {t.loginHere}
           </Link>
         </div>
       </div>

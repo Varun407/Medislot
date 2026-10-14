@@ -22,7 +22,7 @@ import {
 export const DoctorDashboard: React.FC = () => {
   const { user } = useAuth();
   const { success, error } = useToast();
-  const { lang, t } = useLanguage();
+  const { lang, t, localizeStatus, localizeGender, localizeTime, localizeDept, localizeRoom } = useLanguage();
 
   const [queueState, setQueueState] = useState<DoctorQueueState | null>(null);
   const [loading, setLoading] = useState(true);
@@ -118,10 +118,10 @@ export const DoctorDashboard: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '14px' }}>
         <div>
           <h1 className="section-title">
-            {lang === 'te' ? 'డాక్టర్ ఓపీడీ లైవ్ క్యూ బోర్డ్' : 'Doctor OPD Live Queue Board'}
+            {t.doctorLiveQueueTitle}
           </h1>
           <p className="section-subtitle">
-            Physician: <strong>{user?.fullName}</strong> · Department: {user?.profile && (user.profile as any).specialization} · Room: {(user?.profile as any)?.roomNo || 'Room 102'}
+            {t.physicianLabel} <strong>{user?.fullName}</strong> · {t.deptLabel} {localizeDept(user?.profile && (user.profile as any).specialization)} · {t.roomLabel} {localizeRoom((user?.profile as any)?.roomNo || 'Room 102')}
           </p>
         </div>
 
@@ -132,11 +132,11 @@ export const DoctorDashboard: React.FC = () => {
           </button>
           <Link to="/doctor/availability" className="btn btn-secondary btn-sm">
             <Settings size={15} />
-            Manage Availability
+            {t.manageAvailability}
           </Link>
           <button className="btn btn-primary btn-sm" onClick={handleCallNext} disabled={callingNext}>
             <Megaphone size={15} />
-            {callingNext ? 'Calling...' : t.btnCallNext}
+            {callingNext ? t.callingNextPatient : t.btnCallNext}
           </button>
         </div>
       </div>
@@ -196,25 +196,25 @@ export const DoctorDashboard: React.FC = () => {
       <div className="med-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
           <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--navy-900)' }}>
-            Today's Patient Consultation Queue ({queueState?.appointmentDate})
+            {t.todaysQueueTitle} ({queueState?.appointmentDate})
           </h3>
           <span style={{ fontSize: '0.8rem', color: 'var(--slate-500)' }}>
-            Auto-refreshing every 15s · Total: {queueState?.totalPatients || 0} Patients
+            {t.autoRefreshing} {queueState?.totalPatients || 0} {t.patientsCount}
           </span>
         </div>
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '40px' }}>
             <div className="pulse-dot" style={{ margin: '0 auto 8px' }} />
-            <p style={{ color: 'var(--slate-500)', fontSize: '0.85rem' }}>Loading OPD queue...</p>
+            <p style={{ color: 'var(--slate-500)', fontSize: '0.85rem' }}>{t.loadingOpdQueue}</p>
           </div>
         ) : !queueState?.patients || queueState.patients.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px', background: 'var(--slate-50)', borderRadius: '10px' }}>
             <p style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--slate-600)' }}>
-              No patients booked in queue for today yet.
+              {t.noPatientsInQueue}
             </p>
             <p style={{ fontSize: '0.82rem', color: 'var(--slate-400)', marginTop: '4px' }}>
-              Use the "Issue Walk-in Token" button to register counter patients arriving directly at the hospital.
+              {t.walkinNotice}
             </p>
           </div>
         ) : (
@@ -224,7 +224,7 @@ export const DoctorDashboard: React.FC = () => {
                 <tr style={{ borderBottom: '2px solid var(--slate-200)', textAlign: 'left', color: 'var(--slate-500)', fontSize: '0.78rem' }}>
                   <th style={{ padding: '10px 12px' }}>{t.colToken}</th>
                   <th style={{ padding: '10px 12px' }}>{t.colPatient}</th>
-                  <th style={{ padding: '10px 12px' }}>AGE / GENDER</th>
+                  <th style={{ padding: '10px 12px' }}>{t.colAgeGender}</th>
                   <th style={{ padding: '10px 12px' }}>{t.colSlot}</th>
                   <th style={{ padding: '10px 12px' }}>{t.colSymptoms}</th>
                   <th style={{ padding: '10px 12px' }}>{t.colStatus}</th>
@@ -253,20 +253,20 @@ export const DoctorDashboard: React.FC = () => {
                         <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>+91 {p.patientPhone} · {p.id}</div>
                       </td>
                       <td style={{ padding: '12px' }}>
-                        {p.patientAge || '32'} Yrs · {p.patientGender}
+                        {p.patientAge || '32'} {t.ageYrs} · {localizeGender(p.patientGender)}
                       </td>
                       <td style={{ padding: '12px' }}>
-                        <div style={{ fontWeight: 600 }}>{p.slotTime}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>Rep: {p.reportingTime}</div>
+                        <div style={{ fontWeight: 600 }}>{localizeTime(p.slotTime)}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>{t.repShort} {localizeTime(p.reportingTime)}</div>
                       </td>
                       <td style={{ padding: '12px', maxWidth: '200px' }}>
                         <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--slate-600)' }}>
-                          {p.symptoms || 'General OPD'}
+                          {p.symptoms || (lang === 'te' ? 'సాధారణ ఓపీడీ' : 'General OPD')}
                         </div>
                       </td>
                       <td style={{ padding: '12px' }}>
                         <span className={`status-pill status-${p.status.toLowerCase()}`}>
-                          {p.status}
+                          {localizeStatus(p.status)}
                         </span>
                       </td>
                       <td style={{ padding: '12px' }}>
@@ -276,18 +276,18 @@ export const DoctorDashboard: React.FC = () => {
                             value={p.status}
                             onChange={(e) => handleUpdateStatus(p.id, e.target.value)}
                           >
-                            <option value="CONFIRMED">CONFIRMED</option>
-                            <option value="CALLED">CALLED</option>
-                            <option value="IN_CONSULTATION">IN_CONSULTATION</option>
-                            <option value="COMPLETED">COMPLETED</option>
-                            <option value="NO_SHOW">NO_SHOW</option>
-                            <option value="CANCELLED">CANCELLED</option>
+                            <option value="CONFIRMED">{t.statusConfirmed}</option>
+                            <option value="CALLED">{t.statusCalled}</option>
+                            <option value="IN_CONSULTATION">{t.statusInConsult}</option>
+                            <option value="COMPLETED">{t.statusCompleted}</option>
+                            <option value="NO_SHOW">{t.statusNoShow}</option>
+                            <option value="CANCELLED">{t.statusCancelled}</option>
                           </select>
                           <button
                             className="btn btn-secondary btn-sm"
                             style={{ padding: '3px 8px' }}
                             onClick={() => setSelectedSlip(p)}
-                            title="Print Token Slip"
+                            title={t.printTokenSlip}
                           >
                             <Printer size={12} />
                           </button>
@@ -307,18 +307,18 @@ export const DoctorDashboard: React.FC = () => {
         <div className="modal-overlay" onClick={() => setIsWalkinOpen(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
             <div className="modal-header">
-              <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>Issue Counter Walk-in Token</h3>
+              <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>{t.issueWalkinTitle}</h3>
               <button className="toast-close" onClick={() => setIsWalkinOpen(false)}>×</button>
             </div>
             <div className="modal-body">
               <form onSubmit={handleIssueWalkin}>
                 <div className="form-group">
-                  <label className="form-label">Patient Full Name *</label>
+                  <label className="form-label">{t.patientFullNameReq}</label>
                   <input
                     type="text"
                     className="form-input"
                     required
-                    placeholder="Patient Name"
+                    placeholder={t.fullNamePlaceholder}
                     value={walkinName}
                     onChange={(e) => setWalkinName(e.target.value)}
                   />
@@ -326,7 +326,7 @@ export const DoctorDashboard: React.FC = () => {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div className="form-group">
-                    <label className="form-label">Contact Phone</label>
+                    <label className="form-label">{t.contactPhoneOptional}</label>
                     <input
                       type="tel"
                       className="form-input"
@@ -335,7 +335,7 @@ export const DoctorDashboard: React.FC = () => {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Age (Years)</label>
+                    <label className="form-label">{t.ageYearsOptional}</label>
                     <input
                       type="number"
                       className="form-input"
@@ -346,27 +346,27 @@ export const DoctorDashboard: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Gender</label>
+                  <label className="form-label">{t.genderLabel}</label>
                   <select className="form-select" value={walkinGender} onChange={(e) => setWalkinGender(e.target.value)}>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
+                    <option value="Male">{t.genderMale}</option>
+                    <option value="Female">{t.genderFemale}</option>
+                    <option value="Other">{t.genderOther}</option>
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Symptoms / Complaint</label>
+                  <label className="form-label">{t.symptomsComplaint}</label>
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="e.g. fever, acute cough, trauma"
+                    placeholder={t.symptomsPlaceholder}
                     value={walkinSymptoms}
                     onChange={(e) => setWalkinSymptoms(e.target.value)}
                   />
                 </div>
 
                 <button type="submit" className="btn btn-primary" disabled={walkinLoading} style={{ width: '100%', marginTop: '10px' }}>
-                  {walkinLoading ? 'Generating Token...' : 'Generate & Print Walk-in Token'}
+                  {walkinLoading ? t.generatingToken : t.generatePrintWalkin}
                 </button>
               </form>
             </div>
