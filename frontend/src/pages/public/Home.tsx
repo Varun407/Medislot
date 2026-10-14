@@ -13,11 +13,12 @@ import {
   Clock,
   ArrowRight,
   Search,
-  CheckCircle2
+  CheckCircle2,
+  PhoneCall
 } from 'lucide-react';
 
 export const Home: React.FC = () => {
-  const { t, lang, localizeDept, localizeQual, localizeRoom, localizeTime, localizeHospital } = useLanguage();
+  const { t, lang, localizeDoctor, localizeDept, localizeHospital, localizeQual, localizeRoom, localizeTime } = useLanguage();
   const navigate = useNavigate();
 
   const [stats, setStats] = useState<PublicStats | null>(null);
@@ -126,7 +127,7 @@ export const Home: React.FC = () => {
                   value={selectedHosp}
                   onChange={(e) => setSelectedHosp(e.target.value)}
                 >
-                  <option value="all">{t.allHospitalsOption}</option>
+                  <option value="all">{lang === 'te' ? 'అన్ని ప్రభుత్వ ఆసుపత్రులు' : 'All AP Government Hospitals'}</option>
                   {hospitals.map((h) => (
                     <option key={h.id} value={h.id}>
                       {lang === 'te' ? h.nameTe : h.nameEn}
@@ -164,7 +165,7 @@ export const Home: React.FC = () => {
 
               <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '8px' }}>
                 <Search size={16} />
-                {t.searchAvailability}
+                {lang === 'te' ? 'లభ్యతను శోధించండి' : 'Search OPD Availability'}
               </button>
             </form>
           </div>
@@ -210,14 +211,14 @@ export const Home: React.FC = () => {
         <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <div>
             <h2 className="section-title">
-              {t.popularDepts}
+              {lang === 'te' ? 'ప్రముఖ వైద్య విభాగాలు' : 'Specialized Clinical Departments'}
             </h2>
             <p className="section-subtitle">
-              {t.popularDeptsDesc}
+              {lang === 'te' ? 'అనుభవజ్ఞులైన నిపుణులతో ఉచిత ప్రభుత్వ వైద్య సంప్రదింపులు' : 'Comprehensive OPD care provided across West Godavari and referral institutions'}
             </p>
           </div>
           <Link to="/doctors" className="btn btn-outline btn-sm">
-            {t.viewAllDepts}
+            {lang === 'te' ? 'అన్ని విభాగాలు' : 'View All Departments'}
             <ArrowRight size={14} />
           </Link>
         </div>
@@ -233,7 +234,7 @@ export const Home: React.FC = () => {
                 {lang === 'te' ? d.descriptionTe : d.descriptionEn}
               </p>
               <Link to={`/doctors?department=${encodeURIComponent(d.key)}`} style={{ fontSize: '0.82rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                {t.consultSpecialist} →
+                {lang === 'te' ? 'వైద్యులను చూడండి' : 'Consult Specialist'} →
               </Link>
             </div>
           ))}
@@ -246,14 +247,14 @@ export const Home: React.FC = () => {
           <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
             <div>
               <h2 className="section-title">
-                {t.activeGovDoctors}
+                {lang === 'te' ? 'అందుబాటులో ఉన్న ప్రభుత్వ వైద్యులు' : 'Active Duty Government Physicians'}
               </h2>
               <p className="section-subtitle">
-                {t.activeGovDoctorsDesc}
+                {lang === 'te' ? 'పరిశీలించబడిన మరియు అధికారికంగా కేటాయించబడిన నిపుణులు' : 'Verified clinical doctors available for sequential token OPD booking'}
               </p>
             </div>
             <Link to="/doctors" className="btn btn-primary btn-sm">
-              {t.fullDoctorDir}
+              {lang === 'te' ? 'అన్ని ప్రొఫైల్స్ చూడండి' : 'Full Doctor Directory'}
               <ArrowRight size={14} />
             </Link>
           </div>
@@ -265,7 +266,7 @@ export const Home: React.FC = () => {
                   <span style={{ fontSize: '2.5rem' }}>{doc.emoji || '👨🏻‍⚕️'}</span>
                   <div>
                     <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--navy-900)', margin: 0 }}>
-                      {lang === 'te' ? doc.nameTe : doc.nameEn}
+                      {lang === 'te' ? (doc.nameTe || localizeDoctor(doc.nameEn)) : doc.nameEn}
                     </h3>
                     <p style={{ fontSize: '0.8rem', color: 'var(--blue-600)', fontWeight: 600, margin: '2px 0' }}>
                       {localizeQual(doc.qual)}
@@ -279,7 +280,7 @@ export const Home: React.FC = () => {
                 <div style={{ fontSize: '0.82rem', color: 'var(--slate-600)', margin: '10px 0', borderTop: '1px solid var(--slate-100)', paddingTop: '10px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
                     <Building2 size={13} color="var(--slate-400)" />
-                    <span>{hospitals.find(h => h.id === doc.hospitalId) ? (lang === 'te' ? hospitals.find(h => h.id === doc.hospitalId)!.nameTe : hospitals.find(h => h.id === doc.hospitalId)!.nameEn) : localizeHospital(doc.hospitalId)}</span>
+                    <span>{localizeHospital(doc.hospitalId)}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
                     <Clock size={13} color="var(--slate-400)" />
@@ -294,7 +295,7 @@ export const Home: React.FC = () => {
                 <div style={{ marginTop: 'auto', paddingTop: '12px' }}>
                   <Link to={`/patient/book?doctor=${encodeURIComponent(doc.nameEn)}`} className="btn btn-primary btn-sm" style={{ width: '100%' }}>
                     <Calendar size={14} />
-                    {t.bookAppointment}
+                    {lang === 'te' ? 'అపాయింట్‌మెంట్ బుక్ చేయండి' : 'Book Appointment'}
                   </Link>
                 </div>
               </div>

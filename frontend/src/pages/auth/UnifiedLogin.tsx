@@ -14,13 +14,14 @@ import {
   User as UserIcon,
   Eye,
   EyeOff,
-  Sparkles
+  Sparkles,
+  Globe
 } from 'lucide-react';
 
 export const UnifiedLogin: React.FC = () => {
   const { user, isAuthenticated, role, login } = useAuth();
   const { success, error } = useToast();
-  const { lang, t } = useLanguage();
+  const { lang, t, toggleLang } = useLanguage();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -48,7 +49,7 @@ export const UnifiedLogin: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password) {
-      error(lang === 'te' ? 'దయచేసి మీ ఈమెయిల్ మరియు పాస్‌వర్డ్ నమోదు చేయండి.' : 'Please enter your email and password.');
+      error(lang === 'te' ? 'దయచేసి మీ ఇమెయిల్ మరియు పాస్‌వర్డ్ నమోదు చేయండి.' : 'Please enter your email and password.');
       return;
     }
 
@@ -61,23 +62,23 @@ export const UnifiedLogin: React.FC = () => {
 
       if (authUser.role === 'DOCTOR') {
         if (authUser.verificationStatus === 'PENDING') {
-          success(lang === 'te' ? `స్వాగతం డాక్టర్ ${authUser.fullName}! మీ లైసెన్స్ పరిశీలనలో ఉంది.` : `Welcome Dr. ${authUser.fullName}! Your verification is pending.`);
+          success(lang === 'te' ? `స్వాగతం డాక్టర్ ${authUser.fullName}! మీ ధృవీకరణ పెండింగ్‌లో ఉంది.` : `Welcome Dr. ${authUser.fullName}! Your verification is pending.`);
           navigate('/doctor/pending', { replace: true });
         } else {
-          success(lang === 'te' ? `స్వాగతం డాక్టర్ ${authUser.fullName}! ఓపీడీ క్యూ తెరుచుకుంటోంది.` : `Welcome Dr. ${authUser.fullName}! Opening Doctor OPD Queue.`);
+          success(lang === 'te' ? `స్వాగతం డాక్టర్ ${authUser.fullName}! ఓపీడీ క్యూ తెరవబడుతోంది.` : `Welcome Dr. ${authUser.fullName}! Opening Doctor OPD Queue.`);
           navigate('/doctor/dashboard', { replace: true });
         }
       } else if (authUser.role === 'PATIENT') {
-        success(lang === 'te' ? `తిరిగి స్వాగతం, ${authUser.fullName}! రోగి పోర్టల్ తెరుచుకుంటోంది.` : `Welcome back, ${authUser.fullName}! Opening Patient Portal.`);
+        success(lang === 'te' ? `స్వాగతం, ${authUser.fullName}! రోగి పోర్టల్ తెరవబడుతోంది.` : `Welcome back, ${authUser.fullName}! Opening Patient Portal.`);
         navigate('/patient/dashboard', { replace: true });
       } else if (authUser.role === 'ADMIN') {
-        success(lang === 'te' ? `చీఫ్ మెడికల్ అడ్మినిస్ట్రేటర్ లాగిన్ అయ్యారు.` : `Chief Medical Administrator authenticated.`);
+        success(lang === 'te' ? 'చీఫ్ మెడికల్ అడ్మినిస్ట్రేటర్ ప్రామాణీకరించబడ్డారు.' : `Chief Medical Administrator authenticated.`);
         navigate('/admin/dashboard', { replace: true });
       } else {
         navigate('/patient/dashboard', { replace: true });
       }
     } catch (err: any) {
-      error(err.response?.data?.error || (lang === 'te' ? 'చెల్లని ఈమెయిల్ లేదా పాస్‌వర్డ్.' : 'Invalid email or password.'));
+      error(err.response?.data?.error || (lang === 'te' ? 'సరైన ఇమెయిల్ లేదా పాస్‌వర్డ్ కాదు.' : 'Invalid email or password.'));
     } finally {
       setLoading(false);
     }
@@ -99,7 +100,32 @@ export const UnifiedLogin: React.FC = () => {
   };
 
   return (
-    <div className="main-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '75vh', padding: '30px 16px' }}>
+    <div className="main-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', padding: '24px 16px' }}>
+      {/* Top minimal bar with Language Toggle only */}
+      <div style={{ maxWidth: '480px', width: '100%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '14px' }}>
+        <button
+          type="button"
+          onClick={toggleLang}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: 'var(--slate-100)',
+            border: '1px solid var(--slate-300)',
+            borderRadius: '20px',
+            padding: '5px 12px',
+            fontSize: '0.78rem',
+            fontWeight: 700,
+            color: 'var(--navy-900)',
+            cursor: 'pointer'
+          }}
+          title="Toggle Language"
+        >
+          <Globe size={13} color="var(--blue-600)" />
+          {lang === 'en' ? 'తెలుగు' : 'English'}
+        </button>
+      </div>
+
       <div className="med-card" style={{ maxWidth: '480px', width: '100%', padding: '38px 32px', boxShadow: 'var(--shadow-xl)', border: '1px solid var(--slate-200)' }}>
         {/* Emblem & Branding Header */}
         <div style={{ textAlign: 'center', marginBottom: '26px' }}>
@@ -164,7 +190,7 @@ export const UnifiedLogin: React.FC = () => {
                 type="email"
                 className="form-input"
                 required
-                placeholder={lang === 'te' ? 'మీ.ఈమెయిల్@medislot.gov.in' : 'your.email@medislot.gov.in'}
+                placeholder="your.email@medislot.gov.in"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
@@ -199,7 +225,7 @@ export const UnifiedLogin: React.FC = () => {
                   cursor: 'pointer',
                   padding: 0
                 }}
-                title={showPassword ? (lang === 'te' ? 'పాస్‌వర్డ్ దాచండి' : 'Hide password') : (lang === 'te' ? 'పాస్‌వర్డ్ చూపించండి' : 'Show password')}
+                title={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -241,3 +267,4 @@ export const UnifiedLogin: React.FC = () => {
     </div>
   );
 };
+

@@ -9,7 +9,7 @@ import { User, Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
 export const PatientLogin: React.FC = () => {
   const { login } = useAuth();
   const { success, error } = useToast();
-  const { lang, t } = useLanguage();
+  const { lang } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -20,7 +20,7 @@ export const PatientLogin: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password) {
-      error(lang === 'te' ? 'దయచేసి మీ ఈమెయిల్ మరియు పాస్‌వర్డ్‌ను నమోదు చేయండి.' : 'Please enter your email and password.');
+      error('Please enter your email and password.');
       return;
     }
 
@@ -28,12 +28,12 @@ export const PatientLogin: React.FC = () => {
     try {
       const res = await apiClient.post('/auth/patient/login', { email, password });
       login(res.data.user, res.data.token);
-      success(lang === 'te' ? 'రోగిగా విజయవంతంగా లాగిన్ అయ్యారు.' : 'Logged in successfully as Patient.');
+      success('Logged in successfully as Patient.');
 
       const destination = (location.state as any)?.from?.pathname || '/patient/dashboard';
       navigate(destination, { replace: true });
     } catch (err: any) {
-      error(err.response?.data?.error || (lang === 'te' ? 'చెల్లని ఇమెయిల్ లేదా పాస్‌వర్డ్.' : 'Invalid email or password.'));
+      error(err.response?.data?.error || 'Invalid email or password.');
     } finally {
       setLoading(false);
     }
@@ -47,22 +47,22 @@ export const PatientLogin: React.FC = () => {
             <User size={28} />
           </div>
           <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--navy-900)' }}>
-            {t.patientLoginTitle}
+            {lang === 'te' ? 'రోగి పోర్టల్ లాగిన్' : 'Patient Portal Sign In'}
           </h2>
           <p style={{ fontSize: '0.84rem', color: 'var(--slate-500)', marginTop: '4px' }}>
-            {t.patientLoginSub}
+            Access your OPD consultation slips & token records
           </p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">{t.emailAddress}</label>
+            <label className="form-label">Email Address</label>
             <div style={{ position: 'relative' }}>
               <input
                 type="email"
                 className="form-input"
                 required
-                placeholder={lang === 'te' ? 'మీ.ఈమెయిల్@example.com' : 'your.email@example.com'}
+                placeholder="your.email@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -70,7 +70,7 @@ export const PatientLogin: React.FC = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">{t.passwordLabel}</label>
+            <label className="form-label">Password</label>
             <div style={{ position: 'relative' }}>
               <input
                 type="password"
@@ -84,21 +84,21 @@ export const PatientLogin: React.FC = () => {
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginTop: '10px' }}>
-            {loading ? t.authenticating : t.signInAsPatient}
+            {loading ? 'Authenticating...' : 'Sign In as Patient'}
             <ArrowRight size={16} />
           </button>
         </form>
 
         <div style={{ borderTop: '1px solid var(--slate-200)', marginTop: '24px', paddingTop: '18px', textAlign: 'center', fontSize: '0.85rem' }}>
-          <span style={{ color: 'var(--slate-500)' }}>{t.noAccountYet} </span>
+          <span style={{ color: 'var(--slate-500)' }}>Don't have a patient account yet? </span>
           <Link to="/patient/register" style={{ fontWeight: 700, color: 'var(--blue-600)' }}>
-            {t.registerHere}
+            Register here
           </Link>
         </div>
 
         <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '0.78rem', color: 'var(--slate-400)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
           <ShieldCheck size={14} color="var(--emerald-600)" />
-          {t.apEncryptedNotice}
+          Protected by AP Health encrypted authentication
         </div>
       </div>
     </div>

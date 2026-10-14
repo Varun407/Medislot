@@ -6,7 +6,7 @@ import { Clock, Check, Plus, Trash2, Save } from 'lucide-react';
 
 export const DoctorAvailability: React.FC = () => {
   const { success, error } = useToast();
-  const { lang, t } = useLanguage();
+  const { lang, t, localizeTime } = useLanguage();
 
   const [todayAvailable, setTodayAvailable] = useState<boolean>(true);
   const [consultationHours, setConsultationHours] = useState('8:30 AM - 2:00 PM');
@@ -34,7 +34,7 @@ export const DoctorAvailability: React.FC = () => {
   const handleAddSlot = () => {
     if (!newSlot.trim()) return;
     if (slots.includes(newSlot.trim())) {
-      error(lang === 'te' ? 'ఈ స్లాట్ ఇప్పటికే ఉంది.' : 'Slot already exists.');
+      error(lang === 'te' ? 'స్లాట్ ఇప్పటికే ఉంది.' : 'Slot already exists.');
       return;
     }
     setSlots([...slots, newSlot.trim()]);
@@ -53,7 +53,7 @@ export const DoctorAvailability: React.FC = () => {
         todayAvailable,
         slots
       });
-      success(lang === 'te' ? 'లభ్యత రోస్టర్ షెడ్యూల్ విజయవంతంగా నవీకరించబడింది.' : 'Availability roster schedule updated successfully.');
+      success(lang === 'te' ? 'లభ్యత రోస్టర్ షెడ్యూల్ విజయవంతంగా సేవ్ చేయబడింది.' : 'Availability roster schedule updated successfully.');
     } catch (err: any) {
       error(err.response?.data?.error || (lang === 'te' ? 'షెడ్యూల్ సేవ్ చేయడం విఫలమైంది.' : 'Failed to save schedule.'));
     } finally {
@@ -128,7 +128,7 @@ export const DoctorAvailability: React.FC = () => {
                     fontSize: '0.84rem'
                   }}
                 >
-                  <span>{slot}</span>
+                  <span>{localizeTime(slot)}</span>
                   <button
                     type="button"
                     onClick={() => handleRemoveSlot(slot)}

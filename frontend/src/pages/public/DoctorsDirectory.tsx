@@ -6,7 +6,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { Search, Filter, Calendar, Building2, Clock, CheckCircle } from 'lucide-react';
 
 export const DoctorsDirectory: React.FC = () => {
-  const { lang, t, localizeDept, localizeQual, localizeRoom, localizeTime, localizeHospital } = useLanguage();
+  const { lang, t, localizeDoctor, localizeDept, localizeHospital, localizeQual, localizeRoom, localizeTime } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -158,14 +158,14 @@ export const DoctorsDirectory: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '22px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '22px' }}>
           {doctors.map((doc) => (
             <div key={doc.id} className="med-card" style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', marginBottom: '12px' }}>
-                <span style={{ fontSize: '2.8rem' }}>{doc.emoji || '👨🏻‍⚕️'}</span>
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                <span style={{ fontSize: '2.6rem' }}>{doc.emoji || '👨🏻‍⚕️'}</span>
                 <div>
-                  <h3 style={{ fontSize: '1.18rem', fontWeight: 800, color: 'var(--navy-900)', margin: 0 }}>
-                    {lang === 'te' ? doc.nameTe : doc.nameEn}
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--navy-900)', margin: 0 }}>
+                    {localizeDoctor(doc.nameEn, doc.nameTe)}
                   </h3>
                   <p style={{ fontSize: '0.82rem', color: 'var(--blue-600)', fontWeight: 600, margin: '2px 0' }}>
                     {localizeQual(doc.qual)}
@@ -180,7 +180,7 @@ export const DoctorsDirectory: React.FC = () => {
               <div style={{ margin: '14px 0', fontSize: '0.83rem', color: 'var(--slate-600)', background: 'var(--slate-50)', padding: '12px', borderRadius: '8px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                   <Building2 size={14} color="var(--blue-600)" />
-                  <span>{hospitals.find(h => h.id === doc.hospitalId) ? (lang === 'te' ? hospitals.find(h => h.id === doc.hospitalId)!.nameTe : hospitals.find(h => h.id === doc.hospitalId)!.nameEn) : localizeHospital(doc.hospitalId)} · {localizeRoom(doc.roomNo)}</span>
+                  <span>{localizeHospital(doc.hospitalId)} · {localizeRoom(doc.roomNo)}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Clock size={14} color="var(--emerald-600)" />
@@ -191,7 +191,7 @@ export const DoctorsDirectory: React.FC = () => {
               {/* Slot Availability Counter */}
               <div style={{ marginBottom: '16px' }}>
                 <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--slate-500)', textTransform: 'uppercase', marginBottom: '6px' }}>
-                  {t.availableSlotsCount} ({date}): {doc.availableSlots?.length || 0}
+                  {lang === 'te' ? `${date} తేదీకి స్లాట్లు:` : `Slots for ${date}:`} {doc.availableSlots?.length || 0} {t.availableSlotsCount}
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                   {doc.availableSlots && doc.availableSlots.length > 0 ? (

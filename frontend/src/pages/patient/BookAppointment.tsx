@@ -11,7 +11,7 @@ import { Calendar, Clock, Building2, Stethoscope, ArrowRight, CheckCircle2, User
 export const BookAppointment: React.FC = () => {
   const { user } = useAuth();
   const { success, error } = useToast();
-  const { lang, t, localizeDept, localizeQual, localizeRoom, localizeTime, localizeLanguages } = useLanguage();
+  const { lang, t, localizeDept, localizeHospital, localizeDoctor, localizeQual, localizeRoom, localizeTime, localizeLanguages } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -99,7 +99,7 @@ export const BookAppointment: React.FC = () => {
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedDoctorName || !appointmentDate || !slotTime) {
-      error(lang === 'te' ? 'దయచేసి వైద్యుడిని, అపాయింట్‌మెంట్ తేదీని మరియు అందుబాటు స్లాట్‌ను ఎంచుకోండి.' : 'Please select a doctor, appointment date, and available time slot.');
+      error(lang === 'te' ? 'దయచేసి వైద్యుడిని, అపాయింట్‌మెంట్ తేదీని మరియు అందుబాటులో ఉన్న స్లాట్‌ను ఎంచుకోండి.' : 'Please select a doctor, appointment date, and available time slot.');
       return;
     }
 
@@ -116,7 +116,7 @@ export const BookAppointment: React.FC = () => {
         symptoms
       });
 
-      success(lang === 'te' ? 'ఓపీడీ అపాయింట్‌మెంట్ నిర్ధారించబడింది! మీ క్రమ సంఖ్య టోకెన్ జారీ చేయబడింది.' : 'OPD Appointment confirmed! Your sequential token is generated.');
+      success(lang === 'te' ? 'ఓపీడీ అపాయింట్‌మెంట్ ధృవీకరించబడింది! మీ క్రమ సంఖ్య డిజిటల్ టోకెన్ జారీ చేయబడింది.' : 'OPD Appointment confirmed! Your sequential token is generated.');
       setConfirmedAppointment(res.data.appointment);
     } catch (err: any) {
       error(err.response?.data?.error || (lang === 'te' ? 'అపాయింట్‌మెంట్ స్లాట్ రిజర్వ్ చేయడం విఫలమైంది.' : 'Failed to reserve appointment slot.'));
@@ -190,7 +190,7 @@ export const BookAppointment: React.FC = () => {
                 ) : (
                   doctors.map((d) => (
                     <option key={d.id} value={d.nameEn}>
-                      {lang === 'te' ? d.nameTe : d.nameEn} ({localizeDept(d.spec)} - {localizeQual(d.qual)})
+                      {localizeDoctor(d.nameEn, d.nameTe)} ({localizeDept(d.spec)} - {localizeQual(d.qual)})
                     </option>
                   ))
                 )}
@@ -204,13 +204,13 @@ export const BookAppointment: React.FC = () => {
               <span style={{ fontSize: '2.4rem' }}>{activeDoctor.emoji || '👨🏻‍⚕️'}</span>
               <div style={{ flex: 1 }}>
                 <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--navy-900)' }}>
-                  {lang === 'te' ? activeDoctor.nameTe : activeDoctor.nameEn}
+                  {localizeDoctor(activeDoctor.nameEn, activeDoctor.nameTe)}
                 </h4>
                 <p style={{ margin: '2px 0', fontSize: '0.8rem', color: 'var(--blue-600)', fontWeight: 600 }}>
                   {localizeDept(activeDoctor.spec)} · {localizeQual(activeDoctor.qual)} · {localizeRoom(activeDoctor.roomNo)}
                 </p>
                 <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--slate-500)' }}>
-                  {t.opdHours}: {localizeTime(activeDoctor.hours)} · {lang === 'te' ? 'భాషలు:' : 'Languages:'} {localizeLanguages(activeDoctor.languages)}
+                  {lang === 'te' ? 'ఓపీడీ వేళలు: ' : 'OPD Schedule: '}{localizeTime(activeDoctor.hours)} · {lang === 'te' ? 'మాట్లాడే భాషలు: ' : 'Languages: '}{localizeLanguages(activeDoctor.languages)}
                 </p>
               </div>
             </div>
@@ -219,7 +219,7 @@ export const BookAppointment: React.FC = () => {
           {/* Step 3: Available Time Slots */}
           <div className="form-group" style={{ marginBottom: '24px' }}>
             <label className="form-label">
-              {t.lblSlot} ({appointmentDate}) *
+              {lang === 'te' ? `${appointmentDate} తేదీకి అందుబాటులో ఉన్న స్లాట్లు *` : `Available Time Slots for ${appointmentDate} *`}
             </label>
             {activeDoctor && activeDoctor.availableSlots && activeDoctor.availableSlots.length > 0 ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: '10px', marginTop: '8px' }}>
