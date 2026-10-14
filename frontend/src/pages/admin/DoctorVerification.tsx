@@ -20,9 +20,11 @@ export const DoctorVerification: React.FC = () => {
       if (searchTerm.trim()) params.search = searchTerm.trim();
 
       const res = await apiClient.get('/admin/doctors', { params });
-      setDoctors(res.data);
-    } catch (err) {
+      setDoctors(Array.isArray(res.data) ? res.data : []);
+    } catch (err: any) {
       console.error('Failed to load doctors for verification:', err);
+      error(err.response?.data?.error || 'Failed to load doctors for verification.');
+      setDoctors([]);
     } finally {
       setLoading(false);
     }
@@ -99,107 +101,110 @@ export const DoctorVerification: React.FC = () => {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {doctors.map((doc) => (
-            <div
-              key={doc.userId}
-              className="med-card"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1.2fr 1.2fr 1fr auto',
-                gap: '16px',
-                alignItems: 'center',
-                borderLeft: doc.verificationStatus === 'PENDING'
-                  ? '4px solid var(--amber-500)'
-                  : doc.verificationStatus === 'VERIFIED'
-                  ? '4px solid var(--emerald-500)'
-                  : '4px solid var(--rose-500)'
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: 'var(--navy-900)' }}>
-                    {doc.fullName}
-                  </h3>
-                  <span className={`status-pill status-${doc.verificationStatus.toLowerCase()}`}>
-                    {doc.verificationStatus}
-                  </span>
-                </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--blue-600)', fontWeight: 600, marginTop: '2px' }}>
-                  {doc.specialization} · {doc.qualifications}
-                </div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--slate-500)', marginTop: '4px' }}>
-                  Email: {doc.email} · Phone: +91 {doc.phone}
-                </div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: '0.82rem', color: 'var(--slate-700)' }}>
-                  <strong>Assigned Facility:</strong> {doc.hospitalName || doc.hospitalId}
-                </div>
-                <div style={{ fontSize: '0.82rem', color: 'var(--slate-700)', marginTop: '2px' }}>
-                  <strong>Clinical Experience:</strong> {doc.experienceYears} Years
-                </div>
-                <div style={{ fontSize: '0.76rem', color: 'var(--slate-400)', marginTop: '4px' }}>
-                  Applied: {doc.registeredAt ? new Date(doc.registeredAt).toLocaleDateString() : '-'}
-                </div>
-              </div>
-
-              <div>
-                {doc.verificationStatus === 'VERIFIED' && (
-                  <div style={{ fontSize: '0.75rem', color: 'var(--emerald-700)', background: 'var(--emerald-50)', padding: '6px 10px', borderRadius: '6px' }}>
-                    ✓ Active in public OPD booking catalog
+          {doctors.map((doc) => {
+            const vStatus = (doc.verificationStatus || 'PENDING').toUpperCase();
+            return (
+              <div
+                key={doc.userId || doc.id || Math.random().toString()}
+                className="med-card"
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1.2fr 1.2fr 1fr auto',
+                  gap: '16px',
+                  alignItems: 'center',
+                  borderLeft: vStatus === 'PENDING'
+                    ? '4px solid var(--amber-500)'
+                    : vStatus === 'VERIFIED'
+                    ? '4px solid var(--emerald-500)'
+                    : '4px solid var(--rose-500)'
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: 'var(--navy-900)' }}>
+                      {doc.fullName || 'Unnamed Doctor'}
+                    </h3>
+                    <span className={`status-pill status-${vStatus.toLowerCase()}`}>
+                      {vStatus}
+                    </span>
                   </div>
-                )}
-                {doc.verificationStatus === 'PENDING' && (
-                  <div style={{ fontSize: '0.75rem', color: '#b45309', background: '#fef3c7', padding: '6px 10px', borderRadius: '6px' }}>
-                    ⏳ Awaiting DMHO license check
+                  <div style={{ fontSize: '0.8rem', color: 'var(--blue-600)', fontWeight: 600, marginTop: '2px' }}>
+                    {doc.specialization || 'Specialist'} · {doc.qualifications || 'Medical Degree'}
                   </div>
-                )}
-                {doc.verificationStatus === 'SUSPENDED' && (
-                  <div style={{ fontSize: '0.75rem', color: 'var(--rose-700)', background: 'var(--rose-50)', padding: '6px 10px', borderRadius: '6px' }}>
-                    ✕ Suspended / Inactive
+                  <div style={{ fontSize: '0.78rem', color: 'var(--slate-500)', marginTop: '4px' }}>
+                    Email: {doc.email || '-'} · Phone: +91 {doc.phone || '-'}
                   </div>
-                )}
+                </div>
+
+                <div>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--slate-700)' }}>
+                    <strong>Assigned Facility:</strong> {doc.hospitalName || doc.hospitalId || 'General Hospital'}
+                  </div>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--slate-700)', marginTop: '2px' }}>
+                    <strong>Clinical Experience:</strong> {doc.experienceYears ?? 0} Years
+                  </div>
+                  <div style={{ fontSize: '0.76rem', color: 'var(--slate-400)', marginTop: '4px' }}>
+                    Applied: {doc.registeredAt ? new Date(doc.registeredAt).toLocaleDateString() : '-'}
+                  </div>
+                </div>
+
+                <div>
+                  {vStatus === 'VERIFIED' && (
+                    <div style={{ fontSize: '0.75rem', color: 'var(--emerald-700)', background: 'var(--emerald-50)', padding: '6px 10px', borderRadius: '6px' }}>
+                      ✓ Active in public OPD booking catalog
+                    </div>
+                  )}
+                  {vStatus === 'PENDING' && (
+                    <div style={{ fontSize: '0.75rem', color: '#b45309', background: '#fef3c7', padding: '6px 10px', borderRadius: '6px' }}>
+                      ⏳ Awaiting DMHO license check
+                    </div>
+                  )}
+                  {vStatus === 'SUSPENDED' && (
+                    <div style={{ fontSize: '0.75rem', color: 'var(--rose-700)', background: 'var(--rose-50)', padding: '6px 10px', borderRadius: '6px' }}>
+                      ✕ Suspended / Inactive
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {vStatus !== 'VERIFIED' && (
+                    <button
+                      className="btn btn-success btn-sm"
+                      disabled={actionInProgress === doc.userId}
+                      onClick={() => handleUpdateStatus(doc.userId, 'VERIFIED')}
+                    >
+                      <Check size={14} />
+                      Approve Doctor
+                    </button>
+                  )}
+
+                  {vStatus === 'PENDING' && (
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      disabled={actionInProgress === doc.userId}
+                      onClick={() => handleUpdateStatus(doc.userId, 'REJECTED')}
+                      style={{ color: 'var(--rose-600)' }}
+                    >
+                      <X size={14} />
+                      Reject
+                    </button>
+                  )}
+
+                  {vStatus === 'VERIFIED' && (
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      disabled={actionInProgress === doc.userId}
+                      onClick={() => handleUpdateStatus(doc.userId, 'SUSPENDED')}
+                      style={{ color: 'var(--rose-600)' }}
+                    >
+                      Suspend
+                    </button>
+                  )}
+                </div>
               </div>
-
-              {/* Action Buttons */}
-              <div style={{ display: 'flex', gap: '8px' }}>
-                {doc.verificationStatus !== 'VERIFIED' && (
-                  <button
-                    className="btn btn-success btn-sm"
-                    disabled={actionInProgress === doc.userId}
-                    onClick={() => handleUpdateStatus(doc.userId, 'VERIFIED')}
-                  >
-                    <Check size={14} />
-                    Approve Doctor
-                  </button>
-                )}
-
-                {doc.verificationStatus === 'PENDING' && (
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    disabled={actionInProgress === doc.userId}
-                    onClick={() => handleUpdateStatus(doc.userId, 'REJECTED')}
-                    style={{ color: 'var(--rose-600)' }}
-                  >
-                    <X size={14} />
-                    Reject
-                  </button>
-                )}
-
-                {doc.verificationStatus === 'VERIFIED' && (
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    disabled={actionInProgress === doc.userId}
-                    onClick={() => handleUpdateStatus(doc.userId, 'SUSPENDED')}
-                    style={{ color: 'var(--rose-600)' }}
-                  >
-                    Suspend
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

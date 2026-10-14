@@ -711,6 +711,7 @@ async function all(sql, params = []) {
             const u = userMap.get(dp.userId) || {};
             return {
                 ...dp,
+                verificationStatus: dp.verificationStatus || 'PENDING',
                 email: u.email || '',
                 userStatus: u.status || 'ACTIVE',
                 registeredAt: u.createdAt || dp.updatedAt
