@@ -101,8 +101,22 @@ export const UnifiedLogin: React.FC = () => {
 
   return (
     <div className="main-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', padding: '24px 16px' }}>
-      {/* Top minimal bar with Language Toggle only */}
-      <div style={{ maxWidth: '480px', width: '100%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '14px' }}>
+      {/* Top minimal bar with Home navigation and Language Toggle */}
+      <div style={{ maxWidth: '480px', width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+        <Link
+          to="/"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '0.82rem',
+            fontWeight: 700,
+            color: 'var(--blue-600)',
+            textDecoration: 'none'
+          }}
+        >
+          ← {lang === 'te' ? 'హోమ్‌కు తిరిగి వెళ్ళండి' : 'Back to MediSlot Home'}
+        </Link>
         <button
           type="button"
           onClick={toggleLang}

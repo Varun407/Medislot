@@ -63,6 +63,46 @@ export const translations = {
     fullDoctorDir: "పూర్తి వైద్యుల జాబితా",
     bookAppointment: "అపాయింట్‌మెంట్ బుక్ చేయండి",
 
+    // Landing Page Sections
+    howItWorksTitle: "ఓపీడీ స్లాట్ ఎలా బుక్ చేయాలి?",
+    howItWorksSub: "4 సాధారణ దశల్లో ఉచిత ప్రభుత్వ వైద్య సంప్రదింపులను పొందండి",
+    step1Title: "వైద్యుడిని & విభాగాన్ని ఎంచుకోండి",
+    step1Desc: "మీ సమీప ప్రభుత్వ ఆసుపత్రి మరియు కావలసిన వైద్య విభాగాన్ని ఎంచుకోండి.",
+    step2Title: "స్లాట్ సమయాన్ని ఎంచుకోండి",
+    step2Desc: "మీకు అనుకూలమైన ఓపీడీ వేళను ఎంచుకుని ఆన్‌లైన్‌లో తక్షణమే డిజిటల్ టోకెన్ పొందండి.",
+    step3Title: "లైన్లలో నిలబడే శ్రమ లేదు",
+    step3Desc: "ఆసుపత్రికి చేరుకున్న వెంటనే లైవ్ డిజిటల్ స్క్రీన్‌పై మీ టోకెన్ నంబర్ చూసి సంప్రదించండి.",
+    step4Title: "ఉచిత వైద్యం & మందులు",
+    step4Desc: "ఆరోగ్యశ్రీ పథకం కింద నూరు శాతం ఉచిత వైద్య పరీక్షలు, వైద్య సలహాలు మరియు మందులు పొందండి.",
+    
+    roleGatewaysTitle: "అన్ని వర్గాల వారికి ప్రత్యేక పోర్టల్స్",
+    roleGatewaysSub: "పౌరులు, ప్రభుత్వ వైద్యులు మరియు ఆసుపత్రి అడ్మినిస్ట్రేటర్ల కోసం ప్రత్యేక సేవలు",
+    forPatientsTitle: "రోగులు & పౌరులు",
+    forPatientsDesc: "మీ ఇంటి వద్ద నుంచే ఓపీడీ టోకెన్ బుక్ చేయండి, స్లిప్ ప్రింట్ చేయండి మరియు వైద్య చరిత్రను చూడండి.",
+    forDoctorsTitle: "ప్రభుత్వ వైద్యులు",
+    forDoctorsDesc: "లైవ్ ఓపీడీ క్యూ బోర్డ్, ఒకే క్లిక్‌తో తదుపరి టోకెన్ పిలుపు మరియు డ్యూటీ రోస్టర్ నిర్వహణ.",
+    forAdminsTitle: "ఆసుపత్రి పరిపాలన",
+    forAdminsDesc: "పడకల లభ్యత పర్యవేక్షణ, వైద్యుల ఆధారాల పరిశీలన మరియు పౌర ఫిర్యాదుల పరిష్కారం.",
+    
+    whyMediSlotTitle: "మెడిస్లాట్ ఎందుకు?",
+    whyMediSlotSub: "ఆంధ్రప్రదేశ్ ప్రభుత్వం అందించే ఆధునిక ప్రజా ఆరోగ్య డిజిటల్ వ్యవస్థ",
+    whyFeature1Title: "వేచి ఉండే సమయం 85% తగ్గుదల",
+    whyFeature1Desc: "ఉదయాన్నే 4 గంటలకే ఆసుపత్రి కౌంటర్లలో నిలబడాల్సిన అవసరం లేదు.",
+    whyFeature2Title: "లైవ్ డిజిటల్ టోకెన్ డిస్‌ప్లే",
+    whyFeature2Desc: "డాక్టర్ రూమ్ వద్ద ఏ టోకెన్ నడుస్తుందో లైవ్‌గా తెలుసుకోవచ్చు.",
+    whyFeature3Title: "ఆరోగ్యశ్రీ & ఆభా గుర్తింపు",
+    whyFeature3Desc: "ఆయుష్మాన్ భారత్ హెల్త్ అకౌంట్ (ABHA) ద్వారా సమగ్ర డిజిటల్ హెల్త్ రికార్డులు.",
+    whyFeature4Title: "పారదర్శక క్యూ నిర్వహణ",
+    whyFeature4Desc: "క్రమ సంఖ్య ఆధారంగా పారదర్శకంగా రోగులను పిలవడం జరుగుతుంది.",
+    whyFeature5Title: "ద్విభాషా పోర్టల్",
+    whyFeature5Desc: "తెలుగు మరియు ఆంగ్ల భాషలలో అందరికీ సులభంగా అర్థమయ్యే రీతిలో రూపకల్పన.",
+    whyFeature6Title: "జిల్లా అధికారి (డీఎంహెచ్‌ఓ) పర్యవేక్షణ",
+    whyFeature6Desc: "పౌర సమస్యలు మరియు సలహాలపై నేరుగా జిల్లా వైద్య అధికారి నిఘా.",
+
+    faqSectionTitle: "తరచూ అడిగే ప్రశ్నలు (FAQ)",
+    faqSectionSub: "మెడిస్లాట్ ఓపీడీ మరియు ఆసుపత్రి సేవల గురించి పూర్తి సమాచారం",
+
+
     // OPD Booking & Directory
     bookingTitle: "ఓపీడీ అపాయింట్‌మెంట్ బుకింగ్",
     bookingSubtitle: "పరిశీలించబడిన ఆసుపత్రి నిపుణుడిని ఎంచుకోండి, తెరిచి ఉన్న స్లాట్‌ను ఎంచుకుని అధికారిక డిజిటల్ టోకెన్ పొందండి.",
@@ -444,6 +484,46 @@ export const translations = {
     activeGovDoctorsDesc: "Verified clinical doctors available for sequential token OPD booking",
     fullDoctorDir: "Full Doctor Directory",
     bookAppointment: "Book Appointment",
+
+    // Landing Page Sections
+    howItWorksTitle: "How MediSlot Works",
+    howItWorksSub: "Four seamless steps from home booking to hassle-free specialist consultation",
+    step1Title: "Select Hospital & Doctor",
+    step1Desc: "Browse verified doctors across 9 clinical specialties in West Godavari & AP government hospitals.",
+    step2Title: "Reserve OPD Time Slot",
+    step2Desc: "Pick your preferred consultation slot online and receive an instant digital QR token slip.",
+    step3Title: "Skip Morning Queue Lines",
+    step3Desc: "Arrive 15 mins prior to your slot. No 4 AM counter lines—your sequential token is displayed on live monitors.",
+    step4Title: "Free Care & Medicines",
+    step4Desc: "Consult specialist physician, complete free diagnostic tests, and receive generic medicines under Aarogyasri.",
+    
+    roleGatewaysTitle: "Dedicated Stakeholder Portals",
+    roleGatewaysSub: "Tailored workspaces designed for citizens, active physicians, and hospital administrators",
+    forPatientsTitle: "Citizens & Patients",
+    forPatientsDesc: "Book OPD appointments from home, track live token position, and download digital slips.",
+    forDoctorsTitle: "Government Physicians",
+    forDoctorsDesc: "Real-time consultation queue board, 1-click token call chime, and duty shift management.",
+    forAdminsTitle: "Hospital Administrators",
+    forAdminsDesc: "Real-time bed tracker audits, doctor credential approvals, and citizen grievance resolution.",
+    
+    whyMediSlotTitle: "Why MediSlot?",
+    whyMediSlotSub: "Pioneering smart digital healthcare delivery across Andhra Pradesh public hospitals",
+    whyFeature1Title: "85% Less Waiting Time",
+    whyFeature1Desc: "Eliminates pre-dawn queues outside hospital registration counters.",
+    whyFeature2Title: "Live Digital Queue Board",
+    whyFeature2Desc: "Know exactly which token is inside the doctor room in real-time.",
+    whyFeature3Title: "Aarogyasri & ABHA Linked",
+    whyFeature3Desc: "Seamless health history integration under government healthcare schemes.",
+    whyFeature4Title: "Fair Sequential Queues",
+    whyFeature4Desc: "Tamper-proof chronological calling ensures equitable patient access.",
+    whyFeature5Title: "Bilingual Experience",
+    whyFeature5Desc: "Full accessibility in both Telugu (తెలుగు) and English for all citizens.",
+    whyFeature6Title: "Direct DMHO Oversight",
+    whyFeature6Desc: "Official citizen feedback routed directly to District Medical Officers for rapid action.",
+
+    faqSectionTitle: "Frequently Asked Questions",
+    faqSectionSub: "Clear answers on government OPD tokens, hospital beds, and consultation procedures",
+
 
     // OPD Booking & Directory
     bookingTitle: "OPD Appointment Booking",
