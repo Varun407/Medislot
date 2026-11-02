@@ -22,4 +22,8 @@ router.get('/opd/queue', adminController.getDoctorOpdQueue);
 router.post('/opd/queue/call-next', adminController.callNextOpdToken);
 router.patch('/opd/queue/status', adminController.updateAppointmentStatus);
 
+// Citizen Grievance Redressal
+router.get('/grievances', adminController.getGrievances);
+router.patch('/grievances/:id/status', adminController.updateGrievanceStatus);
+
 module.exports = router;

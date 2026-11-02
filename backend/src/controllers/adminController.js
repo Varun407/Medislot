@@ -38,6 +38,15 @@ async function getDashboardStats(req, res, next) {
             FROM hospitals
         `);
 
+        const grievanceStats = await get(`
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 'SUBMITTED' THEN 1 ELSE 0 END) as submitted,
+                SUM(CASE WHEN status = 'IN_REVIEW' THEN 1 ELSE 0 END) as inReview,
+                SUM(CASE WHEN status = 'RESOLVED' THEN 1 ELSE 0 END) as resolved
+            FROM grievances
+        `);
+
         const recentAudits = await all(`
             SELECT * FROM audit_logs ORDER BY createdAt DESC LIMIT 8
         `);
@@ -63,6 +72,13 @@ async function getDashboardStats(req, res, next) {
                 availableBeds: hospitalBeds.totalBeds || 0,
                 icuBeds: hospitalBeds.icuBeds || 0,
                 oxygenBeds: hospitalBeds.oxygenBeds || 0
+            },
+            grievances: {
+                total: grievanceStats?.total || 0,
+                submitted: grievanceStats?.submitted || 0,
+                inReview: grievanceStats?.inReview || 0,
+                resolved: grievanceStats?.resolved || 0,
+                rejected: grievanceStats?.rejected || 0
             },
             recentAudits
         });
@@ -603,6 +619,76 @@ async function updateAppointmentStatus(req, res, next) {
     }
 }
 
+// 10. Grievances Management (Citizen Feedback & Redressal)
+async function getGrievances(req, res, next) {
+    try {
+        const { status, category, search, limit } = req.query;
+        let sql = 'SELECT * FROM grievances WHERE 1=1';
+        const params = [];
+
+        if (status && status !== 'ALL') {
+            sql += ' AND status = ?';
+            params.push(status);
+        }
+        if (category && category !== 'ALL') {
+            sql += ' AND category = ?';
+            params.push(category);
+        }
+        if (search && search.trim()) {
+            sql += ' AND (citizenName LIKE ? OR message LIKE ? OR id LIKE ?)';
+            const s = `%${search.trim()}%`;
+            params.push(s);
+        }
+
+        sql += ' ORDER BY createdAt DESC';
+        if (limit) {
+            sql += ` LIMIT ${parseInt(limit, 10) || 50}`;
+        }
+
+        const grievances = await all(sql, params);
+        res.json(grievances);
+    } catch (err) {
+        next(err);
+    }
+}
+
+async function updateGrievanceStatus(req, res, next) {
+    try {
+        const { id } = req.params;
+        const { status, remarks } = req.body;
+        const validStatuses = ['SUBMITTED', 'IN_REVIEW', 'RESOLVED', 'REJECTED'];
+
+        if (!status || !validStatuses.includes(status)) {
+            return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+        }
+
+        const existing = await get('SELECT * FROM grievances WHERE id = ?', [id]);
+        if (!existing) {
+            return res.status(404).json({ error: 'Grievance record not found.' });
+        }
+
+        await run('UPDATE grievances SET status = ? WHERE id = ?', [status, id]);
+
+        await createAuditLog({
+            actorUserId: req.user.id,
+            actorRole: req.user.role,
+            action: 'GRIEVANCE_STATUS_UPDATE',
+            resource: 'Grievance',
+            resourceId: id,
+            details: `Status updated from ${existing.status} to ${status}${remarks ? `. Remarks: ${remarks}` : ''}`,
+            ipAddress: req.ip
+        });
+
+        const updated = await get('SELECT * FROM grievances WHERE id = ?', [id]);
+        res.json({
+            message: `Grievance ${id} status updated to ${status} successfully.`,
+            grievance: updated
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     getDashboardStats,
     getDoctors,
@@ -615,5 +701,7 @@ module.exports = {
     updateDoctorOpdConfig,
     getDoctorOpdQueue,
     callNextOpdToken,
-    updateAppointmentStatus
+    updateAppointmentStatus,
+    getGrievances,
+    updateGrievanceStatus
 };

@@ -27,32 +27,23 @@ export const Footer: React.FC = () => {
             </p>
           </div>
 
-          {isAuthenticated ? (
-            <div className="footer-col">
-              <h4>{lang === 'te' ? 'త్వరిత లింకులు' : 'Quick Links'}</h4>
-              <ul>
-                <li><Link to="/doctors">{t.navDoctors}</Link></li>
-                <li><Link to="/hospitals">{t.navHospitals}</Link></li>
-                <li><Link to="/grievance">{t.navGrievance}</Link></li>
-              </ul>
-            </div>
-          ) : (
-            <div className="footer-col">
-              <h4>{lang === 'te' ? 'భద్రత & ప్రవేశం' : 'Security & Access'}</h4>
-              <p style={{ color: '#94b8e3', fontSize: '0.8rem', lineHeight: 1.5 }}>
-                {lang === 'te'
-                  ? 'వైద్య రికార్డులు & ఆసుపత్రి క్యూ సమాచారం సురక్షిత లాగిన్ ద్వారా మాత్రమే లభ్యమవుతుంది.'
-                  : 'Medical records and hospital queue rosters are strictly secured behind verified role authentication.'}
-              </p>
-            </div>
-          )}
+          <div className="footer-col">
+            <h4>{lang === 'te' ? 'త్వరిత లింకులు' : 'Quick Links'}</h4>
+            <ul>
+              <li><Link to="/">{t.navHome || 'Home'}</Link></li>
+              <li><Link to="/doctors">{t.navDoctors}</Link></li>
+              <li><Link to="/hospitals">{t.navHospitals}</Link></li>
+              <li><Link to="/grievance">{t.navGrievance}</Link></li>
+            </ul>
+          </div>
 
           <div className="footer-col">
             <h4>{lang === 'te' ? 'పోర్టల్ ప్రవేశం' : 'Portal Access'}</h4>
             <ul>
-              <li><Link to="/">{lang === 'te' ? 'పోర్టల్ లాగిన్' : 'Sign In'}</Link></li>
+              <li><Link to="/login">{lang === 'te' ? 'పోర్టల్ లాగిన్' : 'Sign In'}</Link></li>
               <li><Link to="/patient/register">{lang === 'te' ? 'రోగి రిజిస్ట్రేషన్' : 'Patient Registration'}</Link></li>
               <li><Link to="/doctor/register">{lang === 'te' ? 'వైద్యుల రిజిస్ట్రేషన్' : 'Doctor Registration'}</Link></li>
+              <li><Link to="/control-center/login">{lang === 'te' ? 'అడ్మిన్ కంట్రోల్ సెంటర్' : 'Admin Portal'}</Link></li>
             </ul>
           </div>
 

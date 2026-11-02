@@ -8,6 +8,7 @@ import { Footer } from './components/common/Footer';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 
 // Public Pages
+import { LandingPage } from './pages/public/LandingPage';
 import { Home } from './pages/public/Home';
 import { DoctorsDirectory } from './pages/public/DoctorsDirectory';
 import { HospitalsDirectory } from './pages/public/HospitalsDirectory';
@@ -50,43 +51,15 @@ export const App: React.FC = () => {
 
               <main style={{ flex: 1 }}>
                 <Routes>
-                  {/* Root directly renders Unified Login */}
-                  <Route path="/" element={<UnifiedLogin />} />
+                  {/* Public Landing Page at Root instead of opening direct login */}
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/home" element={<LandingPage />} />
                   <Route path="/login" element={<UnifiedLogin />} />
 
-                  {/* Authenticated-Only Content Routes (No content can be accessed without login) */}
-                  <Route
-                    path="/home"
-                    element={
-                      <ProtectedRoute allowedRoles={['PATIENT', 'DOCTOR', 'ADMIN']}>
-                        <Home />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/doctors"
-                    element={
-                      <ProtectedRoute allowedRoles={['PATIENT', 'DOCTOR', 'ADMIN']}>
-                        <DoctorsDirectory />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/hospitals"
-                    element={
-                      <ProtectedRoute allowedRoles={['PATIENT', 'DOCTOR', 'ADMIN']}>
-                        <HospitalsDirectory />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/grievance"
-                    element={
-                      <ProtectedRoute allowedRoles={['PATIENT', 'DOCTOR', 'ADMIN']}>
-                        <Grievances />
-                      </ProtectedRoute>
-                    }
-                  />
+                  {/* Public Information Pages */}
+                  <Route path="/doctors" element={<DoctorsDirectory />} />
+                  <Route path="/hospitals" element={<HospitalsDirectory />} />
+                  <Route path="/grievance" element={<Grievances />} />
 
                   {/* Authentication Routes (all point to UnifiedLogin for role-based auto-redirection) */}
                   <Route path="/patient/login" element={<UnifiedLogin />} />
