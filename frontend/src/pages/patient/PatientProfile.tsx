@@ -15,6 +15,7 @@ export const PatientProfile: React.FC = () => {
   const [age, setAge] = useState<string>('');
   const [gender, setGender] = useState<string>('Female');
   const [abhaId, setAbhaId] = useState<string>('');
+  const [aadhar, setAadhar] = useState<string>('');
   const [address, setAddress] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
@@ -29,6 +30,7 @@ export const PatientProfile: React.FC = () => {
           if (p.age) setAge(String(p.age));
           if (p.gender) setGender(p.gender);
           if (p.abhaId) setAbhaId(p.abhaId);
+          if (p.aadhar) setAadhar(p.aadhar);
           if (p.address) setAddress(p.address);
         }
       } catch (err) {
@@ -48,6 +50,7 @@ export const PatientProfile: React.FC = () => {
         age: age ? parseInt(age, 10) : undefined,
         gender,
         abhaId,
+        aadhar,
         address
       });
       await refreshUser();
@@ -142,6 +145,21 @@ export const PatientProfile: React.FC = () => {
               value={abhaId}
               onChange={(e) => setAbhaId(e.target.value)}
             />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">{t.aadharLabel || (lang === 'te' ? 'ఆధార్ సంఖ్య (12 అంకెలు)' : 'Aadhaar Number (12 digits)')}</label>
+            <input
+              type="text"
+              className="form-input"
+              maxLength={14}
+              placeholder={lang === 'te' ? 'ఉదా: 5678 9012 3456' : 'e.g. 5678 9012 3456'}
+              value={aadhar}
+              onChange={(e) => setAadhar(e.target.value)}
+            />
+            <div style={{ fontSize: '0.74rem', color: 'var(--slate-500)', marginTop: '4px' }}>
+              {lang === 'te' ? '💡 మీ ఆధార్ నంబర్‌తో నేరుగా లాగిన్ చేయవచ్చు.' : '💡 Enables quick sign-in with your 12-digit Aadhaar number.'}
+            </div>
           </div>
 
           <div className="form-group">

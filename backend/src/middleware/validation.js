@@ -10,6 +10,12 @@ function isValidPhone(phone) {
     return /^[6-9]\d{9}$/.test(clean);
 }
 
+function isValidAadhar(aadhar) {
+    if (!aadhar) return false;
+    const clean = String(aadhar).replace(/\D/g, '');
+    return /^\d{12}$/.test(clean);
+}
+
 function isValidPassword(password) {
     if (!password || typeof password !== 'string') return false;
     // At least 8 characters, at least 1 digit or symbol
@@ -17,7 +23,7 @@ function isValidPassword(password) {
 }
 
 function validatePatientRegistration(req, res, next) {
-    const { fullName, email, phone, password, confirmPassword } = req.body;
+    const { fullName, email, phone, aadhar, aadhaar, password, confirmPassword } = req.body;
 
     if (!fullName || !fullName.trim()) {
         return res.status(400).json({ error: 'Full name is required.' });
@@ -27,6 +33,10 @@ function validatePatientRegistration(req, res, next) {
     }
     if (!isValidPhone(phone)) {
         return res.status(400).json({ error: 'Please enter a valid 10-digit mobile number.' });
+    }
+    const aadharInput = aadhar || aadhaar;
+    if (aadharInput && !isValidAadhar(aadharInput)) {
+        return res.status(400).json({ error: 'Please enter a valid 12-digit Aadhaar number.' });
     }
     if (!isValidPassword(password)) {
         return res.status(400).json({
@@ -41,6 +51,7 @@ function validatePatientRegistration(req, res, next) {
         fullName: fullName.trim(),
         email: email.trim().toLowerCase(),
         phone: String(phone).replace(/\D/g, '').slice(-10),
+        aadhar: aadharInput ? String(aadharInput).replace(/\D/g, '') : '',
         password
     };
     next();
@@ -97,12 +108,23 @@ function validateDoctorRegistration(req, res, next) {
 }
 
 function validateLoginInput(req, res, next) {
-    const { email, password } = req.body;
-    if (!email || !email.trim() || !password) {
-        return res.status(400).json({ error: 'Email and password are required.' });
+    const rawIdentifier = (
+        req.body.identifier ||
+        req.body.email ||
+        req.body.phone ||
+        req.body.mobile ||
+        req.body.aadhar ||
+        req.body.aadhaar ||
+        ''
+    ).trim();
+    const { password } = req.body;
+
+    if (!rawIdentifier || !password) {
+        return res.status(400).json({ error: 'Email, phone number, or Aadhaar number and password are required.' });
     }
     req.cleanBody = {
-        email: email.trim().toLowerCase(),
+        identifier: rawIdentifier,
+        email: rawIdentifier.toLowerCase(),
         password
     };
     next();
@@ -111,6 +133,7 @@ function validateLoginInput(req, res, next) {
 module.exports = {
     isValidEmail,
     isValidPhone,
+    isValidAadhar,
     isValidPassword,
     validatePatientRegistration,
     validateDoctorRegistration,

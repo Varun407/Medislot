@@ -15,6 +15,7 @@ export const PatientRegister: React.FC = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [aadhar, setAadhar] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
@@ -46,6 +47,12 @@ export const PatientRegister: React.FC = () => {
       return;
     }
 
+    const cleanAadhar = aadhar.replace(/\D/g, '');
+    if (aadhar.trim() && cleanAadhar.length !== 12) {
+      error(lang === 'te' ? 'ఆధార్ నంబర్ ఖచ్చితంగా 12 అంకెలు ఉండాలి.' : 'Aadhaar number must be exactly 12 digits.');
+      return;
+    }
+
     if (password.length < 8) {
       error(lang === 'te' ? 'పాస్‌వర్డ్ కనీసం 8 అక్షరాలు ఉండాలి.' : 'Password must be at least 8 characters in length.');
       return;
@@ -67,6 +74,7 @@ export const PatientRegister: React.FC = () => {
         fullName,
         email,
         phone: cleanPhone,
+        aadhar: cleanAadhar || undefined,
         password,
         confirmPassword
       });
@@ -138,6 +146,23 @@ export const PatientRegister: React.FC = () => {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">
+              {t.aadharOptional || (lang === 'te' ? 'ఆధార్ నంబర్ (ఐచ్ఛికం - 12 అంకెలు)' : 'Aadhaar Number (Optional - 12 digits)')}
+            </label>
+            <input
+              type="text"
+              className="form-input"
+              maxLength={14}
+              placeholder={lang === 'te' ? 'ఉదా: 5678 9012 3456 (సులభంగా లాగిన్ అవ్వడానికి)' : 'e.g. 5678 9012 3456 (Enables quick Aadhaar sign-in)'}
+              value={aadhar}
+              onChange={(e) => setAadhar(e.target.value)}
+            />
+            <div style={{ fontSize: '0.74rem', color: 'var(--slate-500)', marginTop: '4px' }}>
+              {lang === 'te' ? '💡 మీ ఆధార్‌ను ఇక్కడ లింక్ చేస్తే భవిష్యత్తులో ఆధార్ నంబర్‌తో నేరుగా లాగిన్ చేయవచ్చు.' : '💡 Linking Aadhaar enables instant 1-click sign in with your 12-digit Aadhaar number.'}
             </div>
           </div>
 

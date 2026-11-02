@@ -13,20 +13,24 @@ export const DoctorLogin: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !password) {
-      error('Please enter your medical email and password.');
+    if (!identifier.trim() || !password) {
+      error(lang === 'te' ? 'దయచేసి మీ ఇమెయిల్, ఫోన్ లేదా ఆధార్ నంబర్ మరియు పాస్‌వర్డ్ నమోదు చేయండి.' : 'Please enter your medical email, phone, or Aadhaar and password.');
       return;
     }
 
     setLoading(true);
     try {
-      const res = await apiClient.post('/auth/doctor/login', { email, password });
+      const res = await apiClient.post('/auth/doctor/login', {
+        identifier: identifier.trim(),
+        email: identifier.trim(), // backward compat
+        password
+      });
       login(res.data.user, res.data.token);
 
       if (res.data.user.verificationStatus === 'PENDING') {
@@ -38,7 +42,7 @@ export const DoctorLogin: React.FC = () => {
         navigate(destination, { replace: true });
       }
     } catch (err: any) {
-      error(err.response?.data?.error || 'Invalid doctor credentials.');
+      error(err.response?.data?.error || (lang === 'te' ? 'సరైన ఆధారాలు కావు.' : 'Invalid doctor credentials.'));
     } finally {
       setLoading(false);
     }
@@ -61,15 +65,25 @@ export const DoctorLogin: React.FC = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Doctor Email (Official / Registered)</label>
+            <label className="form-label">
+              {lang === 'te' ? 'వైద్యుల ఇమెయిల్ / ఫోన్ / ఆధార్ నంబర్' : 'Doctor Email / Phone / Aadhaar'}
+            </label>
             <input
-              type="email"
+              type="text"
               className="form-input"
               required
-              placeholder="dr.name@medislot.gov.in"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="dr.name@medislot.gov.in, phone, or Aadhaar"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              autoComplete="username"
             />
+            <div style={{ display: 'flex', gap: '8px', fontSize: '0.72rem', color: 'var(--slate-500)', marginTop: '4px' }}>
+              <span>📧 Official Email</span>
+              <span>·</span>
+              <span>📱 Registered Phone</span>
+              <span>·</span>
+              <span>🪪 Aadhaar</span>
+            </div>
           </div>
 
           <div className="form-group">

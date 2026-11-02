@@ -389,6 +389,60 @@ describe('Medislot Backend Comprehensive Tests', () => {
         assert.equal(data.user.role, 'PATIENT');
     });
 
+    test('20b. Unified login succeeds using 10-digit mobile phone number', async () => {
+        const res = await fetch(`${baseUrl}/api/v1/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                identifier: '9848123456',
+                password: 'PatientPassword@2026'
+            })
+        });
+
+        assert.equal(res.status, 200);
+        const data = await res.json();
+        assert.equal(data.user.role, 'PATIENT');
+        assert.equal(data.user.phone, '9848123456');
+    });
+
+    test('20c. Unified login succeeds using 12-digit Aadhaar number', async () => {
+        const res = await fetch(`${baseUrl}/api/v1/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                identifier: '567890123456',
+                password: 'PatientPass@2026'
+            })
+        });
+
+        assert.equal(res.status, 200);
+        const data = await res.json();
+        assert.equal(data.user.role, 'PATIENT');
+        assert.equal(data.user.aadhar, '567890123456');
+    });
+
+    test('20d. Dedicated patient login endpoint succeeds using phone and aadhaar', async () => {
+        const resPhone = await fetch(`${baseUrl}/api/v1/auth/patient/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                identifier: '9848123456',
+                password: 'PatientPassword@2026'
+            })
+        });
+        assert.equal(resPhone.status, 200);
+
+        const resAadhar = await fetch(`${baseUrl}/api/v1/auth/patient/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                identifier: '567890123456',
+                password: 'PatientPass@2026'
+            })
+        });
+        assert.equal(resAadhar.status, 200);
+    });
+
     test('21. Admin can retrieve OPD doctors roster and queue counts', async () => {
         const res = await fetch(`${baseUrl}/api/v1/admin/opd/doctors`, {
             headers: { 'Authorization': `Bearer ${adminToken}` }

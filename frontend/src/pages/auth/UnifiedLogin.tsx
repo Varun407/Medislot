@@ -24,10 +24,22 @@ export const UnifiedLogin: React.FC = () => {
   const { lang, t, toggleLang } = useLanguage();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Helper to detect identifier type for quick user feedback
+  const getIdentifierType = (val: string) => {
+    const clean = val.trim();
+    if (!clean) return null;
+    if (clean.includes('@')) return 'email';
+    const digits = clean.replace(/\D/g, '');
+    if (digits.length === 12) return 'aadhar';
+    if (digits.length === 10 || (digits.length > 10 && clean.startsWith('+'))) return 'phone';
+    return null;
+  };
+  const detectedType = getIdentifierType(identifier);
 
   // If already authenticated, redirect directly to role dashboard
   useEffect(() => {
@@ -48,15 +60,19 @@ export const UnifiedLogin: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !password) {
-      error(lang === 'te' ? 'దయచేసి మీ ఇమెయిల్ మరియు పాస్‌వర్డ్ నమోదు చేయండి.' : 'Please enter your email and password.');
+    if (!identifier.trim() || !password) {
+      error(lang === 'te' ? 'దయచేసి మీ ఇమెయిల్, ఫోన్ లేదా ఆధార్ నంబర్ మరియు పాస్‌వర్డ్ నమోదు చేయండి.' : 'Please enter your email, phone, or Aadhaar number and password.');
       return;
     }
 
     setLoading(true);
     try {
-      // Calls unified login endpoint that identifies DOCTOR, PATIENT, or ADMIN
-      const res = await apiClient.post('/auth/login', { email: email.trim().toLowerCase(), password });
+      // Calls unified login endpoint that identifies DOCTOR, PATIENT, or ADMIN by Email, Phone, or Aadhaar
+      const res = await apiClient.post('/auth/login', {
+        identifier: identifier.trim(),
+        email: identifier.trim(), // backward compatibility
+        password
+      });
       const authUser = res.data.user;
       login(authUser, res.data.token);
 
@@ -78,24 +94,34 @@ export const UnifiedLogin: React.FC = () => {
         navigate('/patient/dashboard', { replace: true });
       }
     } catch (err: any) {
-      error(err.response?.data?.error || (lang === 'te' ? 'సరైన ఇమెయిల్ లేదా పాస్‌వర్డ్ కాదు.' : 'Invalid email or password.'));
+      error(err.response?.data?.error || (lang === 'te' ? 'సరైన వివరాలు లేదా పాస్‌వర్డ్ కాదు.' : 'Invalid email, phone, Aadhaar, or password.'));
     } finally {
       setLoading(false);
     }
   };
 
   const fillDoctorDemo = () => {
-    setEmail('dr.ramesh@medislot.gov.in');
+    setIdentifier('dr.ramesh@medislot.gov.in');
     setPassword('DoctorPass@2026');
   };
 
-  const fillPatientDemo = () => {
-    setEmail('patient@medislot.gov.in');
+  const fillPatientPhoneDemo = () => {
+    setIdentifier('9849012345');
+    setPassword('PatientPass@2026');
+  };
+
+  const fillPatientAadharDemo = () => {
+    setIdentifier('567890123456');
+    setPassword('PatientPass@2026');
+  };
+
+  const fillPatientEmailDemo = () => {
+    setIdentifier('patient@medislot.gov.in');
     setPassword('PatientPass@2026');
   };
 
   const fillAdminDemo = () => {
-    setEmail('admin@medislot.gov.in');
+    setIdentifier('admin@medislot.gov.in');
     setPassword('AdminSecure@2026');
   };
 
@@ -145,10 +171,44 @@ export const UnifiedLogin: React.FC = () => {
         </div>
 
         {/* Quick Demo Credentials Autofill */}
-        <div style={{ background: 'var(--slate-50)', border: '1px solid var(--slate-200)', borderRadius: '8px', padding: '10px 14px', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.74rem', fontWeight: 700, color: 'var(--slate-600)', marginBottom: '8px' }}>
-            <Sparkles size={13} color="var(--blue-600)" />
-            <span>{t.quickTestCredentials}</span>
+        <div style={{ background: 'var(--slate-50)', border: '1px solid var(--slate-200)', borderRadius: '8px', padding: '12px 14px', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.74rem', fontWeight: 700, color: 'var(--slate-600)', marginBottom: '8px' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Sparkles size={13} color="var(--blue-600)" />
+              {t.quickTestCredentials}
+            </span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginBottom: '6px' }}>
+            <button
+              type="button"
+              onClick={fillPatientPhoneDemo}
+              className="btn btn-outline btn-sm"
+              style={{ fontSize: '0.73rem', padding: '6px 4px', justifyContent: 'center' }}
+              title="Test Patient login with Mobile Number (9849012345)"
+            >
+              <UserIcon size={12} color="var(--blue-600)" />
+              {t.patientRole} (Phone)
+            </button>
+            <button
+              type="button"
+              onClick={fillPatientAadharDemo}
+              className="btn btn-outline btn-sm"
+              style={{ fontSize: '0.73rem', padding: '6px 4px', justifyContent: 'center' }}
+              title="Test Patient login with Aadhaar (567890123456)"
+            >
+              <UserIcon size={12} color="#0d9488" />
+              {t.patientRole} (Aadhaar)
+            </button>
+            <button
+              type="button"
+              onClick={fillPatientEmailDemo}
+              className="btn btn-outline btn-sm"
+              style={{ fontSize: '0.73rem', padding: '6px 4px', justifyContent: 'center' }}
+              title="Test Patient login with Email (patient@medislot.gov.in)"
+            >
+              <UserIcon size={12} color="var(--slate-600)" />
+              {t.patientRole} (Email)
+            </button>
           </div>
           <div style={{ display: 'flex', gap: '6px' }}>
             <button
@@ -158,16 +218,7 @@ export const UnifiedLogin: React.FC = () => {
               style={{ flex: 1, fontSize: '0.74rem', padding: '6px 4px', justifyContent: 'center' }}
             >
               <Stethoscope size={12} color="var(--emerald-600)" />
-              {t.doctorRole}
-            </button>
-            <button
-              type="button"
-              onClick={fillPatientDemo}
-              className="btn btn-outline btn-sm"
-              style={{ flex: 1, fontSize: '0.74rem', padding: '6px 4px', justifyContent: 'center' }}
-            >
-              <UserIcon size={12} color="var(--blue-600)" />
-              {t.patientRole}
+              {t.doctorRole} (Dr. Ramesh)
             </button>
             <button
               type="button"
@@ -184,17 +235,43 @@ export const UnifiedLogin: React.FC = () => {
         {/* Unified Login Form */}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">{t.emailAddress}</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <label className="form-label" style={{ margin: 0, fontWeight: 700 }}>
+                {t.loginIdentifier || 'Email / Phone / Aadhaar Number'}
+              </label>
+              {detectedType && (
+                <span style={{
+                  fontSize: '0.70rem',
+                  fontWeight: 700,
+                  padding: '2px 8px',
+                  borderRadius: '10px',
+                  background: detectedType === 'email' ? 'var(--blue-50)' : detectedType === 'phone' ? 'var(--emerald-50)' : '#fef3c7',
+                  color: detectedType === 'email' ? 'var(--blue-700)' : detectedType === 'phone' ? 'var(--emerald-700)' : '#92400e',
+                  border: '1px solid currentColor'
+                }}>
+                  {detectedType === 'email' && '📧 Email'}
+                  {detectedType === 'phone' && '📱 Mobile Phone'}
+                  {detectedType === 'aadhar' && '🪪 Aadhaar Number'}
+                </span>
+              )}
+            </div>
             <div style={{ position: 'relative' }}>
               <input
-                type="email"
+                type="text"
                 className="form-input"
                 required
-                placeholder="your.email@medislot.gov.in"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
+                placeholder={t.loginIdentifierPlaceholder || 'Email, 10-digit mobile, or 12-digit Aadhaar'}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                autoComplete="username"
               />
+            </div>
+            <div style={{ display: 'flex', gap: '8px', fontSize: '0.72rem', color: 'var(--slate-500)', marginTop: '4px' }}>
+              <span>📧 Email</span>
+              <span>·</span>
+              <span>📱 10-digit Mobile</span>
+              <span>·</span>
+              <span>🪪 12-digit Aadhaar</span>
             </div>
           </div>
 

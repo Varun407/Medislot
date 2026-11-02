@@ -14,6 +14,7 @@ export interface User {
   id: string;
   email: string;
   phone: string;
+  aadhar?: string;
   fullName: string;
   role: UserRole;
   status: UserStatus;
@@ -28,6 +29,7 @@ export interface PatientProfile {
   age?: number | null;
   gender?: string | null;
   abhaId?: string | null;
+  aadhar?: string | null;
   address?: string | null;
   updatedAt?: string;
 }

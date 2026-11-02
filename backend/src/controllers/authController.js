@@ -1,14 +1,91 @@
-const { get, run } = require('../config/db');
+const { get, run, connectMongo, mongoose } = require('../config/db');
 const { hashPassword, comparePassword } = require('../utils/password');
 const { signToken, setAuthCookie, clearAuthCookie } = require('../utils/jwt');
 const { createAuditLog } = require('../utils/audit');
 
+// Helper: Find user by Email, Phone (10-digit or raw), or Aadhaar (12-digit or raw)
+async function findUserByIdentifier(identifier, role = null) {
+    if (!identifier) return null;
+    const clean = String(identifier).trim();
+    const cleanLower = clean.toLowerCase();
+    const digits = clean.replace(/\D/g, '');
+    const phone10 = digits.length >= 10 ? digits.slice(-10) : '';
+    const aadhar12 = digits.length === 12 ? digits : '';
+
+    await connectMongo();
+    const db = mongoose.connection.db;
+
+    const orConditions = [];
+
+    // Email identifier
+    if (clean.includes('@')) {
+        orConditions.push({ email: cleanLower });
+    }
+
+    // Aadhaar identifier (12 digits)
+    if (aadhar12) {
+        orConditions.push({ aadhar: aadhar12 });
+    }
+
+    // Phone identifier (10 digits)
+    if (phone10) {
+        orConditions.push({ phone: phone10 });
+        orConditions.push({ phone: clean });
+    }
+
+    // Fallback if none matched
+    if (orConditions.length === 0) {
+        orConditions.push({ email: cleanLower });
+        orConditions.push({ phone: clean });
+    }
+
+    const filter = { $or: orConditions };
+    if (role) {
+        filter.role = role;
+    }
+
+    let user = await db.collection('users').findOne(filter);
+
+    // If not found in users, check if a patient profile has this phone or aadhar or abhaId
+    if (!user) {
+        const profileConditions = [];
+        if (phone10) profileConditions.push({ phone: phone10 });
+        if (aadhar12) profileConditions.push({ aadhar: aadhar12 });
+
+        if (profileConditions.length > 0) {
+            const pProfile = await db.collection('patient_profiles').findOne({ $or: profileConditions });
+            if (pProfile && pProfile.userId) {
+                const uFilter = { id: pProfile.userId };
+                if (role) uFilter.role = role;
+                user = await db.collection('users').findOne(uFilter);
+            }
+        }
+    }
+
+    // Also check doctor_profiles if needed
+    if (!user) {
+        const docConditions = [];
+        if (phone10) docConditions.push({ phone: phone10 });
+
+        if (docConditions.length > 0) {
+            const dProfile = await db.collection('doctor_profiles').findOne({ $or: docConditions });
+            if (dProfile && dProfile.userId) {
+                const uFilter = { id: dProfile.userId };
+                if (role) uFilter.role = role;
+                user = await db.collection('users').findOne(uFilter);
+            }
+        }
+    }
+
+    return user;
+}
+
 // 1. Patient Registration
 async function patientRegister(req, res, next) {
     try {
-        const { fullName, email, phone, password } = req.cleanBody;
+        const { fullName, email, phone, aadhar, password } = req.cleanBody;
 
-        // Check duplicate
+        // Check duplicate email
         const existing = await get('SELECT id FROM users WHERE email = ?', [email]);
         if (existing) {
             return res.status(409).json({ error: 'An account with this email address already exists.' });
@@ -19,16 +96,16 @@ async function patientRegister(req, res, next) {
         const now = new Date().toISOString();
 
         await run(`
-            INSERT INTO users (id, email, phone, passwordHash, role, status, fullName, createdAt, updatedAt)
-            VALUES (?, ?, ?, ?, 'PATIENT', 'ACTIVE', ?, ?, ?)
-        `, [userId, email, phone, passwordHash, fullName, now, now]);
+            INSERT INTO users (id, email, phone, aadhar, passwordHash, role, status, fullName, createdAt, updatedAt)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [userId, email, phone, aadhar || '', passwordHash, 'PATIENT', 'ACTIVE', fullName, now, now]);
 
         await run(`
-            INSERT INTO patient_profiles (userId, fullName, phone, updatedAt)
-            VALUES (?, ?, ?, ?)
-        `, [userId, fullName, phone, now]);
+            INSERT INTO patient_profiles (userId, fullName, phone, aadhar, updatedAt)
+            VALUES (?, ?, ?, ?, ?)
+        `, [userId, fullName, phone, aadhar || '', now]);
 
-        const user = { id: userId, email, phone, fullName, role: 'PATIENT', status: 'ACTIVE' };
+        const user = { id: userId, email, phone, aadhar: aadhar || '', fullName, role: 'PATIENT', status: 'ACTIVE' };
         const token = signToken({ userId: user.id, role: user.role });
         setAuthCookie(res, token);
 
@@ -45,8 +122,9 @@ async function patientRegister(req, res, next) {
 // 2. Patient Login
 async function patientLogin(req, res, next) {
     try {
-        const { email, password } = req.cleanBody;
-        const user = await get('SELECT * FROM users WHERE email = ? AND role = ?', [email, 'PATIENT']);
+        const identifier = req.cleanBody.identifier || req.cleanBody.email;
+        const { password } = req.cleanBody;
+        const user = await findUserByIdentifier(identifier, 'PATIENT');
         if (!user) {
             return res.status(401).json({ error: 'Invalid email or password.' });
         }
@@ -65,6 +143,7 @@ async function patientLogin(req, res, next) {
             id: user.id,
             email: user.email,
             phone: user.phone,
+            aadhar: user.aadhar || (profile && profile.aadhar) || '',
             fullName: user.fullName,
             role: user.role,
             status: user.status,
@@ -159,15 +238,16 @@ async function doctorRegister(req, res, next) {
 // 4. Doctor Login
 async function doctorLogin(req, res, next) {
     try {
-        const { email, password } = req.cleanBody;
-        const user = await get('SELECT * FROM users WHERE email = ? AND role = ?', [email, 'DOCTOR']);
+        const identifier = req.cleanBody.identifier || req.cleanBody.email;
+        const { password } = req.cleanBody;
+        const user = await findUserByIdentifier(identifier, 'DOCTOR');
         if (!user) {
-            return res.status(401).json({ error: 'Invalid email or password.' });
+            return res.status(401).json({ error: 'Invalid doctor credentials.' });
         }
 
         const match = await comparePassword(password, user.passwordHash);
         if (!match) {
-            return res.status(401).json({ error: 'Invalid email or password.' });
+            return res.status(401).json({ error: 'Invalid doctor credentials.' });
         }
 
         const profile = await get('SELECT * FROM doctor_profiles WHERE userId = ?', [user.id]);
@@ -175,6 +255,7 @@ async function doctorLogin(req, res, next) {
             id: user.id,
             email: user.email,
             phone: user.phone,
+            aadhar: user.aadhar || '',
             fullName: user.fullName,
             role: user.role,
             status: user.status,
@@ -198,8 +279,9 @@ async function doctorLogin(req, res, next) {
 // 5. Admin Login (Dedicated hidden admin entry)
 async function adminLogin(req, res, next) {
     try {
-        const { email, password } = req.cleanBody;
-        const user = await get('SELECT * FROM users WHERE email = ? AND role = ?', [email, 'ADMIN']);
+        const identifier = req.cleanBody.identifier || req.cleanBody.email;
+        const { password } = req.cleanBody;
+        const user = await findUserByIdentifier(identifier, 'ADMIN');
         if (!user) {
             return res.status(401).json({ error: 'Invalid administrator credentials.' });
         }
@@ -215,7 +297,7 @@ async function adminLogin(req, res, next) {
             action: 'ADMIN_LOGIN_SUCCESS',
             resource: 'users',
             resourceId: user.id,
-            details: { email },
+            details: { identifier },
             ipAddress: req.ip
         });
 
@@ -223,6 +305,7 @@ async function adminLogin(req, res, next) {
             id: user.id,
             email: user.email,
             phone: user.phone,
+            aadhar: user.aadhar || '',
             fullName: user.fullName,
             role: user.role,
             status: user.status
@@ -264,6 +347,7 @@ async function getCurrentUser(req, res, next) {
                 id: user.id,
                 email: user.email,
                 phone: user.phone,
+                aadhar: user.aadhar || (profile && profile.aadhar) || '',
                 fullName: user.fullName,
                 role: user.role,
                 status: user.status,
@@ -279,8 +363,9 @@ async function getCurrentUser(req, res, next) {
 // Unified Login: automatically authenticates and returns user with role (DOCTOR, PATIENT, ADMIN)
 async function unifiedLogin(req, res, next) {
     try {
-        const { email, password } = req.cleanBody;
-        const user = await get('SELECT * FROM users WHERE email = ?', [email]);
+        const identifier = req.cleanBody.identifier || req.cleanBody.email;
+        const { password } = req.cleanBody;
+        const user = await findUserByIdentifier(identifier);
         if (!user) {
             return res.status(401).json({ error: 'Invalid email or password.' });
         }
@@ -308,6 +393,7 @@ async function unifiedLogin(req, res, next) {
             id: user.id,
             email: user.email,
             phone: user.phone,
+            aadhar: user.aadhar || (profile && profile.aadhar) || '',
             fullName: user.fullName,
             role: user.role,
             status: user.status,

@@ -10,20 +10,24 @@ export const AdminLogin: React.FC = () => {
   const { success, error } = useToast();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !password) {
-      error('Please enter administrator credentials.');
+    if (!identifier.trim() || !password) {
+      error('Please enter administrator credentials (Email, Phone, or Aadhaar).');
       return;
     }
 
     setLoading(true);
     try {
-      const res = await apiClient.post('/auth/admin/login', { email, password });
+      const res = await apiClient.post('/auth/admin/login', {
+        identifier: identifier.trim(),
+        email: identifier.trim(), // backward compat
+        password
+      });
       login(res.data.user, res.data.token);
       success('Chief Medical Administrator authenticated successfully.');
       navigate('/admin/dashboard', { replace: true });
@@ -50,19 +54,20 @@ export const AdminLogin: React.FC = () => {
         </div>
 
         <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: '6px', fontSize: '0.75rem', color: 'var(--slate-500)', marginBottom: '18px', border: '1px solid var(--slate-200)', lineHeight: 1.4 }}>
-          <strong>Notice:</strong> This hidden administrative route is restricted. All login attempts, source IP addresses, and actions are cryptographically recorded in the platform security audit trail.
+          <strong>Notice:</strong> This hidden administrative route is restricted. Sign in with administrative Email, Mobile, or Aadhaar.
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Administrator ID / Email</label>
+            <label className="form-label">Administrator ID / Email / Phone / Aadhaar</label>
             <input
-              type="email"
+              type="text"
               className="form-input"
               required
-              placeholder="admin@medislot.gov.in"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@medislot.gov.in, phone, or Aadhaar"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              autoComplete="username"
             />
           </div>
 

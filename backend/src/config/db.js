@@ -15,6 +15,7 @@ const UserSchema = new mongoose.Schema({
     id: { type: String, required: true, unique: true, index: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
     phone: { type: String, required: true, trim: true, index: true },
+    aadhar: { type: String, default: '', trim: true, index: true },
     role: { type: String, required: true, enum: ['PATIENT', 'DOCTOR', 'ADMIN'], index: true },
     passwordHash: { type: String, required: true },
     fullName: { type: String, required: true, trim: true },
@@ -30,6 +31,7 @@ const PatientProfileSchema = new mongoose.Schema({
     age: { type: Number, default: 0 },
     gender: { type: String, default: '' },
     abhaId: { type: String, default: '' },
+    aadhar: { type: String, default: '', trim: true },
     address: { type: String, default: '' },
     updatedAt: { type: String, required: true }
 }, { collection: 'patient_profiles', timestamps: false, versionKey: false });
@@ -383,11 +385,23 @@ function buildMongoFilter(whereClause, params = []) {
         filter.$or = [{ patientUserId: uid }, { patientPhone: ph }];
     }
 
+    // Specific combined OR: email = ? OR phone = ? OR aadhar = ?
+    if (/email\s*=\s*\?\s+OR\s+phone\s*=\s*\?(?:\s+OR\s+aadhar\s*=\s*\?)?/i.test(cleanClause)) {
+        const em = params[pIdx++];
+        const ph = params[pIdx++];
+        const conditions = [{ email: em }, { phone: ph }];
+        if (/aadhar\s*=\s*\?/i.test(cleanClause)) {
+            const ad = params[pIdx++];
+            conditions.push({ aadhar: ad });
+        }
+        filter.$or = conditions;
+    }
+
     // Split by AND
     const tokens = cleanClause.split(/\s+AND\s+/i);
     for (let token of tokens) {
         token = token.trim();
-        if (!token || token === '1=1' || /patientUserId\s*=\s*\?\s+OR/i.test(token)) continue;
+        if (!token || token === '1=1' || /patientUserId\s*=\s*\?\s+OR/i.test(token) || /email\s*=\s*\?\s+OR/i.test(token)) continue;
 
         // LIKE search with $or: (nameEn LIKE ? OR nameTe LIKE ? ...)
         if (token.includes('LIKE') && token.includes('OR')) {
@@ -954,6 +968,8 @@ async function initDatabase() {
     console.log('[MongoDB Atlas] Ensuring collection indexes...');
     await db.collection('users').createIndex({ email: 1 }, { unique: true }).catch(() => {});
     await db.collection('users').createIndex({ id: 1 }, { unique: true }).catch(() => {});
+    await db.collection('users').createIndex({ phone: 1 }).catch(() => {});
+    await db.collection('users').createIndex({ aadhar: 1 }).catch(() => {});
     await db.collection('appointments').createIndex({ id: 1 }, { unique: true }).catch(() => {});
     await db.collection('appointments').createIndex(
         { doctorNameEn: 1, appointmentDate: 1, slotTime: 1 },
@@ -973,6 +989,9 @@ async function initDatabase() {
     await db.collection('patient_profiles').createIndex({ userId: 1 }, { unique: true }).catch(() => {});
     await db.collection('opd_queue_state').createIndex({ doctorNameEn: 1, appointmentDate: 1 }, { unique: true }).catch(() => {});
     await db.collection('audit_logs').createIndex({ createdAt: -1 }).catch(() => {});
+
+    // Sanitize any legacy malformed user records from earlier schema mismatches
+    await db.collection('users').updateMany({ role: { $nin: ['PATIENT', 'DOCTOR', 'ADMIN'] } }, { $set: { role: 'PATIENT' } }).catch(() => {});
 
     // Seed authentic healthcare domain data
     await seedHospitalAndDepartmentData();
@@ -1298,8 +1317,8 @@ async function bootstrapAdmin() {
     if (!existingAdmin || existingAdmin.role !== 'ADMIN') {
         console.log(`[MongoDB Atlas] Bootstrapping Chief Administrator (${adminEmail})...`);
         await run(`
-            INSERT INTO users (id, email, phone, passwordHash, role, status, fullName, createdAt, updatedAt)
-            VALUES (?, ?, ?, ?, 'ADMIN', 'ACTIVE', ?, ?, ?)
+            INSERT INTO users (id, email, phone, aadhar, passwordHash, role, status, fullName, createdAt, updatedAt)
+            VALUES (?, ?, ?, '111122223333', ?, 'ADMIN', 'ACTIVE', ?, ?, ?)
         `, [adminId, adminEmail, ADMIN_DEFAULT_PHONE, hash, ADMIN_DEFAULT_NAME, now, now]);
 
         await run(`
@@ -1310,8 +1329,8 @@ async function bootstrapAdmin() {
         console.log('[MongoDB Atlas] Chief Administrator created.');
     } else {
         // Ensure role and password are kept accurate
-        await run('UPDATE users SET passwordHash = ?, role = ?, status = ?, fullName = ?, updatedAt = ? WHERE email = ?', [
-            hash, 'ADMIN', 'ACTIVE', ADMIN_DEFAULT_NAME, now, adminEmail
+        await run('UPDATE users SET passwordHash = ?, role = ?, status = ?, fullName = ?, aadhar = ?, updatedAt = ? WHERE email = ?', [
+            hash, 'ADMIN', 'ACTIVE', ADMIN_DEFAULT_NAME, '111122223333', now, adminEmail
         ]);
     }
 }
@@ -1323,6 +1342,7 @@ async function seedVerifiedDoctorAccounts() {
             email: 'dr.ramesh@medislot.gov.in',
             fullName: 'Dr. K. Ramesh',
             phone: '9848011111',
+            aadhar: '987654321098',
             spec: 'General Medicine',
             qual: 'MBBS, MD (General Medicine)',
             exp: 18,
@@ -1337,6 +1357,7 @@ async function seedVerifiedDoctorAccounts() {
             email: 'dr.anitha@medislot.gov.in',
             fullName: 'Dr. S. Anitha',
             phone: '9848022222',
+            aadhar: '987654321097',
             spec: 'Gynecology',
             qual: 'MBBS, MS, DGO (Obstetrics & Gynecology)',
             exp: 14,
@@ -1351,6 +1372,7 @@ async function seedVerifiedDoctorAccounts() {
             email: 'dr.srinivas@medislot.gov.in',
             fullName: 'Dr. M. Srinivas',
             phone: '9848033333',
+            aadhar: '987654321096',
             spec: 'Orthopedics',
             qual: 'MBBS, MS (Orthopedics), D.Ortho',
             exp: 16,
@@ -1365,6 +1387,7 @@ async function seedVerifiedDoctorAccounts() {
             email: 'dr.lakshmi@medislot.gov.in',
             fullName: 'Dr. P. Lakshmi',
             phone: '9848044444',
+            aadhar: '987654321095',
             spec: 'Pediatrics',
             qual: 'MBBS, MD (Pediatrics), DCH',
             exp: 12,
@@ -1384,12 +1407,12 @@ async function seedVerifiedDoctorAccounts() {
         const existing = await get('SELECT * FROM users WHERE email = ?', [doc.email.toLowerCase()]);
         if (!existing) {
             await run(`
-                INSERT INTO users (id, email, phone, passwordHash, role, status, fullName, createdAt, updatedAt)
-                VALUES (?, ?, ?, ?, 'DOCTOR', 'ACTIVE', ?, ?, ?)
-            `, [doc.id, doc.email, doc.phone, defaultDocPass, doc.fullName, now, now]);
+                INSERT INTO users (id, email, phone, aadhar, passwordHash, role, status, fullName, createdAt, updatedAt)
+                VALUES (?, ?, ?, ?, ?, 'DOCTOR', 'ACTIVE', ?, ?, ?)
+            `, [doc.id, doc.email, doc.phone, doc.aadhar || '987654321098', defaultDocPass, doc.fullName, now, now]);
         } else {
-            await run('UPDATE users SET role = ?, status = ?, passwordHash = ?, fullName = ?, updatedAt = ? WHERE id = ?', [
-                'DOCTOR', 'ACTIVE', defaultDocPass, doc.fullName, now, existing.id
+            await run('UPDATE users SET role = ?, status = ?, passwordHash = ?, fullName = ?, aadhar = ?, updatedAt = ? WHERE id = ?', [
+                'DOCTOR', 'ACTIVE', defaultDocPass, doc.fullName, doc.aadhar || '987654321098', now, existing.id
             ]);
         }
 
@@ -1417,19 +1440,19 @@ async function seedDefaultPatientAccount() {
     const existingPatient = await get('SELECT * FROM users WHERE email = ?', [pEmail]);
     if (!existingPatient) {
         await run(`
-            INSERT INTO users (id, email, phone, passwordHash, role, status, fullName, createdAt, updatedAt)
-            VALUES (?, 'patient@medislot.gov.in', '9849012345', ?, 'PATIENT', 'ACTIVE', 'Venkata Satyanarayana', ?, ?)
+            INSERT INTO users (id, email, phone, aadhar, passwordHash, role, status, fullName, createdAt, updatedAt)
+            VALUES (?, 'patient@medislot.gov.in', '9849012345', '567890123456', ?, 'PATIENT', 'ACTIVE', 'Venkata Satyanarayana', ?, ?)
         `, [pId, pass, now, now]);
     } else {
-        await run('UPDATE users SET role = ?, status = ?, passwordHash = ?, fullName = ?, updatedAt = ? WHERE id = ?', [
-            'PATIENT', 'ACTIVE', pass, 'Venkata Satyanarayana', now, existingPatient.id
+        await run('UPDATE users SET role = ?, status = ?, passwordHash = ?, fullName = ?, aadhar = ?, updatedAt = ? WHERE id = ?', [
+            'PATIENT', 'ACTIVE', pass, 'Venkata Satyanarayana', '567890123456', now, existingPatient.id
         ]);
     }
 
     await run(`
         INSERT INTO patient_profiles (
-            userId, fullName, phone, age, gender, abhaId, address, updatedAt
-        ) VALUES (?, 'Venkata Satyanarayana', '9849012345', 42, 'Male', 'AROGYASRI-AP-9821443', 'Door No 4-21, Main Road, Bhimavaram, West Godavari', ?)
+            userId, fullName, phone, age, gender, abhaId, aadhar, address, updatedAt
+        ) VALUES (?, 'Venkata Satyanarayana', '9849012345', 42, 'Male', 'AROGYASRI-AP-9821443', '567890123456', 'Door No 4-21, Main Road, Bhimavaram, West Godavari', ?)
     `, [pId, now]);
 }
 

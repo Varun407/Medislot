@@ -13,27 +13,31 @@ export const PatientLogin: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !password) {
-      error('Please enter your email and password.');
+    if (!identifier.trim() || !password) {
+      error(lang === 'te' ? 'దయచేసి మీ ఇమెయిల్, ఫోన్ లేదా ఆధార్ నంబర్ మరియు పాస్‌వర్డ్ నమోదు చేయండి.' : 'Please enter your email, phone, or Aadhaar number and password.');
       return;
     }
 
     setLoading(true);
     try {
-      const res = await apiClient.post('/auth/patient/login', { email, password });
+      const res = await apiClient.post('/auth/patient/login', {
+        identifier: identifier.trim(),
+        email: identifier.trim(), // backward compat
+        password
+      });
       login(res.data.user, res.data.token);
-      success('Logged in successfully as Patient.');
+      success(lang === 'te' ? 'రోగిగా విజయవంతంగా లాగిన్ అయ్యారు.' : 'Logged in successfully as Patient.');
 
       const destination = (location.state as any)?.from?.pathname || '/patient/dashboard';
       navigate(destination, { replace: true });
     } catch (err: any) {
-      error(err.response?.data?.error || 'Invalid email or password.');
+      error(err.response?.data?.error || (lang === 'te' ? 'సరైన వివరాలు లేదా పాస్‌వర్డ్ కాదు.' : 'Invalid email, phone, Aadhaar, or password.'));
     } finally {
       setLoading(false);
     }
@@ -56,16 +60,26 @@ export const PatientLogin: React.FC = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Email Address</label>
+            <label className="form-label">
+              {lang === 'te' ? 'ఇమెయిల్ / ఫోన్ / ఆధార్ నంబర్' : 'Email / Phone / Aadhaar Number'}
+            </label>
             <div style={{ position: 'relative' }}>
               <input
-                type="email"
+                type="text"
                 className="form-input"
                 required
-                placeholder="your.email@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder={lang === 'te' ? 'ఇమెయిల్, 10 అంకెల మొబైల్ లేదా 12 అంకెల ఆధార్' : 'Email, 10-digit mobile, or 12-digit Aadhaar'}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                autoComplete="username"
               />
+            </div>
+            <div style={{ display: 'flex', gap: '8px', fontSize: '0.72rem', color: 'var(--slate-500)', marginTop: '4px' }}>
+              <span>📧 Email</span>
+              <span>·</span>
+              <span>📱 10-digit Mobile</span>
+              <span>·</span>
+              <span>🪪 12-digit Aadhaar</span>
             </div>
           </div>
 

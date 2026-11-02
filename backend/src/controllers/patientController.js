@@ -56,7 +56,7 @@ async function getProfile(req, res, next) {
 // 2. Update Patient Profile
 async function updateProfile(req, res, next) {
     try {
-        const { fullName, phone, age, gender, abhaId, address } = req.body;
+        const { fullName, phone, age, gender, abhaId, aadhar, address } = req.body;
         const now = new Date().toISOString();
 
         if (fullName) {
@@ -66,16 +66,21 @@ async function updateProfile(req, res, next) {
             const cleanPhone = String(phone).replace(/\D/g, '').slice(-10);
             await run('UPDATE users SET phone = ?, updatedAt = ? WHERE id = ?', [cleanPhone, now, req.user.id]);
         }
+        if (aadhar !== undefined) {
+            const cleanAadhar = String(aadhar || '').replace(/\D/g, '');
+            await run('UPDATE users SET aadhar = ?, updatedAt = ? WHERE id = ?', [cleanAadhar, now, req.user.id]);
+        }
 
         await run(`
-            INSERT INTO patient_profiles (userId, fullName, phone, age, gender, abhaId, address, updatedAt)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO patient_profiles (userId, fullName, phone, age, gender, abhaId, aadhar, address, updatedAt)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(userId) DO UPDATE SET
                 fullName = COALESCE(excluded.fullName, fullName),
                 phone = COALESCE(excluded.phone, phone),
                 age = COALESCE(excluded.age, age),
                 gender = COALESCE(excluded.gender, gender),
                 abhaId = COALESCE(excluded.abhaId, abhaId),
+                aadhar = COALESCE(excluded.aadhar, aadhar),
                 address = COALESCE(excluded.address, address),
                 updatedAt = excluded.updatedAt
         `, [
@@ -85,6 +90,7 @@ async function updateProfile(req, res, next) {
             age ? parseInt(age, 10) : null,
             gender || null,
             abhaId ? abhaId.trim() : null,
+            aadhar ? String(aadhar).replace(/\D/g, '') : null,
             address ? address.trim() : null,
             now
         ]);
