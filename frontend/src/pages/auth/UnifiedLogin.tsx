@@ -545,10 +545,10 @@ export const UnifiedLogin: React.FC = () => {
 
             <div style={{ borderTop: '1px solid var(--slate-200)', marginTop: '22px', paddingTop: '16px', textAlign: 'center', fontSize: '0.85rem' }}>
               <span style={{ color: 'var(--slate-500)' }}>
-                {lang === 'te' ? 'కొత్త వైద్యుడిగా చేరుతున్నారా? ' : 'New government physician? '}
+                {lang === 'te' ? 'కొత్త డాక్టర్ / సిబ్బంది సభ్యులా? ' : 'New doctor/staff member? '}
               </span>
               <Link to="/doctor/register" style={{ fontWeight: 700, color: 'var(--emerald-600)' }}>
-                {lang === 'te' ? 'ఇక్కడ దరఖాస్తు చేయండి' : 'Apply for Doctor Roster'}
+                {lang === 'te' ? 'డాక్టర్ / సిబ్బంది రిజిస్ట్రేషన్' : 'Doctor/Staff Registration'}
               </Link>
             </div>
           </form>

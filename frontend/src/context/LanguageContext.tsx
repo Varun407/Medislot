@@ -268,6 +268,24 @@ export const translations = {
 
 
     // Patient Register
+
+    patientRegTitle: "కొత్త రోగి ఖాతాను సృష్టించండి",
+    patientRegSubtitle: "మొబైల్ నంబర్ మరియు 6 అంకెల ఎంపిన్‌తో వేగవంతమైన, సురక్షితమైన ఓపీడీ ఖాతా",
+    lblMobileNumber10: "మొబైల్ సంఖ్య (10 అంకెలు) *",
+    mobilePermanentHint: "💡 ఈ 10 అంకెల మొబైల్ నంబర్‌తోనే భవిష్యత్తులో లాగిన్ చేయవచ్చు.",
+    mobileStartRule: "దయచేసి 6, 7, 8 లేదా 9తో ప్రారంభమయ్యే 10 అంకెల మొబైల్ నంబర్‌ను నమోదు చేయండి.",
+    createMpinLabel: "6 అంకెల ఎంపిన్ సృష్టించండి *",
+    confirmMpinLabel: "ఎంపిన్ నిర్ధారించండి *",
+    digitsRemaining: "అంకెలు అవసరం",
+    mpinValidTag: "✓ 6 అంకెల ఎంపిన్",
+    mpinMatchedTag: "✓ ఎంపిన్‌లు సరిపోయాయి",
+    mpinNotMatchedTag: "✗ సరిపోలడం లేదు",
+    mpinRuleText: "ఖచ్చితంగా 6 అంకెలు (0-9)",
+    aadharOptionalLabel: "ఆధార్ సంఖ్య (ఐచ్ఛికం - 12 అంకెలు)",
+    aadharBenefitText: "💡 ఆధార్‌ను అనుసంధానిస్తే వైద్య చరిత్ర మరియు డా. ఎన్టీఆర్ వైద్య సేవ ప్రయోజనాలు వేగంగా లభిస్తాయి.",
+    mobilePlaceholder: "9848012345",
+    primaryMobileAccount: "నమోదిత మొబైల్ నంబర్ (ప్రాథమిక ఖాతా గుర్తింపు)",
+    optionalEmailNotif: "ఇమెయిల్ చిరునామా (నోటిఫికేషన్‌ల కోసం ఐచ్ఛికం)",
     createPatientAccount: "కొత్త రోగి ఖాతా సృష్టించండి",
     createPatientAccountSub: "డిజిటల్ ఓపీడీ స్లాట్‌లు మరియు అధికారిక క్యూ టోకెన్ల కోసం సైన్ అప్ చేయండి",
     agreeTermsLabel: "నేను ఏపీ పబ్లిక్ హెల్త్ గోప్యతా విధానం మరియు డిజిటల్ నిబంధనలను అంగీకరిస్తున్నాను.",
@@ -298,8 +316,8 @@ export const translations = {
     doctorOfficialEmail: "డాక్టర్ అధికారిక ఇమెయిల్",
     authenticatingDoctor: "డాక్టర్‌ను ధృవీకరిస్తోంది...",
     signInAsDoctor: "డాక్టర్‌గా లాగిన్ అవ్వండి",
-    newPhysicianQuestion: "కొత్త వైద్యుడిగా చేరుతున్నారా?",
-    applyRegisterHere: "ఇక్కడ దరఖాస్తు / రిజిస్టర్ చేయండి",
+    newPhysicianQuestion: "కొత్త డాక్టర్ / సిబ్బంది సభ్యులా?",
+    applyRegisterHere: "డాక్టర్ / సిబ్బంది రిజిస్ట్రేషన్",
     appPendingVerification: "దరఖాస్తు స్థితి: పరిశీలన పెండింగ్‌లో ఉంది",
     doctorCredentialsReview: "వైద్యుల ఆధారాల పరిశీలన జరుగుతోంది",
     doctorPendingNotice: "మీ క్లినికల్ ప్రొఫైల్ మరియు వైద్య ఆధారాలు సురక్షితంగా అందాయి. ఆంధ్రప్రదేశ్ ప్రభుత్వ ఆరోగ్య కేంద్రాలలో రోగుల భద్రత మరియు వైద్య పాలనను కాపాడటానికి, మీ ఓపీడీ క్యూ సక్రియం కావడానికి ముందు సిస్టమ్ నిర్వాహకుడు మీ లైసెన్స్‌ను ధృవీకరించాలి.",
@@ -311,7 +329,7 @@ export const translations = {
     checkVerificationStatus: "పరిశీలన స్థితిని తనిఖీ చేయండి",
 
     // Doctor Register
-    doctorPortalRegTitle: "డాక్టర్ క్లినికల్ పోర్టల్ రిజిస్ట్రేషన్",
+    doctorPortalRegTitle: "డాక్టర్ / సిబ్బంది రిజిస్ట్రేషన్",
     doctorPortalRegSub: "ఆంధ్రప్రదేశ్ ప్రభుత్వ ఓపీడీ సంప్రదింపుల వ్యవస్థలో చేరండి",
     doctorVerifyNoticeTitle: "డాక్టర్ ధృవీకరణపై గమనిక:",
     doctorVerifyNoticeText: "డాక్టర్ ఖాతాలు డిఫాల్ట్‌గా 'పరిశీలన పెండింగ్‌లో ఉంది' స్థితితో సృష్టించబడతాయి. మీరు బుక్ చేయగల ప్రొవైడర్‌గా కనిపించడానికి ముందు ప్లాట్‌ఫారమ్ నిర్వాహకుడు మీ వైద్య లైసెన్స్‌ను పరిశీలిస్తారు.",
@@ -713,6 +731,24 @@ export const translations = {
 
 
     // Patient Register
+
+    patientRegTitle: "Create Patient Account",
+    patientRegSubtitle: "Fast, secure OPD registration with 10-digit mobile & 6-digit MPIN",
+    lblMobileNumber10: "Mobile Number (10 digits) *",
+    mobilePermanentHint: "💡 Your 10-digit mobile number will be your permanent sign-in identity.",
+    mobileStartRule: "Must be 10 digits starting with 6, 7, 8, or 9.",
+    createMpinLabel: "Create 6-Digit MPIN *",
+    confirmMpinLabel: "Confirm 6-Digit MPIN *",
+    digitsRemaining: "digits remaining",
+    mpinValidTag: "✓ 6 digits",
+    mpinMatchedTag: "✓ MPINs match",
+    mpinNotMatchedTag: "✗ Do not match",
+    mpinRuleText: "Exactly 6 digits (0-9)",
+    aadharOptionalLabel: "Aadhaar Number (Optional - 12 digits)",
+    aadharBenefitText: "💡 Linking Aadhaar enables faster health records and Dr. NTR Vaidya Seva benefits.",
+    mobilePlaceholder: "9848012345",
+    primaryMobileAccount: "Registered Mobile Number (Primary Account ID)",
+    optionalEmailNotif: "Email Address (Optional for Notifications)",
     createPatientAccount: "Create Patient Account",
     createPatientAccountSub: "Sign up for digital OPD slots and official queue tokens",
     agreeTermsLabel: "I accept the AP Public Health Privacy Policy & Terms.",
@@ -743,8 +779,8 @@ export const translations = {
     doctorOfficialEmail: "Doctor Email (Official / Registered)",
     authenticatingDoctor: "Authenticating Doctor...",
     signInAsDoctor: "Sign In as Doctor",
-    newPhysicianQuestion: "New physician joining the platform?",
-    applyRegisterHere: "Apply / Register here",
+    newPhysicianQuestion: "New doctor/staff member?",
+    applyRegisterHere: "Doctor/Staff Registration",
     appPendingVerification: "Application Status: PENDING VERIFICATION",
     doctorCredentialsReview: "Doctor Credentials Under Review",
     doctorPendingNotice: "Your clinical profile and medical credentials have been securely received. To maintain patient safety and medical governance across Andhra Pradesh Government health facilities, a system administrator must verify your license before your OPD queue is activated.",
@@ -756,7 +792,7 @@ export const translations = {
     checkVerificationStatus: "Check Verification Status",
 
     // Doctor Register
-    doctorPortalRegTitle: "Doctor Clinical Portal Registration",
+    doctorPortalRegTitle: "Doctor / Staff Registration",
     doctorPortalRegSub: "Join the Andhra Pradesh Government OPD Consultation System",
     doctorVerifyNoticeTitle: "Notice on Doctor Verification:",
     doctorVerifyNoticeText: "Doctor accounts are created with a Pending Verification status by default. The platform administrator will verify your medical license before you can appear as an active bookable provider.",

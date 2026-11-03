@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { Hospital, Department } from '../../types';
-import { Stethoscope, ArrowRight, ShieldCheck, AlertCircle, Sparkles } from 'lucide-react';
+import { Stethoscope, ArrowRight, AlertCircle, Sparkles, Eye, EyeOff } from 'lucide-react';
 
 const DEFAULT_FALLBACK_HOSPITALS: Hospital[] = [
   { id: 'GH_BHIMAVARAM', nameEn: 'Government District Hospital, Bhimavaram', nameTe: 'ప్రభుత్వ జిల్లా ఆసుపత్రి, భీమవరం', districtEn: 'West Godavari', districtTe: 'పశ్చిమ గోదావరి', typeEn: 'District Hospital', typeTe: 'జిల్లా ఆసుపత్రి', addressEn: '', addressTe: '', phone: '', emergencyPhone: '', totalBeds: 250, availableBeds: 50, icuBedsAvailable: 10, oxygenBedsAvailable: 30, opdTimingsEn: '', opdTimingsTe: '', bloodBankStatus: '', rating: 4.8 },
@@ -45,6 +45,8 @@ export const DoctorRegister: React.FC = () => {
   const [hospitalId, setHospitalId] = useState('GH_BHIMAVARAM');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -90,51 +92,57 @@ export const DoctorRegister: React.FC = () => {
     setLoading(true);
     try {
       const res = await apiClient.post('/auth/doctor/register', {
-        fullName,
-        email,
+        fullName: fullName.trim(),
+        email: email.trim().toLowerCase(),
         phone: cleanPhone,
         specialization,
-        qualifications,
+        qualifications: qualifications.trim(),
         experienceYears: parseInt(experienceYears, 10),
         hospitalId,
         password,
         confirmPassword
       });
 
-      success(res.data.message || (lang === 'te' ? 'డాక్టర్ దరఖాస్తు సమర్పించబడింది. ఖాతా ఆమోదం కోసం పెండింగ్‌లో ఉంది.' : 'Doctor application submitted. Account pending approval.'));
+      success(res.data.message || (lang === 'te' ? 'డాక్టర్ / సిబ్బంది దరఖాస్తు సమర్పించబడింది. ఖాతా ఆమోదం కోసం పెండింగ్‌లో ఉంది.' : 'Doctor / Staff application submitted. Account pending approval.'));
       navigate('/doctor/login');
     } catch (err: any) {
-      error(err.response?.data?.error || (lang === 'te' ? 'డాక్టర్ రిజిస్ట్రేషన్ విఫలమైంది.' : 'Doctor registration failed.'));
+      error(err.response?.data?.error || (lang === 'te' ? 'డాక్టర్ / సిబ్బంది రిజిస్ట్రేషన్ విఫలమైంది.' : 'Doctor / Staff registration failed.'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="main-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-      <div className="med-card" style={{ maxWidth: '600px', width: '100%', padding: '36px' }}>
+    <div className="main-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', padding: '24px 16px' }}>
+      <div className="med-card" style={{ maxWidth: '620px', width: '100%', padding: '36px 32px' }}>
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'var(--emerald-50)', color: 'var(--emerald-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+          <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'var(--emerald-50)', color: 'var(--emerald-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.12)' }}>
             <Stethoscope size={28} />
           </div>
-          <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--navy-900)' }}>
-            {t.doctorPortalRegTitle}
+          <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--navy-900)', margin: 0 }}>
+            {lang === 'te' ? 'డాక్టర్ / సిబ్బంది రిజిస్ట్రేషన్' : 'Doctor / Staff Registration'}
           </h2>
-          <p style={{ fontSize: '0.84rem', color: 'var(--slate-500)', marginTop: '4px' }}>
-            {t.doctorPortalRegSub}
+          <p style={{ fontSize: '0.84rem', color: 'var(--slate-500)', marginTop: '6px' }}>
+            {lang === 'te' ? 'ఆంధ్రప్రదేశ్ ప్రభుత్వ ఓపీడీ సంప్రదింపుల వ్యవస్థలో చేరండి' : 'Join the Andhra Pradesh Government OPD Consultation System'}
           </p>
         </div>
 
-        <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.82rem', color: '#92400e' }}>
+        <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '10px', padding: '12px 16px', marginBottom: '22px', display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.82rem', color: '#92400e' }}>
           <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
           <div>
-            <strong>{t.doctorVerifyNoticeTitle}</strong> {t.doctorVerifyNoticeText}
+            <strong>{lang === 'te' ? 'డాక్టర్ / సిబ్బంది ధృవీకరణపై గమనిక:' : 'Notice on Doctor / Staff Verification:'}</strong>{' '}
+            {lang === 'te'
+              ? "డాక్టర్ / సిబ్బంది ఖాతాలు డిఫాల్ట్‌గా 'పరిశీలన పెండింగ్‌లో ఉంది' స్థితితో సృష్టించబడతాయి. ఒక సిస్టమ్ అడ్మినిస్ట్రేటర్ ధృవీకరించిన తర్వాత మీ ఓపీడీ క్యూ యాక్టివేట్ చేయబడుతుంది."
+              : 'Doctor and staff accounts are created with PENDING verification status by default. To maintain clinical governance, an administrator verifies credentials before activating the OPD queue.'}
           </div>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
+          {/* Full Name */}
           <div className="form-group">
-            <label className="form-label">{t.doctorNameWithTitle}</label>
+            <label className="form-label" style={{ fontWeight: 700 }}>
+              {lang === 'te' ? 'డాక్టర్ / సిబ్బంది పూర్తి పేరు (హోదాతో) *' : 'Doctor / Staff Full Name (with Title) *'}
+            </label>
             <input
               type="text"
               className="form-input"
@@ -151,9 +159,12 @@ export const DoctorRegister: React.FC = () => {
             )}
           </div>
 
+          {/* Email & Phone Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '14px' }}>
             <div className="form-group">
-              <label className="form-label">{t.emailAddress} *</label>
+              <label className="form-label" style={{ fontWeight: 700 }}>
+                {lang === 'te' ? 'అధికారిక ఇమెయిల్ చిరునామా *' : 'Official Email Address *'}
+              </label>
               <input
                 type="email"
                 className="form-input"
@@ -165,21 +176,27 @@ export const DoctorRegister: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">{t.mobile10Digits}</label>
+              <label className="form-label" style={{ fontWeight: 700 }}>
+                {lang === 'te' ? 'మొబైల్ సంఖ్య (10 అంకెలు) *' : 'Mobile Number (10 digits) *'}
+              </label>
               <input
                 type="tel"
+                maxLength={10}
                 className="form-input"
                 required
-                placeholder="98480XXXXX"
+                placeholder="9848012345"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
               />
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+          {/* Department & Experience Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '14px' }}>
             <div className="form-group">
-              <label className="form-label">{t.medSpecialization}</label>
+              <label className="form-label" style={{ fontWeight: 700 }}>
+                {lang === 'te' ? 'వైద్య విభాగం (స్పెషలైజేషన్) *' : 'Medical Specialization *'}
+              </label>
               <select className="form-select" value={specialization} onChange={(e) => setSpecialization(e.target.value)}>
                 {departments.map((d) => (
                   <option key={d.key} value={d.key}>
@@ -190,7 +207,9 @@ export const DoctorRegister: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">{t.yearsExperience}</label>
+              <label className="form-label" style={{ fontWeight: 700 }}>
+                {lang === 'te' ? 'క్లినికల్ అనుభవం (సంవత్సరాలు) *' : 'Clinical Experience (Years) *'}
+              </label>
               <input
                 type="number"
                 min="0"
@@ -203,8 +222,11 @@ export const DoctorRegister: React.FC = () => {
             </div>
           </div>
 
+          {/* Qualifications */}
           <div className="form-group">
-            <label className="form-label">{t.medQualifications}</label>
+            <label className="form-label" style={{ fontWeight: 700 }}>
+              {lang === 'te' ? 'వైద్య అర్హతలు *' : 'Medical Qualifications *'}
+            </label>
             <input
               type="text"
               className="form-input"
@@ -215,8 +237,11 @@ export const DoctorRegister: React.FC = () => {
             />
           </div>
 
+          {/* Hospital Facility */}
           <div className="form-group">
-            <label className="form-label">{t.assignedHospital}</label>
+            <label className="form-label" style={{ fontWeight: 700 }}>
+              {lang === 'te' ? 'కేటాయించిన ఆసుపత్రి కేంద్రం *' : 'Assigned Hospital Facility *'}
+            </label>
             <select className="form-select" value={hospitalId} onChange={(e) => setHospitalId(e.target.value)}>
               {hospitals.map((h) => (
                 <option key={h.id} value={h.id}>
@@ -226,45 +251,80 @@ export const DoctorRegister: React.FC = () => {
             </select>
           </div>
 
+          {/* Password Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
             <div className="form-group">
-              <label className="form-label">{t.passwordLabel} *</label>
-              <input
-                type="password"
-                className="form-input"
-                required
-                placeholder={t.atLeast8Chars}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <label className="form-label" style={{ fontWeight: 700 }}>
+                {lang === 'te' ? 'పాస్‌వర్డ్ *' : 'Password *'}
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  className="form-input"
+                  required
+                  placeholder={lang === 'te' ? 'కనీసం 8 అక్షరాలు' : 'At least 8 chars'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={{ paddingRight: '36px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--slate-400)', cursor: 'pointer', padding: 0 }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
 
             <div className="form-group">
-              <label className="form-label">{t.confirmPassword}</label>
-              <input
-                type="password"
-                className="form-input"
-                required
-                placeholder={t.reEnterPassword}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
+              <label className="form-label" style={{ fontWeight: 700 }}>
+                {lang === 'te' ? 'పాస్‌వర్డ్‌ను నిర్ధారించండి *' : 'Confirm Password *'}
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  className="form-input"
+                  required
+                  placeholder={lang === 'te' ? 'పాస్‌వర్డ్‌ను తిరిగి నమోదు చేయండి' : 'Re-enter password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  style={{ paddingRight: '36px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--slate-400)', cursor: 'pointer', padding: 0 }}
+                >
+                  {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
           </div>
 
-          <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginTop: '10px' }}>
-            {loading ? t.submittingApplication : t.submitDoctorApp}
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={loading}
+            style={{ width: '100%', height: '46px', marginTop: '12px', fontSize: '0.94rem', fontWeight: 700, background: 'linear-gradient(135deg, #059669 0%, #047857 100%)' }}
+          >
+            {loading
+              ? (lang === 'te' ? 'దరఖాస్తును సమర్పిస్తోంది...' : 'Submitting Application...')
+              : (lang === 'te' ? 'దరఖాస్తును సమర్పించండి' : 'Submit Registration')}
             <ArrowRight size={16} />
           </button>
         </form>
 
         <div style={{ borderTop: '1px solid var(--slate-200)', marginTop: '24px', paddingTop: '18px', textAlign: 'center', fontSize: '0.85rem' }}>
-          <span style={{ color: 'var(--slate-500)' }}>{t.alreadyRegistered} </span>
+          <span style={{ color: 'var(--slate-500)' }}>
+            {lang === 'te' ? 'ఇప్పటికే రిజిస్టర్ అయ్యారా? ' : 'Already registered? '}
+          </span>
           <Link to="/doctor/login" style={{ fontWeight: 700, color: 'var(--emerald-600)' }}>
-            {t.loginHere}
+            {lang === 'te' ? 'ఇక్కడ లాగిన్ అవ్వండి' : 'Sign In here'}
           </Link>
         </div>
       </div>
     </div>
   );
 };
+export default DoctorRegister;

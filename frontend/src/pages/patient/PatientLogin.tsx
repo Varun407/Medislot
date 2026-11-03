@@ -7,15 +7,11 @@ import { useLanguage } from '../../context/LanguageContext';
 import {
   LogIn,
   ArrowRight,
-  ShieldCheck,
   Eye,
   EyeOff,
   UserCheck,
-  Phone,
   KeyRound,
-  RotateCcw,
-  Sparkles,
-  AlertCircle
+  Sparkles
 } from 'lucide-react';
 
 export const PatientLogin: React.FC = () => {
@@ -69,7 +65,7 @@ export const PatientLogin: React.FC = () => {
     if (!mpin || mpin.length !== 6 || !/^\d{6}$/.test(mpin)) {
       error(
         lang === 'te'
-          ? 'ఎంపిన్ ఖచ్చితంగా 6 అంకెలు ఉండాలి.'
+          ? 'ఎంపిన్ ఖచ్చితంగా 6 అంకెలు (0-9) ఉండాలి.'
           : 'Please enter your 6-digit numeric MPIN.'
       );
       return;
@@ -127,7 +123,7 @@ export const PatientLogin: React.FC = () => {
         newMpin,
         confirmMpin: confirmNewMpin
       });
-      success(res.data.message || (lang === 'te' ? 'ఎంపిన్ నవీకరించబడింది.' : 'MPIN updated successfully.'));
+      success(res.data.message || (lang === 'te' ? 'ఎంపిన్ విజయవంతంగా నవీకరించబడింది.' : 'MPIN updated successfully.'));
       setPhone(cleanPhone);
       setMpin(newMpin);
       setShowResetModal(false);
@@ -210,7 +206,7 @@ export const PatientLogin: React.FC = () => {
           {/* Mobile Number */}
           <div className="form-group">
             <label className="form-label" style={{ fontWeight: 700 }}>
-              {lang === 'te' ? 'మొబైల్ నంబర్ *' : 'Mobile Number *'}
+              {lang === 'te' ? 'మొబైల్ సంఖ్య (10 అంకెలు) *' : 'Mobile Number (10 digits) *'}
             </label>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <div
@@ -249,7 +245,7 @@ export const PatientLogin: React.FC = () => {
             </div>
           </div>
 
-          {/* 6-Digit MPIN (Masked by default with Show/Hide, NO confirm MPIN) */}
+          {/* 6-Digit MPIN */}
           <div className="form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
               <label className="form-label" style={{ margin: 0, fontWeight: 700 }}>
@@ -362,7 +358,7 @@ export const PatientLogin: React.FC = () => {
               </div>
               <div>
                 <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>
-                  {lang === 'te' ? '6 అంకెల ఎంపిన్ సెట్ చేయండి' : 'Set / Reset 6-Digit MPIN'}
+                  {lang === 'te' ? '6 అంకెల ఎంపిన్ సెట్ / రీసెట్ చేయండి' : 'Set / Reset 6-Digit MPIN'}
                 </h3>
                 <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--slate-500)' }}>
                   {lang === 'te' ? 'మీ నమోదిత మొబైల్ నంబర్‌తో కొత్త ఎంపిన్ సృష్టించండి' : 'Update your MPIN using registered phone number'}
@@ -370,9 +366,11 @@ export const PatientLogin: React.FC = () => {
               </div>
             </div>
 
-            <form onSubmit={handleResetMpin}>
+            <form onSubmit={handleResetMpin} noValidate>
               <div className="form-group">
-                <label className="form-label" style={{ fontWeight: 600 }}>{lang === 'te' ? 'నమోదిత మొబైల్ నంబర్' : 'Registered Mobile Number'}</label>
+                <label className="form-label" style={{ fontWeight: 600 }}>
+                  {lang === 'te' ? 'నమోదిత మొబైల్ సంఖ్య *' : 'Registered Mobile Number *'}
+                </label>
                 <input
                   type="tel"
                   maxLength={10}
@@ -385,7 +383,9 @@ export const PatientLogin: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label" style={{ fontWeight: 600 }}>{lang === 'te' ? 'కొత్త 6 అంకెల ఎంపిన్' : 'New 6-Digit MPIN'}</label>
+                <label className="form-label" style={{ fontWeight: 600 }}>
+                  {lang === 'te' ? 'కొత్త 6 అంకెల ఎంపిన్ *' : 'New 6-Digit MPIN *'}
+                </label>
                 <div style={{ position: 'relative' }}>
                   <input
                     type={showNewMpin ? 'text' : 'password'}
@@ -418,7 +418,9 @@ export const PatientLogin: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label" style={{ fontWeight: 600 }}>{lang === 'te' ? 'ఎంపిన్ నిర్ధారించండి' : 'Confirm New MPIN'}</label>
+                <label className="form-label" style={{ fontWeight: 600 }}>
+                  {lang === 'te' ? 'కొత్త ఎంపిన్‌ను నిర్ధారించండి *' : 'Confirm New MPIN *'}
+                </label>
                 <input
                   type="password"
                   inputMode="numeric"
@@ -447,7 +449,7 @@ export const PatientLogin: React.FC = () => {
                   disabled={resetLoading || resetPhone.length !== 10 || newMpin.length !== 6 || newMpin !== confirmNewMpin}
                   style={{ flex: 1 }}
                 >
-                  {resetLoading ? (lang === 'te' ? 'నవీకరిస్తోంది...' : 'Saving...') : (lang === 'te' ? 'సేవ్ చేయండి' : 'Save MPIN')}
+                  {resetLoading ? (lang === 'te' ? 'నవీకరిస్తోంది...' : 'Saving...') : (lang === 'te' ? 'ఎంపిన్ సేవ్ చేయండి' : 'Save MPIN')}
                 </button>
               </div>
             </form>

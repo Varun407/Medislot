@@ -7,15 +7,10 @@ import { useLanguage } from '../../context/LanguageContext';
 import {
   UserPlus,
   ArrowRight,
-  ShieldCheck,
   Check,
   Eye,
   EyeOff,
-  Sparkles,
-  Phone,
-  KeyRound,
-  FileCheck2,
-  AlertCircle
+  Sparkles
 } from 'lucide-react';
 
 export const PatientRegister: React.FC = () => {
@@ -87,7 +82,7 @@ export const PatientRegister: React.FC = () => {
     }
 
     if (mpin !== confirmMpin) {
-      error(lang === 'te' ? 'ఎంపిన్‌లు సరిపోలడం లేదు.' : 'MPIN and Confirm MPIN do not match.');
+      error(lang === 'te' ? 'ఎంపిన్ మరియు కన్ఫర్మ్ ఎంపిన్ సరిపోలడం లేదు.' : 'MPIN and Confirm MPIN do not match.');
       return;
     }
 
@@ -118,7 +113,7 @@ export const PatientRegister: React.FC = () => {
       login(res.data.user, res.data.token);
       success(
         lang === 'te'
-          ? 'ఖాతా మరియు 6 అంకెల ఎంపిన్ విజయవంతంగా సృష్టించబడ్డాయి!'
+          ? 'రోగి ఖాతా మరియు 6 అంకెల ఎంపిన్ విజయవంతంగా సృష్టించబడ్డాయి!'
           : 'Patient account & 6-digit MPIN created successfully!'
       );
       navigate('/patient/dashboard');
@@ -126,7 +121,7 @@ export const PatientRegister: React.FC = () => {
       error(
         err.response?.data?.error ||
           (lang === 'te'
-            ? 'రిజిస్ట్రేషన్ విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.'
+            ? 'రిజిస్ట్రేషన్ విఫలమైంది. దయచేసి మీ వివరాలను తనిఖీ చేయండి.'
             : 'Registration failed. Please verify your details.')
       );
     } finally {
@@ -169,7 +164,7 @@ export const PatientRegister: React.FC = () => {
           </h2>
           <p style={{ fontSize: '0.84rem', color: 'var(--slate-500)', marginTop: '6px' }}>
             {lang === 'te'
-              ? 'మొబైల్ నంబర్ మరియు 6 అంకెల ఎంపిన్‌తో సురక్షిత డిజిటల్ ఓపీడీ ఖాతా'
+              ? 'మొబైల్ నంబర్ మరియు 6 అంకెల ఎంపిన్‌తో వేగవంతమైన, సురక్షితమైన ఓపీడీ ఖాతా'
               : 'Fast, secure OPD registration with 10-digit mobile & 6-digit MPIN'}
           </p>
         </div>
@@ -178,7 +173,7 @@ export const PatientRegister: React.FC = () => {
           {/* Full Name */}
           <div className="form-group">
             <label className="form-label" style={{ fontWeight: 700 }}>
-              {t.fullName} *
+              {lang === 'te' ? 'పూర్తి పేరు *' : 'Full Name *'}
             </label>
             <input
               type="text"
@@ -211,7 +206,7 @@ export const PatientRegister: React.FC = () => {
           {/* 10-Digit Mobile Number with Indian +91 Country Interface */}
           <div className="form-group">
             <label className="form-label" style={{ fontWeight: 700 }}>
-              {lang === 'te' ? 'మొబైల్ నంబర్ *' : 'Mobile Number *'}
+              {lang === 'te' ? 'మొబైల్ సంఖ్య (10 అంకెలు) *' : 'Mobile Number (10 digits) *'}
             </label>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <div
@@ -261,13 +256,13 @@ export const PatientRegister: React.FC = () => {
               {phone.length > 0 && !isPhoneValid ? (
                 <span style={{ color: 'var(--rose-600)' }}>
                   {lang === 'te'
-                    ? 'దయచేసి 10 అంకెల మొబైల్ నంబర్‌ను నమోదు చేయండి (6, 7, 8 లేదా 9తో ప్రారంభం).'
+                    ? 'దయచేసి 6, 7, 8 లేదా 9తో ప్రారంభమయ్యే 10 అంకెల మొబైల్ నంబర్‌ను నమోదు చేయండి.'
                     : 'Must be 10 digits starting with 6, 7, 8, or 9.'}
                 </span>
               ) : (
                 <span>
                   {lang === 'te'
-                    ? '💡 ఈ మొబైల్ నంబర్‌తోనే భవిష్యత్తులో లాగిన్ చేయవచ్చు.'
+                    ? '💡 ఈ 10 అంకెల మొబైల్ నంబర్‌తోనే భవిష్యత్తులో లాగిన్ చేయవచ్చు.'
                     : '💡 Your 10-digit mobile number will be your permanent sign-in identity.'}
                 </span>
               )}
@@ -326,7 +321,7 @@ export const PatientRegister: React.FC = () => {
                 ) : isMpinValid ? (
                   <span style={{ color: 'var(--emerald-600)' }}>✓ 6 {lang === 'te' ? 'అంకెల ఎంపిన్' : 'digits'}</span>
                 ) : (
-                  <span>{lang === 'te' ? 'ఖచ్చితంగా 6 అంకెలు' : 'Exactly 6 digits (0-9)'}</span>
+                  <span>{lang === 'te' ? 'ఖచ్చితంగా 6 అంకెలు (0-9)' : 'Exactly 6 digits (0-9)'}</span>
                 )}
               </div>
             </div>
@@ -395,13 +390,13 @@ export const PatientRegister: React.FC = () => {
               inputMode="numeric"
               className="form-input"
               maxLength={12}
-              placeholder={lang === 'te' ? 'ఉదా: 567890123456' : 'e.g. 567890123456'}
+              placeholder={lang === 'te' ? 'ఉదా: 5678 9012 3456' : 'e.g. 5678 9012 3456'}
               value={aadhar}
               onChange={handleAadharChange}
             />
             <div style={{ fontSize: '0.74rem', color: 'var(--slate-500)', marginTop: '4px' }}>
               {lang === 'te'
-                ? '💡 ఆధార్‌ను లింక్ చేస్తే వైద్య చరిత్ర మరియు డా. ఎన్టీఆర్ వైద్య సేవ ప్రయోజనాలు వేగంగా లభిస్తాయి.'
+                ? '💡 ఆధార్‌ను అనుసంధానిస్తే వైద్య చరిత్ర మరియు డా. ఎన్టీఆర్ వైద్య సేవ ప్రయోజనాలు వేగంగా లభిస్తాయి.'
                 : '💡 Linking Aadhaar enables faster health records and Dr. NTR Vaidya Seva benefits.'}
             </div>
           </div>
@@ -416,7 +411,9 @@ export const PatientRegister: React.FC = () => {
               onChange={(e) => setAgreeTerms(e.target.checked)}
             />
             <label htmlFor="termsCheck" style={{ fontSize: '0.8rem', color: 'var(--slate-600)', cursor: 'pointer', lineHeight: 1.4 }}>
-              {t.agreeTermsLabel}
+              {lang === 'te'
+                ? 'నేను ఏపీ పబ్లిక్ హెల్త్ గోప్యతా విధానం మరియు డిజిటల్ నిబంధనలను అంగీకరిస్తున్నాను.'
+                : 'I accept the AP Public Health Privacy Policy & Terms.'}
             </label>
           </div>
 
@@ -438,7 +435,7 @@ export const PatientRegister: React.FC = () => {
             {lang === 'te' ? 'ఇప్పటికే ఖాతా ఉందా? ' : 'Already have an account? '}
           </span>
           <Link to="/patient/login" style={{ fontWeight: 700, color: 'var(--blue-600)' }}>
-            {lang === 'te' ? 'ఇక్కడ సైన్ ఇన్ చేయండి' : 'Sign In'}
+            {lang === 'te' ? 'ఇక్కడ సైన్ ఇన్ చేయండి' : 'Sign In here'}
           </Link>
         </div>
       </div>
