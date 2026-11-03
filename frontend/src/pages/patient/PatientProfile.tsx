@@ -141,7 +141,7 @@ export const PatientProfile: React.FC = () => {
             <input
               type="text"
               className="form-input"
-              placeholder={lang === 'te' ? 'ఉదా: AP-XXXX-XXXX లేదా ఆరోగ్యశ్రీ కార్డు సంఖ్య' : 'e.g. AP-XXXX-XXXX or Arogyasri Card Number'}
+              placeholder={lang === 'te' ? 'ఉదా: AP-XXXX-XXXX లేదా డా. ఎన్టీఆర్ వైద్య సేవ కార్డు సంఖ్య' : 'e.g. AP-XXXX-XXXX or Dr. NTR Vaidya Seva Card Number'}
               value={abhaId}
               onChange={(e) => setAbhaId(e.target.value)}
             />

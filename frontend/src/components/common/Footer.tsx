@@ -17,7 +17,9 @@ export const Footer: React.FC = () => {
               <span style={{ fontSize: '1.8rem' }}>🏥</span>
               <div>
                 <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>MediSlot</h4>
-                <p style={{ margin: 0, fontSize: '0.75rem', color: '#94b8e3' }}>{t.brandDept}</p>
+                <p style={{ margin: 0, fontSize: '0.75rem', color: '#94b8e3' }}>
+                  {lang === 'te' ? 'ఆంధ్రప్రదేశ్ ప్రజా ఆరోగ్య డిజిటల్ ఓపీడీ వేదిక' : 'Smart Healthcare Access & OPD Management Platform'}
+                </p>
               </div>
             </div>
             <p style={{ color: '#94b8e3', fontSize: '0.82rem', lineHeight: 1.6, maxWidth: '320px' }}>
@@ -40,8 +42,8 @@ export const Footer: React.FC = () => {
           <div className="footer-col">
             <h4>{lang === 'te' ? 'పోర్టల్ ప్రవేశం' : 'Portal Access'}</h4>
             <ul>
-              <li><Link to="/login">{lang === 'te' ? 'పోర్టల్ లాగిన్' : 'Sign In'}</Link></li>
-              <li><Link to="/patient/register">{lang === 'te' ? 'రోగి రిజిస్ట్రేషన్' : 'Patient Registration'}</Link></li>
+              <li><Link to="/patient/login">{lang === 'te' ? 'రోగి సైన్ ఇన్ (మొబైల్ & MPIN)' : 'Patient Sign In (Mobile & MPIN)'}</Link></li>
+              <li><Link to="/patient/register">{lang === 'te' ? 'రోగి ఖాతా సృష్టించండి' : 'Create Patient Account'}</Link></li>
               <li><Link to="/doctor/register">{lang === 'te' ? 'వైద్యుల రిజిస్ట్రేషన్' : 'Doctor Registration'}</Link></li>
               <li><Link to="/control-center/login">{lang === 'te' ? 'అడ్మిన్ కంట్రోల్ సెంటర్' : 'Admin Portal'}</Link></li>
             </ul>
@@ -52,6 +54,7 @@ export const Footer: React.FC = () => {
             <ul>
               <li style={{ color: '#fed7aa', fontWeight: 700 }}>🚑 108 - Ambulance</li>
               <li style={{ color: '#fed7aa', fontWeight: 700 }}>🩺 104 - Medical Advice</li>
+              <li style={{ color: '#fed7aa', fontWeight: 700 }}>🏥 1800-425-1818 - Dr. NTR Vaidya Seva</li>
               <li style={{ color: '#fed7aa', fontWeight: 700 }}>🚨 112 - National Emergency</li>
               <li style={{ color: '#94b8e3', marginTop: '6px' }}>District Hospital, Bhimavaram</li>
             </ul>
@@ -59,10 +62,10 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} Department of Health, Medical & Family Welfare, Govt. of Andhra Pradesh. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} MediSlot · Department of Health, Medical & Family Welfare, Govt. of Andhra Pradesh. All rights reserved.</p>
           <p style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Shield size={13} />
-            Secure Role-Based Access · ISO 27001 Healthcare Standards
+            Secure Mobile & 6-Digit MPIN Auth · ISO 27001 Healthcare Standards
           </p>
         </div>
       </div>

@@ -5,13 +5,16 @@ const { authenticateToken } = require('../middleware/auth');
 const { authLimiter } = require('../middleware/rateLimiter');
 const {
     validatePatientRegistration,
+    validatePatientLogin,
+    validateResetMpin,
     validateDoctorRegistration,
     validateLoginInput
 } = require('../middleware/validation');
 
-// Patient Auth
+// Patient Auth (Mobile + 6-Digit MPIN)
 router.post('/patient/register', authLimiter, validatePatientRegistration, authController.patientRegister);
-router.post('/patient/login', authLimiter, validateLoginInput, authController.patientLogin);
+router.post('/patient/login', authLimiter, validatePatientLogin, authController.patientLogin);
+router.post('/patient/reset-mpin', authLimiter, validateResetMpin, authController.resetMpin);
 
 // Doctor Auth
 router.post('/doctor/register', authLimiter, validateDoctorRegistration, authController.doctorRegister);

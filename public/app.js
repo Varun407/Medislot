@@ -171,7 +171,7 @@ const i18n = {
         // Hero
         heroTag: "Government Hospital Digital OPD System",
         heroHeading: "Quality Free Public Healthcare,<br>Zero Waiting Queue Hassle!",
-        heroDesc: "Check doctor availability, book OPD appointment slots online, and get an authentic sequential token number. Integrated with Dr. YSR Aarogyasri & Ayushman Bharat.",
+        heroDesc: "Check doctor availability, book OPD appointment slots online, and get an authentic sequential token number. Integrated with Dr. NTR Vaidya Seva & Ayushman Bharat.",
         badge1: "Trusted Super Specialty Doctors",
         badge2: "Live Sequential OPD Token",
         badge3: "Free Diagnostics & Free Medicines",
@@ -251,7 +251,7 @@ const i18n = {
         servicesHeading: "Hospital Services & Public Health Schemes",
         service1Title: "24x7 Emergency & Trauma Care",
         service1Desc: "108 Emergency Ambulance network, 24-hour casualty doctors, and fully equipped resuscitation.",
-        service2Title: "Dr. YSR Aarogyasri Free Care",
+        service2Title: "Dr. NTR Vaidya Seva Free Care",
         service2Desc: "Cashless advanced surgeries and inpatient treatments for all white card holders.",
         service3Title: "Free Diagnostics & Pathology",
         service3Desc: "Digital X-Rays, high-end Ultrasound, complete blood chemistry, and CT scan facilities.",

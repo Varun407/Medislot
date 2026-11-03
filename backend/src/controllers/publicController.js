@@ -190,11 +190,13 @@ async function getEmergencyInfo(req, res, next) {
                 },
                 {
                     number: '1800-425-1818',
-                    labelEn: 'Dr. YSR Aarogyasri Trust Toll-Free',
-                    labelTe: 'డా. వైఎస్సార్ ఆరోగ్యశ్రీ ట్రస్ట్ హెల్ప్‌లైన్',
+                    labelEn: 'Dr. NTR Vaidya Seva Trust Toll-Free',
+                    officialTrustNameEn: 'Dr. Nandamuri Taraka Rama Rao Vaidya Seva Trust',
+                    officialTrustNameTe: 'డా. నందమూరి తారక రామారావు వైద్య సేవ ట్రస్ట్',
+                    labelTe: 'డా. ఎన్టీఆర్ వైద్య సేవ ట్రస్ట్ హెల్ప్‌లైన్',
                     tollFree: true,
                     availability: '24 Hours / 7 Days',
-                    description: 'Empaneled hospital network grievances, cashless treatment pre-authorization.'
+                    description: 'Empaneled hospital network grievances, cashless treatment pre-authorization under Dr. NTR Vaidya Seva.'
                 }
             ],
             hospitalEmergencyDesks: hospitals.map(h => ({

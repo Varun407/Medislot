@@ -108,8 +108,8 @@ export const LandingPage: React.FC = () => {
     {
       qEn: "Is booking an OPD appointment on MediSlot completely free?",
       qTe: "మెడిస్లాట్‌లో ఓపీడీ అపాయింట్‌మెంట్ బుకింగ్ పూర్తిగా ఉచితమా?",
-      aEn: "Yes, 100% free! Under the Government of Andhra Pradesh public health initiatives and Dr. YSR Aarogyasri / Ayushman Bharat, all OPD registrations, clinical doctor consultations, diagnostic tests, and prescribed generic medications in government hospitals are provided completely free of charge.",
-      aTe: "అవును, నూరు శాతం ఉచితం! ఆంధ్రప్రదేశ్ ప్రభుత్వం మరియు డాక్టర్ వైఎస్సార్ ఆరోగ్యశ్రీ / ఆయుష్మాన్ భారత్ మార్గదర్శకాల ప్రకారం, ప్రభుత్వ ఆసుపత్రులలో అన్ని ఓపీడీ రిజిస్ట్రేషన్లు, నిపుణుల సంప్రదింపులు, వైద్య పరీక్షలు మరియు మందులు ప్రజలకు పూర్తిగా ఉచితంగా అందించబడతాయి."
+      aEn: "Yes, 100% free! Under the Government of Andhra Pradesh public health initiatives and Dr. NTR Vaidya Seva / Ayushman Bharat, all OPD registrations, clinical doctor consultations, diagnostic tests, and prescribed generic medications in government hospitals are provided completely free of charge.",
+      aTe: "అవును, నూరు శాతం ఉచితం! ఆంధ్రప్రదేశ్ ప్రభుత్వం మరియు డాక్టర్ ఎన్టీఆర్ వైద్య సేవ / ఆయుష్మాన్ భారత్ మార్గదర్శకాల ప్రకారం, ప్రభుత్వ ఆసుపత్రులలో అన్ని ఓపీడీ రిజిస్ట్రేషన్లు, నిపుణుల సంప్రదింపులు, వైద్య పరీక్షలు మరియు మందులు ప్రజలకు పూర్తిగా ఉచితంగా అందించబడతాయి."
     },
     {
       qEn: "How do I show my digital token when I reach the government hospital?",
@@ -169,7 +169,7 @@ export const LandingPage: React.FC = () => {
 
             <p className="landing-hero-subtitle">
               {lang === 'te'
-                ? 'ఆంధ్రప్రదేశ్ ప్రభుత్వ ఆసుపత్రులలో అనుభవజ్ఞులైన నిపుణుల లభ్యతను తనిఖీ చేయండి, సెకన్లలో ఓపీడీ స్లాట్ బుక్ చేసుకోండి, లైవ్ డిజిటల్ టోకెన్ పొందండి. ఆరోగ్యశ్రీ & ఆయుష్మాన్ భారత్ ద్వారా 100% ఉచిత సేవలు.'
+                ? 'ఆంధ్రప్రదేశ్ ప్రభుత్వ ఆసుపత్రులలో అనుభవజ్ఞులైన నిపుణుల లభ్యతను తనిఖీ చేయండి, సెకన్లలో ఓపీడీ స్లాట్ బుక్ చేసుకోండి, లైవ్ డిజిటల్ టోకెన్ పొందండి. డా. ఎన్టీఆర్ వైద్య సేవ & ఆయుష్మాన్ భారత్ ద్వారా 100% ఉచిత సేవలు.'
                 : 'Check real-time specialist doctor rosters, book OPD consultation slots from home, and receive verified digital tokens. Eliminate long morning queues across West Godavari and AP referral hospitals.'}
             </p>
 
@@ -204,7 +204,7 @@ export const LandingPage: React.FC = () => {
               </div>
               <div className="landing-trust-pill">
                 <CheckCircle2 size={15} color="#34d399" />
-                <span>{lang === 'te' ? 'ఆరోగ్యశ్రీ & ఆభా అనుసంధానం' : 'Aarogyasri & ABHA Integrated'}</span>
+                <span>{lang === 'te' ? 'డా. ఎన్టీఆర్ వైద్య సేవ & ఆభా అనుసంధానం' : 'Dr. NTR Vaidya Seva & ABHA Integrated'}</span>
               </div>
               <div className="landing-trust-pill">
                 <CheckCircle2 size={15} color="#34d399" />
@@ -255,7 +255,7 @@ export const LandingPage: React.FC = () => {
                   <HeartPulse size={18} color="#0284c7" />
                 </div>
                 <div>
-                  <div className="telemetry-value" style={{ fontSize: '0.86rem' }}>Dr. YSR Aarogyasri</div>
+                  <div className="telemetry-value" style={{ fontSize: '0.86rem' }}>Dr. NTR Vaidya Seva</div>
                   <div className="telemetry-sub">{lang === 'te' ? 'ఉచిత పరీక్షలు & మందులు' : '100% Free Govt Care'}</div>
                 </div>
               </div>
@@ -511,11 +511,11 @@ export const LandingPage: React.FC = () => {
               </div>
               <h3 className="how-step-title">{t.step4Title || 'Free Care & Medicines'}</h3>
               <p className="how-step-desc">
-                {t.step4Desc || 'Consult specialist physician, complete free diagnostic tests, and receive generic medicines under Aarogyasri.'}
+                {t.step4Desc || 'Consult specialist physician, complete free diagnostic tests, and receive generic medicines under Dr. NTR Vaidya Seva.'}
               </p>
               <div className="how-step-badge">
                 <CheckCircle2 size={13} color="#10b981" />
-                <span>{lang === 'te' ? 'ఆరోగ్యశ్రీ సేవలు' : 'Dr. YSR Aarogyasri'}</span>
+                <span>{lang === 'te' ? 'డా. ఎన్టీఆర్ వైద్య సేవ సేవలు' : 'Dr. NTR Vaidya Seva'}</span>
               </div>
             </div>
           </div>
@@ -864,7 +864,7 @@ export const LandingPage: React.FC = () => {
 
             <div className="innovation-card">
               <div className="inno-icon-box">🛡️</div>
-              <h3 className="inno-title">{t.whyFeature3Title || 'Aarogyasri & ABHA Linked'}</h3>
+              <h3 className="inno-title">{t.whyFeature3Title || 'Dr. NTR Vaidya Seva & ABHA Linked'}</h3>
               <p className="inno-desc">
                 {t.whyFeature3Desc || 'Seamless health history integration under government healthcare schemes for comprehensive continuum of care.'}
               </p>

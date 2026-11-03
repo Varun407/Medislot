@@ -1040,6 +1040,7 @@ async function initDatabase() {
     await db.collection('users').createIndex({ email: 1 }, { unique: true }).catch(() => {});
     await db.collection('users').createIndex({ id: 1 }, { unique: true }).catch(() => {});
     await db.collection('users').createIndex({ phone: 1 }).catch(() => {});
+    await db.collection('users').createIndex({ phone: 1 }, { unique: true, partialFilterExpression: { role: 'PATIENT' } }).catch(() => {});
     await db.collection('users').createIndex({ aadhar: 1 }).catch(() => {});
     await db.collection('appointments').createIndex({ id: 1 }, { unique: true }).catch(() => {});
     await db.collection('appointments').createIndex(
@@ -1505,7 +1506,7 @@ async function seedVerifiedDoctorAccounts() {
 async function seedDefaultPatientAccount() {
     const pEmail = 'patient@medislot.gov.in';
     const salt = await bcrypt.genSalt(10);
-    const pass = await bcrypt.hash('PatientPass@2026', salt);
+    const pass = await bcrypt.hash('123456', salt);
     const now = new Date().toISOString();
     const pId = 'usr_pat_demo_001';
 
@@ -1524,7 +1525,7 @@ async function seedDefaultPatientAccount() {
     await run(`
         INSERT INTO patient_profiles (
             userId, fullName, phone, age, gender, abhaId, aadhar, address, updatedAt
-        ) VALUES (?, 'Venkata Satyanarayana', '9849012345', 42, 'Male', 'AROGYASRI-AP-9821443', '567890123456', 'Door No 4-21, Main Road, Bhimavaram, West Godavari', ?)
+        ) VALUES (?, 'Venkata Satyanarayana', '9849012345', 42, 'Male', 'NTRVAIDYA-AP-9821443', '567890123456', 'Door No 4-21, Main Road, Bhimavaram, West Godavari', ?)
     `, [pId, now]);
 }
 

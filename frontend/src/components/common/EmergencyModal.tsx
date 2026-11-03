@@ -24,6 +24,7 @@ const FALLBACK_EMERGENCY: EmergencyData = {
   tollFreeNumbers: [
     { service: 'Ambulance Emergency', number: '108', desc: '24x7 Free Emergency Medical Service & Accident Response' },
     { service: 'Health Advice & Tele-Consultation', number: '104', desc: 'AP Health Information Helpline' },
+    { service: 'Dr. NTR Vaidya Seva Trust Toll-Free', number: '1800-425-1818', desc: 'Cashless treatment pre-authorization & network hospital assistance' },
     { service: 'Mother & Child Tracking (Janani Suraksha)', number: '102', desc: 'Free Transport for Pregnant Women & Infants' },
     { service: 'National Emergency Number', number: '112', desc: 'Single Emergency Response Number (Police, Fire, Ambulance)' },
     { service: 'Women Helpline', number: '181', desc: 'AP Women in Distress & Crisis Intervention' }

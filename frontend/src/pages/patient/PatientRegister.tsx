@@ -4,7 +4,19 @@ import { apiClient } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { UserPlus, ArrowRight, ShieldCheck, Check, AlertCircle, Sparkles } from 'lucide-react';
+import {
+  UserPlus,
+  ArrowRight,
+  ShieldCheck,
+  Check,
+  Eye,
+  EyeOff,
+  Sparkles,
+  Phone,
+  KeyRound,
+  FileCheck2,
+  AlertCircle
+} from 'lucide-react';
 
 export const PatientRegister: React.FC = () => {
   const { login } = useAuth();
@@ -13,100 +25,161 @@ export const PatientRegister: React.FC = () => {
   const navigate = useNavigate();
 
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [mpin, setMpin] = useState('');
+  const [confirmMpin, setConfirmMpin] = useState('');
+  const [showMpin, setShowMpin] = useState(false);
+  const [showConfirmMpin, setShowConfirmMpin] = useState(false);
   const [aadhar, setAadhar] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Compute password strength
-  const getPasswordStrength = (pass: string) => {
-    let score = 0;
-    if (pass.length >= 8) score++;
-    if (/[A-Z]/.test(pass)) score++;
-    if (/[0-9]/.test(pass)) score++;
-    if (/[^A-Za-z0-9]/.test(pass)) score++;
-    return score;
+  // Clean and constrain phone input to 10 digits
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, '');
+    setPhone(raw.slice(0, 10));
   };
 
-  const passwordScore = getPasswordStrength(password);
+  // Clean and constrain MPIN to 6 numeric digits
+  const handleMpinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, '');
+    setMpin(raw.slice(0, 6));
+  };
+
+  const handleConfirmMpinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, '');
+    setConfirmMpin(raw.slice(0, 6));
+  };
+
+  const handleAadharChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, '');
+    setAadhar(raw.slice(0, 12));
+  };
+
+  const isPhoneValid = phone.length === 10 && /^[6-9]\d{9}$/.test(phone);
+  const isMpinValid = mpin.length === 6 && /^\d{6}$/.test(mpin);
+  const isConfirmValid = confirmMpin.length === 6 && mpin === confirmMpin;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!fullName.trim() || !email.trim() || !phone.trim() || !password) {
-      error(lang === 'te' ? 'దయచేసి అన్ని అవసరమైన వివరాలను నమోదు చేయండి.' : 'Please complete all required fields.');
+    if (!fullName.trim()) {
+      error(lang === 'te' ? 'దయచేసి మీ పూర్తి పేరు నమోదు చేయండి.' : 'Please enter your full name.');
       return;
     }
 
-    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
-    if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
-      error(lang === 'te' ? 'దయచేసి చెల్లుబాటు అయ్యే 10 అంకెల మొబైల్ నంబర్‌ను నమోదు చేయండి.' : 'Please provide a valid 10-digit Indian mobile number.');
+    if (!isPhoneValid) {
+      error(
+        lang === 'te'
+          ? 'దయచేసి చెల్లుబాటు అయ్యే 10 అంకెల భారతీయ మొబైల్ నంబర్‌ను నమోదు చేయండి (6-9 తో ప్రారంభం కావాలి).'
+          : 'Please enter a valid 10-digit Indian mobile number (must start with 6-9).'
+      );
       return;
     }
 
-    const cleanAadhar = aadhar.replace(/\D/g, '');
-    if (aadhar.trim() && cleanAadhar.length !== 12) {
+    if (!isMpinValid) {
+      error(
+        lang === 'te'
+          ? 'ఎంపిన్ ఖచ్చితంగా 6 అంకెలు (0-9) మాత్రమే ఉండాలి.'
+          : 'MPIN must contain exactly 6 numeric digits (0-9).'
+      );
+      return;
+    }
+
+    if (mpin !== confirmMpin) {
+      error(lang === 'te' ? 'ఎంపిన్‌లు సరిపోలడం లేదు.' : 'MPIN and Confirm MPIN do not match.');
+      return;
+    }
+
+    if (aadhar.trim() && aadhar.length !== 12) {
       error(lang === 'te' ? 'ఆధార్ నంబర్ ఖచ్చితంగా 12 అంకెలు ఉండాలి.' : 'Aadhaar number must be exactly 12 digits.');
       return;
     }
 
-    if (password.length < 8) {
-      error(lang === 'te' ? 'పాస్‌వర్డ్ కనీసం 8 అక్షరాలు ఉండాలి.' : 'Password must be at least 8 characters in length.');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      error(lang === 'te' ? 'పాస్‌వర్డ్‌లు సరిపోలడం లేదు.' : 'Passwords do not match.');
-      return;
-    }
-
     if (!agreeTerms) {
-      error(lang === 'te' ? 'దయచేసి ఏపీ పబ్లిక్ హెల్త్ నిబంధనలను అంగీకరించండి.' : 'Please accept the AP Public Health Privacy Policy & Terms.');
+      error(
+        lang === 'te'
+          ? 'దయచేసి ఏపీ పబ్లిక్ హెల్త్ నిబంధనలను అంగీకరించండి.'
+          : 'Please accept the AP Public Health Privacy Policy & Terms.'
+      );
       return;
     }
 
     setLoading(true);
     try {
       const res = await apiClient.post('/auth/patient/register', {
-        fullName,
-        email,
-        phone: cleanPhone,
-        aadhar: cleanAadhar || undefined,
-        password,
-        confirmPassword
+        fullName: fullName.trim(),
+        phone,
+        mpin,
+        confirmMpin,
+        aadhar: aadhar || undefined
       });
 
       login(res.data.user, res.data.token);
-      success(lang === 'te' ? 'రోగి ఖాతా విజయవంతంగా నమోదు చేయబడింది!' : 'Patient account registered successfully!');
+      success(
+        lang === 'te'
+          ? 'ఖాతా మరియు 6 అంకెల ఎంపిన్ విజయవంతంగా సృష్టించబడ్డాయి!'
+          : 'Patient account & 6-digit MPIN created successfully!'
+      );
       navigate('/patient/dashboard');
     } catch (err: any) {
-      error(err.response?.data?.error || (lang === 'te' ? 'రిజిస్ట్రేషన్ విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.' : 'Registration failed. Please try again.'));
+      error(
+        err.response?.data?.error ||
+          (lang === 'te'
+            ? 'రిజిస్ట్రేషన్ విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.'
+            : 'Registration failed. Please verify your details.')
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="main-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '75vh' }}>
-      <div className="med-card" style={{ maxWidth: '500px', width: '100%', padding: '36px' }}>
+    <div
+      className="main-content"
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '80vh',
+        padding: '32px 16px'
+      }}
+    >
+      <div className="med-card" style={{ maxWidth: '520px', width: '100%', padding: '36px 32px' }}>
+        {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'var(--blue-50)', color: 'var(--blue-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-            <UserPlus size={28} />
+          <div
+            style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '16px',
+              background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+              color: 'var(--blue-600)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 12px',
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.12)'
+            }}
+          >
+            <UserPlus size={26} />
           </div>
-          <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--navy-900)' }}>
-            {t.createPatientAccount}
+          <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--navy-900)', margin: 0 }}>
+            {lang === 'te' ? 'కొత్త రోగి ఖాతాను సృష్టించండి' : 'Create Patient Account'}
           </h2>
-          <p style={{ fontSize: '0.84rem', color: 'var(--slate-500)', marginTop: '4px' }}>
-            {t.createPatientAccountSub}
+          <p style={{ fontSize: '0.84rem', color: 'var(--slate-500)', marginTop: '6px' }}>
+            {lang === 'te'
+              ? 'మొబైల్ నంబర్ మరియు 6 అంకెల ఎంపిన్‌తో సురక్షిత డిజిటల్ ఓపీడీ ఖాతా'
+              : 'Fast, secure OPD registration with 10-digit mobile & 6-digit MPIN'}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
+          {/* Full Name */}
           <div className="form-group">
-            <label className="form-label">{t.fullName}</label>
+            <label className="form-label" style={{ fontWeight: 700 }}>
+              {t.fullName} *
+            </label>
             <input
               type="text"
               className="form-input"
@@ -114,99 +187,226 @@ export const PatientRegister: React.FC = () => {
               placeholder={lang === 'te' ? 'ఉదా: కె. సీతాదేవి' : 'e.g. K. Sita Devi'}
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
+              autoComplete="name"
             />
             {fullName.trim() && (
-              <div style={{ fontSize: '0.78rem', color: 'var(--blue-600)', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div
+                style={{
+                  fontSize: '0.78rem',
+                  color: 'var(--blue-600)',
+                  marginTop: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+              >
                 <Sparkles size={12} />
-                <span>{t.autoTeluguPreview} <strong>{localizeName(fullName)}</strong></span>
+                <span>
+                  {t.autoTeluguPreview} <strong>{localizeName(fullName)}</strong>
+                </span>
               </div>
             )}
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '14px' }}>
-            <div className="form-group">
-              <label className="form-label">{t.emailAddress} *</label>
-              <input
-                type="email"
-                className="form-input"
-                required
-                placeholder="sita.devi@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+          {/* 10-Digit Mobile Number with Indian +91 Country Interface */}
+          <div className="form-group">
+            <label className="form-label" style={{ fontWeight: 700 }}>
+              {lang === 'te' ? 'మొబైల్ నంబర్ *' : 'Mobile Number *'}
+            </label>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: 'var(--slate-100)',
+                  border: '1px solid var(--slate-300)',
+                  borderRadius: '8px',
+                  padding: '9px 12px',
+                  fontSize: '0.88rem',
+                  fontWeight: 700,
+                  color: 'var(--slate-700)',
+                  userSelect: 'none'
+                }}
+              >
+                <span>🇮🇳</span>
+                <span>+91</span>
+              </div>
+              <div style={{ flex: 1, position: 'relative' }}>
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  className="form-input"
+                  required
+                  maxLength={10}
+                  placeholder="9848012345"
+                  value={phone}
+                  onChange={handlePhoneChange}
+                  autoComplete="tel"
+                  style={{
+                    borderColor:
+                      phone.length > 0 ? (isPhoneValid ? 'var(--emerald-500)' : 'var(--rose-400)') : undefined
+                  }}
+                />
+                {isPhoneValid && (
+                  <Check
+                    size={16}
+                    color="var(--emerald-600)"
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}
+                  />
+                )}
+              </div>
             </div>
-
-            <div className="form-group">
-              <label className="form-label">{t.mobile10Digits}</label>
-              <input
-                type="tel"
-                className="form-input"
-                required
-                placeholder="98480XXXXX"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
+            <div style={{ fontSize: '0.74rem', color: 'var(--slate-500)', marginTop: '4px' }}>
+              {phone.length > 0 && !isPhoneValid ? (
+                <span style={{ color: 'var(--rose-600)' }}>
+                  {lang === 'te'
+                    ? 'దయచేసి 10 అంకెల మొబైల్ నంబర్‌ను నమోదు చేయండి (6, 7, 8 లేదా 9తో ప్రారంభం).'
+                    : 'Must be 10 digits starting with 6, 7, 8, or 9.'}
+                </span>
+              ) : (
+                <span>
+                  {lang === 'te'
+                    ? '💡 ఈ మొబైల్ నంబర్‌తోనే భవిష్యత్తులో లాగిన్ చేయవచ్చు.'
+                    : '💡 Your 10-digit mobile number will be your permanent sign-in identity.'}
+                </span>
+              )}
             </div>
           </div>
 
+          {/* 6-Digit MPIN Row */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+            {/* Create MPIN */}
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 700 }}>
+                {lang === 'te' ? '6 అంకెల ఎంపిన్ సృష్టించండి *' : 'Create 6-Digit MPIN *'}
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showMpin ? 'text' : 'password'}
+                  inputMode="numeric"
+                  pattern="\d*"
+                  maxLength={6}
+                  className="form-input"
+                  required
+                  placeholder="••••••"
+                  value={mpin}
+                  onChange={handleMpinChange}
+                  autoComplete="new-password"
+                  style={{
+                    letterSpacing: mpin.length > 0 ? '4px' : 'normal',
+                    fontWeight: 700,
+                    paddingRight: '36px'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowMpin(!showMpin)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--slate-400)',
+                    cursor: 'pointer',
+                    padding: 0
+                  }}
+                  title={showMpin ? 'Hide MPIN' : 'Show MPIN'}
+                >
+                  {showMpin ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--slate-500)', marginTop: '4px' }}>
+                {mpin.length > 0 && mpin.length < 6 ? (
+                  <span style={{ color: 'var(--amber-600)' }}>
+                    {6 - mpin.length} {lang === 'te' ? 'అంకెలు అవసరం' : 'digits remaining'}
+                  </span>
+                ) : isMpinValid ? (
+                  <span style={{ color: 'var(--emerald-600)' }}>✓ 6 {lang === 'te' ? 'అంకెల ఎంపిన్' : 'digits'}</span>
+                ) : (
+                  <span>{lang === 'te' ? 'ఖచ్చితంగా 6 అంకెలు' : 'Exactly 6 digits (0-9)'}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Confirm MPIN */}
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 700 }}>
+                {lang === 'te' ? 'ఎంపిన్ నిర్ధారించండి *' : 'Confirm 6-Digit MPIN *'}
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showConfirmMpin ? 'text' : 'password'}
+                  inputMode="numeric"
+                  pattern="\d*"
+                  maxLength={6}
+                  className="form-input"
+                  required
+                  placeholder="••••••"
+                  value={confirmMpin}
+                  onChange={handleConfirmMpinChange}
+                  autoComplete="new-password"
+                  style={{
+                    letterSpacing: confirmMpin.length > 0 ? '4px' : 'normal',
+                    fontWeight: 700,
+                    paddingRight: '36px'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmMpin(!showConfirmMpin)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--slate-400)',
+                    cursor: 'pointer',
+                    padding: 0
+                  }}
+                  title={showConfirmMpin ? 'Hide MPIN' : 'Show MPIN'}
+                >
+                  {showConfirmMpin ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--slate-500)', marginTop: '4px' }}>
+                {confirmMpin.length > 0 && (
+                  isConfirmValid ? (
+                    <span style={{ color: 'var(--emerald-600)', fontWeight: 600 }}>✓ {lang === 'te' ? 'ఎంపిన్‌లు సరిపోయాయి' : 'MPINs match'}</span>
+                  ) : (
+                    <span style={{ color: 'var(--rose-600)', fontWeight: 600 }}>✗ {lang === 'te' ? 'సరిపోలడం లేదు' : 'Do not match'}</span>
+                  )
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Optional 12-Digit Aadhaar */}
           <div className="form-group">
-            <label className="form-label">
-              {t.aadharOptional || (lang === 'te' ? 'ఆధార్ నంబర్ (ఐచ్ఛికం - 12 అంకెలు)' : 'Aadhaar Number (Optional - 12 digits)')}
+            <label className="form-label" style={{ fontWeight: 600 }}>
+              {lang === 'te' ? 'ఆధార్ సంఖ్య (ఐచ్ఛికం - 12 అంకెలు)' : 'Aadhaar Number (Optional - 12 digits)'}
             </label>
             <input
               type="text"
+              inputMode="numeric"
               className="form-input"
-              maxLength={14}
-              placeholder={lang === 'te' ? 'ఉదా: 5678 9012 3456 (సులభంగా లాగిన్ అవ్వడానికి)' : 'e.g. 5678 9012 3456 (Enables quick Aadhaar sign-in)'}
+              maxLength={12}
+              placeholder={lang === 'te' ? 'ఉదా: 567890123456' : 'e.g. 567890123456'}
               value={aadhar}
-              onChange={(e) => setAadhar(e.target.value)}
+              onChange={handleAadharChange}
             />
             <div style={{ fontSize: '0.74rem', color: 'var(--slate-500)', marginTop: '4px' }}>
-              {lang === 'te' ? '💡 మీ ఆధార్‌ను ఇక్కడ లింక్ చేస్తే భవిష్యత్తులో ఆధార్ నంబర్‌తో నేరుగా లాగిన్ చేయవచ్చు.' : '💡 Linking Aadhaar enables instant 1-click sign in with your 12-digit Aadhaar number.'}
+              {lang === 'te'
+                ? '💡 ఆధార్‌ను లింక్ చేస్తే వైద్య చరిత్ర మరియు డా. ఎన్టీఆర్ వైద్య సేవ ప్రయోజనాలు వేగంగా లభిస్తాయి.'
+                : '💡 Linking Aadhaar enables faster health records and Dr. NTR Vaidya Seva benefits.'}
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-            <div className="form-group">
-              <label className="form-label">{t.passwordLabel} *</label>
-              <input
-                type="password"
-                className="form-input"
-                required
-                placeholder={t.atLeast8Chars}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">{t.confirmPassword}</label>
-              <input
-                type="password"
-                className="form-input"
-                required
-                placeholder={t.reEnterPassword}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Password Strength Meter */}
-          {password && (
-            <div style={{ marginBottom: '16px' }}>
-              <div style={{ display: 'flex', gap: '4px', height: '5px', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ flex: 1, background: passwordScore >= 1 ? 'var(--rose-500)' : 'var(--slate-200)' }} />
-                <div style={{ flex: 1, background: passwordScore >= 2 ? 'var(--amber-500)' : 'var(--slate-200)' }} />
-                <div style={{ flex: 1, background: passwordScore >= 3 ? 'var(--blue-500)' : 'var(--slate-200)' }} />
-                <div style={{ flex: 1, background: passwordScore >= 4 ? 'var(--emerald-500)' : 'var(--slate-200)' }} />
-              </div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--slate-500)', marginTop: '4px', textAlign: 'right' }}>
-                {passwordScore <= 1 ? t.passWeak : passwordScore === 2 ? t.passModerate : passwordScore === 3 ? t.passStrong : t.passVeryStrong}
-              </div>
-            </div>
-          )}
-
+          {/* Terms Agreement */}
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', margin: '14px 0 20px' }}>
             <input
               type="checkbox"
@@ -220,19 +420,29 @@ export const PatientRegister: React.FC = () => {
             </label>
           </div>
 
-          <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%' }}>
-            {loading ? t.creatingAccount : t.completePatientReg}
+          {/* Registration Button */}
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={loading || !isPhoneValid || !isMpinValid || !isConfirmValid || !agreeTerms}
+            style={{ width: '100%', height: '46px', fontSize: '0.94rem', fontWeight: 700 }}
+          >
+            {loading ? (lang === 'te' ? 'ఖాతా సృష్టిస్తోంది...' : 'Creating Account...') : (lang === 'te' ? 'ఖాతాను సృష్టించండి' : 'Create Account')}
             <ArrowRight size={16} />
           </button>
         </form>
 
+        {/* Existing Account Footer Link */}
         <div style={{ borderTop: '1px solid var(--slate-200)', marginTop: '24px', paddingTop: '18px', textAlign: 'center', fontSize: '0.85rem' }}>
-          <span style={{ color: 'var(--slate-500)' }}>{t.alreadyAccount} </span>
+          <span style={{ color: 'var(--slate-500)' }}>
+            {lang === 'te' ? 'ఇప్పటికే ఖాతా ఉందా? ' : 'Already have an account? '}
+          </span>
           <Link to="/patient/login" style={{ fontWeight: 700, color: 'var(--blue-600)' }}>
-            {t.loginHere}
+            {lang === 'te' ? 'ఇక్కడ సైన్ ఇన్ చేయండి' : 'Sign In'}
           </Link>
         </div>
       </div>
     </div>
   );
 };
+export default PatientRegister;

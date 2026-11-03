@@ -5,17 +5,18 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useLanguage } from '../../context/LanguageContext';
 import {
-  Lock,
-  Mail,
+  LogIn,
   ArrowRight,
   ShieldCheck,
-  Building2,
-  Stethoscope,
-  User as UserIcon,
   Eye,
   EyeOff,
+  User as UserIcon,
+  Stethoscope,
+  Globe,
   Sparkles,
-  Globe
+  Phone,
+  KeyRound,
+  Lock
 } from 'lucide-react';
 
 export const UnifiedLogin: React.FC = () => {
@@ -24,24 +25,22 @@ export const UnifiedLogin: React.FC = () => {
   const { lang, t, toggleLang } = useLanguage();
   const navigate = useNavigate();
 
-  const [identifier, setIdentifier] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  // Mode: 'PATIENT' | 'STAFF' (Doctor/Admin)
+  const [activeTab, setActiveTab] = useState<'PATIENT' | 'STAFF'>('PATIENT');
+
+  // Patient inputs
+  const [patientPhone, setPatientPhone] = useState('');
+  const [patientMpin, setPatientMpin] = useState('');
+  const [showMpin, setShowMpin] = useState(false);
+
+  // Staff (Doctor/Admin) inputs
+  const [staffIdentifier, setStaffIdentifier] = useState('');
+  const [staffPassword, setStaffPassword] = useState('');
+  const [showStaffPassword, setShowStaffPassword] = useState(false);
+
   const [loading, setLoading] = useState(false);
 
-  // Helper to detect identifier type for quick user feedback
-  const getIdentifierType = (val: string) => {
-    const clean = val.trim();
-    if (!clean) return null;
-    if (clean.includes('@')) return 'email';
-    const digits = clean.replace(/\D/g, '');
-    if (digits.length === 12) return 'aadhar';
-    if (digits.length === 10 || (digits.length > 10 && clean.startsWith('+'))) return 'phone';
-    return null;
-  };
-  const detectedType = getIdentifierType(identifier);
-
-  // If already authenticated, redirect directly to role dashboard
+  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && user && role) {
       if (role === 'DOCTOR') {
@@ -58,77 +57,127 @@ export const UnifiedLogin: React.FC = () => {
     }
   }, [isAuthenticated, user, role, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Demo autofill handlers
+  const fillPatientDemo = () => {
+    setActiveTab('PATIENT');
+    setPatientPhone('9849012345');
+    setPatientMpin('123456');
+  };
+
+  const fillDoctorDemo = () => {
+    setActiveTab('STAFF');
+    setStaffIdentifier('dr.ramesh@medislot.gov.in');
+    setStaffPassword('DoctorPass@2026');
+  };
+
+  const fillAdminDemo = () => {
+    setActiveTab('STAFF');
+    setStaffIdentifier('admin@medislot.gov.in');
+    setStaffPassword('AdminSecure@2026');
+  };
+
+  const handlePatientSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!identifier.trim() || !password) {
-      error(lang === 'te' ? 'దయచేసి మీ ఇమెయిల్, ఫోన్ లేదా ఆధార్ నంబర్ మరియు పాస్‌వర్డ్ నమోదు చేయండి.' : 'Please enter your email, phone, or Aadhaar number and password.');
+    const cleanPhone = patientPhone.replace(/\D/g, '').slice(-10);
+
+    if (!cleanPhone || cleanPhone.length !== 10) {
+      error(lang === 'te' ? 'దయచేసి 10 అంకెల మొబైల్ నంబర్ నమోదు చేయండి.' : 'Please enter a valid 10-digit mobile number.');
+      return;
+    }
+
+    if (!patientMpin || patientMpin.length !== 6 || !/^\d{6}$/.test(patientMpin)) {
+      error(lang === 'te' ? 'ఎంపిన్ ఖచ్చితంగా 6 అంకెలు ఉండాలి.' : 'Please enter your 6-digit MPIN.');
       return;
     }
 
     setLoading(true);
     try {
-      // Calls unified login endpoint that identifies DOCTOR, PATIENT, or ADMIN by Email, Phone, or Aadhaar
-      const res = await apiClient.post('/auth/login', {
-        identifier: identifier.trim(),
-        email: identifier.trim(), // backward compatibility
-        password
+      const res = await apiClient.post('/auth/patient/login', {
+        phone: cleanPhone,
+        mpin: patientMpin
       });
+
       const authUser = res.data.user;
       login(authUser, res.data.token);
-
-      if (authUser.role === 'DOCTOR') {
-        if (authUser.verificationStatus === 'PENDING') {
-          success(lang === 'te' ? `స్వాగతం డాక్టర్ ${authUser.fullName}! మీ ధృవీకరణ పెండింగ్‌లో ఉంది.` : `Welcome Dr. ${authUser.fullName}! Your verification is pending.`);
-          navigate('/doctor/pending', { replace: true });
-        } else {
-          success(lang === 'te' ? `స్వాగతం డాక్టర్ ${authUser.fullName}! ఓపీడీ క్యూ తెరవబడుతోంది.` : `Welcome Dr. ${authUser.fullName}! Opening Doctor OPD Queue.`);
-          navigate('/doctor/dashboard', { replace: true });
-        }
-      } else if (authUser.role === 'PATIENT') {
-        success(lang === 'te' ? `స్వాగతం, ${authUser.fullName}! రోగి పోర్టల్ తెరవబడుతోంది.` : `Welcome back, ${authUser.fullName}! Opening Patient Portal.`);
-        navigate('/patient/dashboard', { replace: true });
-      } else if (authUser.role === 'ADMIN') {
-        success(lang === 'te' ? 'చీఫ్ మెడికల్ అడ్మినిస్ట్రేటర్ ప్రామాణీకరించబడ్డారు.' : `Chief Medical Administrator authenticated.`);
-        navigate('/admin/dashboard', { replace: true });
-      } else {
-        navigate('/patient/dashboard', { replace: true });
-      }
+      success(lang === 'te' ? `స్వాగతం, ${authUser.fullName}!` : `Welcome back, ${authUser.fullName}!`);
+      navigate('/patient/dashboard', { replace: true });
     } catch (err: any) {
-      error(err.response?.data?.error || (lang === 'te' ? 'సరైన వివరాలు లేదా పాస్‌వర్డ్ కాదు.' : 'Invalid email, phone, Aadhaar, or password.'));
+      error(
+        err.response?.data?.error ||
+          (lang === 'te'
+            ? 'సరైన మొబైల్ నంబర్ లేదా 6 అంకెల ఎంపిన్ కాదు.'
+            : 'Invalid mobile number or 6-digit MPIN.')
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const fillDoctorDemo = () => {
-    setIdentifier('dr.ramesh@medislot.gov.in');
-    setPassword('DoctorPass@2026');
-  };
+  const handleStaffSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const fillPatientPhoneDemo = () => {
-    setIdentifier('9849012345');
-    setPassword('PatientPass@2026');
-  };
+    if (!staffIdentifier.trim() || !staffPassword) {
+      error(lang === 'te' ? 'దయచేసి ఇమెయిల్ మరియు పాస్‌వర్డ్ నమోదు చేయండి.' : 'Please enter email/phone and password.');
+      return;
+    }
 
-  const fillPatientAadharDemo = () => {
-    setIdentifier('567890123456');
-    setPassword('PatientPass@2026');
-  };
+    setLoading(true);
+    try {
+      const res = await apiClient.post('/auth/login', {
+        identifier: staffIdentifier.trim(),
+        password: staffPassword
+      });
 
-  const fillPatientEmailDemo = () => {
-    setIdentifier('patient@medislot.gov.in');
-    setPassword('PatientPass@2026');
-  };
+      const authUser = res.data.user;
+      login(authUser, res.data.token);
 
-  const fillAdminDemo = () => {
-    setIdentifier('admin@medislot.gov.in');
-    setPassword('AdminSecure@2026');
+      if (authUser.role === 'DOCTOR') {
+        if (authUser.verificationStatus === 'PENDING') {
+          success(lang === 'te' ? `స్వాగతం డాక్టర్ ${authUser.fullName}! మీ ఖాతా పరిశీలనలో ఉంది.` : `Welcome Dr. ${authUser.fullName}! Application pending verification.`);
+          navigate('/doctor/pending', { replace: true });
+        } else {
+          success(lang === 'te' ? `స్వాగతం డాక్టర్ ${authUser.fullName}!` : `Welcome Dr. ${authUser.fullName}!`);
+          navigate('/doctor/dashboard', { replace: true });
+        }
+      } else if (authUser.role === 'ADMIN') {
+        success(lang === 'te' ? 'చీఫ్ అడ్మినిస్ట్రేటర్ ప్రామాణీకరించబడ్డారు.' : 'Chief Administrator authenticated.');
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        navigate('/patient/dashboard', { replace: true });
+      }
+    } catch (err: any) {
+      error(
+        err.response?.data?.error ||
+          (lang === 'te' ? 'సరైన వివరాలు లేదా పాస్‌వర్డ్ కాదు.' : 'Invalid credentials.')
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="main-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', padding: '24px 16px' }}>
-      {/* Top minimal bar with Home navigation and Language Toggle */}
-      <div style={{ maxWidth: '480px', width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+    <div
+      className="main-content"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '85vh',
+        padding: '24px 16px'
+      }}
+    >
+      {/* Top minimal bar */}
+      <div
+        style={{
+          maxWidth: '460px',
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '14px'
+        }}
+      >
         <Link
           to="/"
           style={{
@@ -150,212 +199,362 @@ export const UnifiedLogin: React.FC = () => {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
-            background: 'var(--slate-100)',
-            border: '1px solid var(--slate-300)',
-            borderRadius: '20px',
-            padding: '5px 12px',
             fontSize: '0.78rem',
             fontWeight: 700,
-            color: 'var(--navy-900)',
-            cursor: 'pointer'
+            background: 'var(--slate-100)',
+            border: '1px solid var(--slate-300)',
+            padding: '4px 10px',
+            borderRadius: '20px',
+            cursor: 'pointer',
+            color: 'var(--slate-700)'
           }}
-          title="Toggle Language"
         >
-          <Globe size={13} color="var(--blue-600)" />
+          <Globe size={13} />
           {lang === 'en' ? 'తెలుగు' : 'English'}
         </button>
       </div>
 
-      <div className="med-card" style={{ maxWidth: '480px', width: '100%', padding: '38px 32px', boxShadow: 'var(--shadow-xl)', border: '1px solid var(--slate-200)' }}>
-        {/* Emblem & Branding Header */}
-        <div style={{ textAlign: 'center', marginBottom: '26px' }}>
-          <div style={{ fontSize: '3rem', lineHeight: 1, marginBottom: '8px' }}>
-            🏥
+      {/* Main Card */}
+      <div className="med-card" style={{ maxWidth: '460px', width: '100%', padding: '32px 28px' }}>
+        {/* Brand Header */}
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <div
+            style={{
+              width: '52px',
+              height: '52px',
+              borderRadius: '16px',
+              background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+              color: 'var(--blue-600)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 12px',
+              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.12)'
+            }}
+          >
+            <LogIn size={24} />
           </div>
-          <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--navy-900)', letterSpacing: '-0.3px', margin: 0 }}>
-            {t.portalLoginTitle}
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--navy-900)', margin: 0 }}>
+            {lang === 'te' ? 'మెడిస్లాట్ పోర్టల్ లాగిన్' : 'MediSlot Portal Sign In'}
           </h2>
-          <p style={{ fontSize: '0.82rem', color: 'var(--slate-500)', marginTop: '5px' }}>
-            {t.portalLoginSub}
+          <p style={{ fontSize: '0.82rem', color: 'var(--slate-500)', marginTop: '4px' }}>
+            {lang === 'te'
+              ? 'ఆంధ్రప్రదేశ్ ప్రజా ఆరోగ్య సేవలు & ఆసుపత్రి ఓపీడీ వ్యవస్థ'
+              : 'Smart Healthcare Access & OPD Management Platform'}
           </p>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--blue-50)', color: 'var(--blue-600)', padding: '4px 12px', borderRadius: '12px', fontSize: '0.74rem', fontWeight: 700, marginTop: '10px' }}>
-            <span className="pulse-dot" style={{ width: '6px', height: '6px' }} />
-            {t.singleGateway}
-          </div>
         </div>
 
-        {/* Quick Demo Credentials Autofill */}
-        <div style={{ background: 'var(--slate-50)', border: '1px solid var(--slate-200)', borderRadius: '8px', padding: '12px 14px', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.74rem', fontWeight: 700, color: 'var(--slate-600)', marginBottom: '8px' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Sparkles size={13} color="var(--blue-600)" />
-              {t.quickTestCredentials}
-            </span>
+        {/* Role Tabs */}
+        <div
+          style={{
+            display: 'flex',
+            background: 'var(--slate-100)',
+            borderRadius: '10px',
+            padding: '4px',
+            marginBottom: '18px',
+            border: '1px solid var(--slate-200)'
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setActiveTab('PATIENT')}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              padding: '8px 12px',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              background: activeTab === 'PATIENT' ? '#ffffff' : 'transparent',
+              color: activeTab === 'PATIENT' ? 'var(--blue-700)' : 'var(--slate-600)',
+              boxShadow: activeTab === 'PATIENT' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <UserIcon size={14} />
+            {lang === 'te' ? 'రోగులు & పౌరులు' : 'Patient / Citizen'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('STAFF')}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              padding: '8px 12px',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              background: activeTab === 'STAFF' ? '#ffffff' : 'transparent',
+              color: activeTab === 'STAFF' ? 'var(--emerald-700)' : 'var(--slate-600)',
+              boxShadow: activeTab === 'STAFF' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <Stethoscope size={14} />
+            {lang === 'te' ? 'వైద్యులు / అడ్మిన్' : 'Doctor / Staff'}
+          </button>
+        </div>
+
+        {/* Quick Test Demo Credentials */}
+        <div
+          style={{
+            background: 'var(--slate-50)',
+            border: '1px solid var(--slate-200)',
+            borderRadius: '8px',
+            padding: '10px 12px',
+            marginBottom: '18px'
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.74rem',
+              fontWeight: 700,
+              color: 'var(--slate-600)',
+              marginBottom: '6px'
+            }}
+          >
+            <Sparkles size={12} color="var(--blue-600)" />
+            <span>{lang === 'te' ? 'త్వరిత టెస్ట్ డెమో ఖాతాలు:' : 'Quick Test Demo Credentials:'}</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginBottom: '6px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
             <button
               type="button"
-              onClick={fillPatientPhoneDemo}
+              onClick={fillPatientDemo}
               className="btn btn-outline btn-sm"
-              style={{ fontSize: '0.73rem', padding: '6px 4px', justifyContent: 'center' }}
-              title="Test Patient login with Mobile Number (9849012345)"
+              style={{ fontSize: '0.72rem', padding: '5px 4px', justifyContent: 'center' }}
+              title="Test Patient (9849012345 / MPIN: 123456)"
             >
               <UserIcon size={12} color="var(--blue-600)" />
-              {t.patientRole} (Phone)
+              Patient
             </button>
-            <button
-              type="button"
-              onClick={fillPatientAadharDemo}
-              className="btn btn-outline btn-sm"
-              style={{ fontSize: '0.73rem', padding: '6px 4px', justifyContent: 'center' }}
-              title="Test Patient login with Aadhaar (567890123456)"
-            >
-              <UserIcon size={12} color="#0d9488" />
-              {t.patientRole} (Aadhaar)
-            </button>
-            <button
-              type="button"
-              onClick={fillPatientEmailDemo}
-              className="btn btn-outline btn-sm"
-              style={{ fontSize: '0.73rem', padding: '6px 4px', justifyContent: 'center' }}
-              title="Test Patient login with Email (patient@medislot.gov.in)"
-            >
-              <UserIcon size={12} color="var(--slate-600)" />
-              {t.patientRole} (Email)
-            </button>
-          </div>
-          <div style={{ display: 'flex', gap: '6px' }}>
             <button
               type="button"
               onClick={fillDoctorDemo}
               className="btn btn-outline btn-sm"
-              style={{ flex: 1, fontSize: '0.74rem', padding: '6px 4px', justifyContent: 'center' }}
+              style={{ fontSize: '0.72rem', padding: '5px 4px', justifyContent: 'center' }}
+              title="Test Doctor (dr.ramesh@medislot.gov.in)"
             >
               <Stethoscope size={12} color="var(--emerald-600)" />
-              {t.doctorRole} (Dr. Ramesh)
+              Doctor
             </button>
             <button
               type="button"
               onClick={fillAdminDemo}
               className="btn btn-outline btn-sm"
-              style={{ flex: 1, fontSize: '0.74rem', padding: '6px 4px', justifyContent: 'center' }}
+              style={{ fontSize: '0.72rem', padding: '5px 4px', justifyContent: 'center' }}
+              title="Test Administrator"
             >
-              <ShieldCheck size={12} color="var(--navy-700)" />
-              {t.adminRole}
+              <ShieldCheck size={12} color="var(--indigo-600)" />
+              Admin
             </button>
           </div>
         </div>
 
-        {/* Unified Login Form */}
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-              <label className="form-label" style={{ margin: 0, fontWeight: 700 }}>
-                {t.loginIdentifier || 'Email / Phone / Aadhaar Number'}
+        {/* Patient Form (Mobile Number + 6-Digit MPIN) */}
+        {activeTab === 'PATIENT' && (
+          <form onSubmit={handlePatientSubmit} noValidate>
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 700 }}>
+                {lang === 'te' ? 'మొబైల్ నంబర్ *' : 'Mobile Number *'}
               </label>
-              {detectedType && (
-                <span style={{
-                  fontSize: '0.70rem',
-                  fontWeight: 700,
-                  padding: '2px 8px',
-                  borderRadius: '10px',
-                  background: detectedType === 'email' ? 'var(--blue-50)' : detectedType === 'phone' ? 'var(--emerald-50)' : '#fef3c7',
-                  color: detectedType === 'email' ? 'var(--blue-700)' : detectedType === 'phone' ? 'var(--emerald-700)' : '#92400e',
-                  border: '1px solid currentColor'
-                }}>
-                  {detectedType === 'email' && '📧 Email'}
-                  {detectedType === 'phone' && '📱 Mobile Phone'}
-                  {detectedType === 'aadhar' && '🪪 Aadhaar Number'}
-                </span>
-              )}
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    background: 'var(--slate-100)',
+                    border: '1px solid var(--slate-300)',
+                    borderRadius: '8px',
+                    padding: '9px 12px',
+                    fontSize: '0.88rem',
+                    fontWeight: 700,
+                    color: 'var(--slate-700)',
+                    userSelect: 'none'
+                  }}
+                >
+                  <span>🇮🇳</span>
+                  <span>+91</span>
+                </div>
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  className="form-input"
+                  required
+                  maxLength={10}
+                  placeholder="9848012345"
+                  value={patientPhone}
+                  onChange={(e) => setPatientPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  autoComplete="username"
+                  style={{ flex: 1 }}
+                />
+              </div>
             </div>
-            <div style={{ position: 'relative' }}>
+
+            <div className="form-group">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <label className="form-label" style={{ margin: 0, fontWeight: 700 }}>
+                  {lang === 'te' ? '6 అంకెల ఎంపిన్ (MPIN) *' : '6-Digit MPIN *'}
+                </label>
+                <Link
+                  to="/patient/login"
+                  style={{ fontSize: '0.74rem', color: 'var(--blue-600)', textDecoration: 'none', fontWeight: 600 }}
+                >
+                  {lang === 'te' ? 'రీసెట్ చేయాలా?' : 'Forgot MPIN?'}
+                </Link>
+              </div>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showMpin ? 'text' : 'password'}
+                  inputMode="numeric"
+                  pattern="\d*"
+                  maxLength={6}
+                  className="form-input"
+                  required
+                  placeholder="••••••"
+                  value={patientMpin}
+                  onChange={(e) => setPatientMpin(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  autoComplete="current-password"
+                  style={{
+                    letterSpacing: patientMpin.length > 0 ? '6px' : 'normal',
+                    fontWeight: 700,
+                    paddingRight: '38px',
+                    fontSize: '1.05rem'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowMpin(!showMpin)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--slate-400)',
+                    cursor: 'pointer',
+                    padding: 0
+                  }}
+                  title={showMpin ? 'Hide MPIN' : 'Show MPIN'}
+                >
+                  {showMpin ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--slate-500)', marginTop: '4px' }}>
+                {lang === 'te' ? '6 అంకెల వ్యక్తిగత భద్రతా కోడ్' : '6-digit numeric security code'}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading || patientPhone.length !== 10 || patientMpin.length !== 6}
+              style={{ width: '100%', height: '46px', marginTop: '10px', fontSize: '0.94rem', fontWeight: 700 }}
+            >
+              {loading ? (lang === 'te' ? 'సైన్ ఇన్ చేస్తోంది...' : 'Signing In...') : (lang === 'te' ? 'సైన్ ఇన్' : 'Sign In')}
+              <ArrowRight size={16} />
+            </button>
+
+            <div style={{ borderTop: '1px solid var(--slate-200)', marginTop: '22px', paddingTop: '16px', textAlign: 'center', fontSize: '0.85rem' }}>
+              <span style={{ color: 'var(--slate-500)' }}>
+                {lang === 'te' ? 'మెడిస్లాట్‌కు కొత్తవారా? ' : 'New to MediSlot? '}
+              </span>
+              <Link to="/patient/register" style={{ fontWeight: 700, color: 'var(--blue-600)' }}>
+                {lang === 'te' ? 'ఖాతాను సృష్టించండి' : 'Create an account'}
+              </Link>
+            </div>
+          </form>
+        )}
+
+        {/* Staff Form (Doctor / Admin) */}
+        {activeTab === 'STAFF' && (
+          <form onSubmit={handleStaffSubmit} noValidate>
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 700 }}>
+                {lang === 'te' ? 'అధికారిక ఇమెయిల్ లేదా ఫోన్ *' : 'Official Email or Phone *'}
+              </label>
               <input
                 type="text"
                 className="form-input"
                 required
-                placeholder={t.loginIdentifierPlaceholder || 'Email, 10-digit mobile, or 12-digit Aadhaar'}
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="dr.name@medislot.gov.in"
+                value={staffIdentifier}
+                onChange={(e) => setStaffIdentifier(e.target.value)}
                 autoComplete="username"
               />
             </div>
-            <div style={{ display: 'flex', gap: '8px', fontSize: '0.72rem', color: 'var(--slate-500)', marginTop: '4px' }}>
-              <span>📧 Email</span>
-              <span>·</span>
-              <span>📱 10-digit Mobile</span>
-              <span>·</span>
-              <span>🪪 12-digit Aadhaar</span>
+
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 700 }}>
+                {lang === 'te' ? 'పాస్‌వర్డ్ *' : 'Password *'}
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showStaffPassword ? 'text' : 'password'}
+                  className="form-input"
+                  required
+                  placeholder="••••••••••••"
+                  value={staffPassword}
+                  onChange={(e) => setStaffPassword(e.target.value)}
+                  autoComplete="current-password"
+                  style={{ paddingRight: '38px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowStaffPassword(!showStaffPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--slate-400)',
+                    cursor: 'pointer',
+                    padding: 0
+                  }}
+                >
+                  {showStaffPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="form-group">
-            <label className="form-label">{t.passwordLabel}</label>
-            <div style={{ position: 'relative' }}>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                className="form-input"
-                required
-                placeholder="••••••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                style={{ paddingRight: '40px' }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--slate-400)',
-                  cursor: 'pointer',
-                  padding: 0
-                }}
-                title={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading || !staffIdentifier.trim() || !staffPassword}
+              style={{ width: '100%', height: '46px', marginTop: '10px', fontSize: '0.94rem', fontWeight: 700, background: 'linear-gradient(135deg, #059669 0%, #047857 100%)' }}
+            >
+              {loading ? (lang === 'te' ? 'ధృవీకరిస్తోంది...' : 'Authenticating...') : (lang === 'te' ? 'స్టాఫ్ సైన్ ఇన్' : 'Staff Sign In')}
+              <ArrowRight size={16} />
+            </button>
+
+            <div style={{ borderTop: '1px solid var(--slate-200)', marginTop: '22px', paddingTop: '16px', textAlign: 'center', fontSize: '0.85rem' }}>
+              <span style={{ color: 'var(--slate-500)' }}>
+                {lang === 'te' ? 'కొత్త వైద్యుడిగా చేరుతున్నారా? ' : 'New government physician? '}
+              </span>
+              <Link to="/doctor/register" style={{ fontWeight: 700, color: 'var(--emerald-600)' }}>
+                {lang === 'te' ? 'ఇక్కడ దరఖాస్తు చేయండి' : 'Apply for Doctor Roster'}
+              </Link>
             </div>
-          </div>
-
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={loading}
-            style={{ width: '100%', marginTop: '12px', padding: '12px', fontSize: '0.98rem' }}
-          >
-            {loading ? t.authenticating : t.signInBtn}
-            <ArrowRight size={17} />
-          </button>
-        </form>
-
-        {/* Role Helper Info */}
-        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '10px 14px', marginTop: '20px', fontSize: '0.78rem', color: '#166534', lineHeight: 1.45 }}>
-          {t.autoRedirectNotice}
-        </div>
-
-        {/* Registration Options */}
-        <div style={{ borderTop: '1px solid var(--slate-200)', marginTop: '22px', paddingTop: '18px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'center', fontSize: '0.84rem' }}>
-          <div>
-            <span style={{ color: 'var(--slate-500)' }}>{t.newPatientQuestion} </span>
-            <Link to="/patient/register" style={{ fontWeight: 700, color: 'var(--blue-600)' }}>
-              {t.registerAsPatient}
-            </Link>
-          </div>
-          <div>
-            <span style={{ color: 'var(--slate-500)' }}>{t.doctorJoiningQuestion} </span>
-            <Link to="/doctor/register" style={{ fontWeight: 700, color: 'var(--emerald-600)' }}>
-              {t.registerAsDoctor}
-            </Link>
-          </div>
-        </div>
+          </form>
+        )}
       </div>
     </div>
   );
 };
-
+export default UnifiedLogin;

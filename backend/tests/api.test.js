@@ -45,7 +45,7 @@ describe('Medislot Backend Comprehensive Tests', () => {
         assert.ok(dataDepts.error.includes('Authentication required'));
     });
 
-    const testPatientEmail = `testpatient_${Date.now()}@example.com`;
+    const testPatientPhone = `98481${String(Date.now()).slice(-5)}`;
     let patientToken = '';
     let patientUserId = '';
 
@@ -55,10 +55,9 @@ describe('Medislot Backend Comprehensive Tests', () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 fullName: 'K. Sita Devi',
-                email: testPatientEmail,
-                phone: '9848123456',
-                password: 'PatientPassword@2026',
-                confirmPassword: 'PatientPassword@2026'
+                phone: testPatientPhone,
+                mpin: '654321',
+                confirmMpin: '654321'
             })
         });
 
@@ -66,7 +65,6 @@ describe('Medislot Backend Comprehensive Tests', () => {
         const data = await res.json();
         assert.ok(data.token);
         assert.equal(data.user.role, 'PATIENT');
-        assert.equal(data.user.email, testPatientEmail);
         patientToken = data.token;
         patientUserId = data.user.id;
     });
@@ -95,10 +93,9 @@ describe('Medislot Backend Comprehensive Tests', () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 fullName: 'Duplicate Sita',
-                email: testPatientEmail,
-                phone: '9848123456',
-                password: 'PatientPassword@2026',
-                confirmPassword: 'PatientPassword@2026'
+                phone: testPatientPhone,
+                mpin: '654321',
+                confirmMpin: '654321'
             })
         });
 
@@ -112,8 +109,8 @@ describe('Medislot Backend Comprehensive Tests', () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                email: testPatientEmail,
-                password: 'PatientPassword@2026'
+                phone: testPatientPhone,
+                mpin: '654321'
             })
         });
 
@@ -128,14 +125,14 @@ describe('Medislot Backend Comprehensive Tests', () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                email: testPatientEmail,
-                password: 'WrongPassword@123'
+                phone: testPatientPhone,
+                mpin: '000000'
             })
         });
 
         assert.equal(res.status, 401);
         const data = await res.json();
-        assert.equal(data.error, 'Invalid email or password.');
+        assert.ok(data.error);
     });
 
     const testDoctorEmail = `testdoctor_${Date.now()}@example.com`;
@@ -379,8 +376,8 @@ describe('Medislot Backend Comprehensive Tests', () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                email: testPatientEmail,
-                password: 'PatientPassword@2026'
+                identifier: testPatientPhone,
+                mpin: '654321'
             })
         });
 
@@ -394,15 +391,15 @@ describe('Medislot Backend Comprehensive Tests', () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                identifier: '9848123456',
-                password: 'PatientPassword@2026'
+                identifier: testPatientPhone,
+                mpin: '654321'
             })
         });
 
         assert.equal(res.status, 200);
         const data = await res.json();
         assert.equal(data.user.role, 'PATIENT');
-        assert.equal(data.user.phone, '9848123456');
+        assert.equal(data.user.phone, testPatientPhone);
     });
 
     test('20c. Unified login succeeds using 12-digit Aadhaar number', async () => {
@@ -411,7 +408,7 @@ describe('Medislot Backend Comprehensive Tests', () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 identifier: '567890123456',
-                password: 'PatientPass@2026'
+                password: '123456'
             })
         });
 
@@ -426,8 +423,8 @@ describe('Medislot Backend Comprehensive Tests', () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                identifier: '9848123456',
-                password: 'PatientPassword@2026'
+                identifier: testPatientPhone,
+                mpin: '654321'
             })
         });
         assert.equal(resPhone.status, 200);
@@ -437,7 +434,7 @@ describe('Medislot Backend Comprehensive Tests', () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 identifier: '567890123456',
-                password: 'PatientPass@2026'
+                mpin: '123456'
             })
         });
         assert.equal(resAadhar.status, 200);
@@ -554,16 +551,15 @@ describe('Medislot Backend Comprehensive Tests', () => {
 
     test('26. Patient data isolation prevents accessing another patient\'s appointment (Phase Three Security)', async () => {
         // Register a second patient
-        const secondPatientEmail = `second_patient_${Date.now()}@example.com`;
+        const secondPatientPhone = `98495${String(Date.now()).slice(-5)}`;
         const regRes = await fetch(`${baseUrl}/api/v1/auth/patient/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 fullName: 'Another Patient',
-                email: secondPatientEmail,
-                phone: '9849556677',
-                password: 'SecondPassword@2026',
-                confirmPassword: 'SecondPassword@2026'
+                phone: secondPatientPhone,
+                mpin: '654321',
+                confirmMpin: '654321'
             })
         });
         assert.equal(regRes.status, 201);
@@ -688,8 +684,8 @@ describe('Medislot Backend Comprehensive Tests', () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                email: testPatientEmail,
-                password: 'PatientPassword@2026'
+                phone: testPatientPhone,
+                mpin: '654321'
             })
         });
         assert.equal(loginBlockedRes.status, 403);
